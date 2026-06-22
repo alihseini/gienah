@@ -1,0 +1,86 @@
+/* Agile — sticky scroll stage; cards arrive from the left one-by-one over a stable
+   background, with synced shooting-light streaks. */
+.beam {
+  position: absolute;
+  inset: -20% -10%;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(118deg, transparent 30%, rgba(244, 198, 95, 0.1) 48%, rgba(88, 171, 206, 0.06) 56%, transparent 72%);
+}
+.stage { position: relative; }
+.sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -45%;
+  width: 45%;
+  pointer-events: none;
+  z-index: 40;
+  background: linear-gradient(100deg, transparent, rgba(244, 198, 95, 0.18), rgba(88, 171, 206, 0.12), transparent);
+  transform: skewX(-14deg);
+  animation: agileSweep 1s var(--ease-out) forwards;
+}
+@keyframes agileSweep {
+  0% { left: -45%; opacity: 0; }
+  18% { opacity: 1; }
+  100% { left: 125%; opacity: 0; }
+}
+.panel {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
+  padding: clamp(26px, 3vw, 44px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(900px 360px at -5% -10%, rgba(88, 171, 206, 0.14), transparent 60%),
+    radial-gradient(700px 320px at 110% 120%, rgba(244, 198, 95, 0.12), transparent 60%),
+    rgba(12, 23, 41, 0.92);
+  box-shadow: 0 40px 90px -40px rgba(2, 10, 22, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(24px, 3vw, 48px);
+  align-items: center;
+}
+.iconChip {
+  width: 56px;
+  height: 56px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  flex: none;
+}
+.num { font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.04em; }
+.name { font-size: clamp(28px, 3.4vw, 44px); font-weight: 700; letter-spacing: -0.03em; color: #fff; margin: 16px 0 16px; line-height: 1.05; }
+.item { display: flex; gap: 9px; align-items: center; font-size: clamp(14px, 1.1vw, 16px); color: rgba(232, 238, 246, 0.85); padding: 5px 0; }
+.dot { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+.illus { position: relative; height: 100%; min-height: 230px; border-radius: 18px; overflow: hidden; }
+.illusGlow { position: absolute; inset: 0; }
+.illusIcon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.streak {
+  position: absolute;
+  height: 2px;
+  width: 170%;
+  left: -35%;
+  border-radius: 2px;
+  transform: rotate(-32deg);
+  background: linear-gradient(90deg, transparent, rgba(244, 198, 95, 0.85), transparent);
+  filter: blur(0.4px);
+  animation: streakDrift var(--sd, 7s) var(--ease-in-out) infinite;
+}
+.streakBlue { background: linear-gradient(90deg, transparent, rgba(88, 171, 206, 0.8), transparent); }
+@keyframes streakDrift {
+  0%, 100% { transform: rotate(-32deg) translateX(-7%); opacity: 0.5; }
+  50% { transform: rotate(-32deg) translateX(7%); opacity: 1; }
+}
+@media (max-width: 760px) {
+  .panel { grid-template-columns: 1fr; }
+  .illus { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .streak, .sweep { animation: none; }
+}

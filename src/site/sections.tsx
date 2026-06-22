@@ -10,6 +10,8 @@ import { BackgroundBeams } from "./BackgroundBeams";
 import { StarField } from "./StarField";
 import { Aurora } from "./Aurora";
 import { HeadingReveal } from "./HeadingReveal";
+import m from "./moreExplorer.module.css";
+import ag from "./agileStage.module.css";
 import productsData from "@/data/products.json";
 import servicesData from "@/data/services.json";
 import agileData from "@/data/agile.json";
@@ -326,27 +328,67 @@ export function Featured() {
   );
 }
 
+function MorePreview({ p }: { p: Product }) {
+  const media = p.banner || p.shots[0] || null;
+  const toneBg = p.tone === "gold" ? "linear-gradient(150deg, #f4d485, #e2aa3b 70%, #c68d28)" : "linear-gradient(150deg, #a7d8f1, #2a92cc 70%, #1f7cae)";
+  const tags = p.tech.split("·").map((x) => x.trim()).filter(Boolean).slice(0, 4);
+  return (
+    <a href={`/projects/${p.id}`} className={m.preview}>
+      <div className={m.media} key={`media-${p.id}`}>
+        {media ? (
+          <img src={media} alt={p.title} />
+        ) : (
+          <div className={m.placeholder} style={{ background: toneBg }}>
+            <img src="/assets/logo-mark.png" alt="" style={{ height: 56, width: "auto", opacity: 0.92 }} />
+          </div>
+        )}
+      </div>
+      <div className={m.overlay} />
+      <div className={m.body} key={`body-${p.id}`}>
+        <div className={m.badges}>
+          <Badge variant={p.tone === "gold" ? "warning" : "accent"} className={p.tone === "gold" ? s.darkBadgeWarning : s.darkBadgeAccent}>{p.category}</Badge>
+          <Badge variant="neutral" className={s.darkBadgeNeutral}>{p.year}</Badge>
+        </div>
+        <div className={m.pTitle}>{p.title}</div>
+        <div className={m.pDesc}>{p.blurb}</div>
+        <div className={m.tags}>
+          {tags.map((t) => <span key={t} className={m.tag}>{t}</span>)}
+        </div>
+      </div>
+    </a>
+  );
+}
+
 export function MoreProducts() {
+  const [active, setActive] = React.useState(MORE[0].id);
+  const cur = MORE.find((p) => p.id === active) || MORE[0];
   return (
     <section className={s.page} data-sx="front" style={{ background: "linear-gradient(180deg, #0a1322, #0c1a30)", overflow: "hidden", padding: "120px 0 96px" }}>
-      <AnimatedBG variant="lines" />
-      <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ maxWidth: 920, position: "relative", zIndex: 1 }}>
+      <div style={{ position: "absolute", inset: 0, opacity: 0.4, zIndex: 0 }}><AnimatedBG variant="blobs" /></div>
+      <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1 }}>
         <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
-        <Reveal delay={60}><p style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 30px" }}>Tap any project to open its case study.</p></Reveal>
-        <div className={s.flowlist} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
-          {MORE.map((p, i) => (
-            <Reveal key={p.id} delay={i * 55} variant={i % 2 ? "right" : "left"}>
-              <a className={s.listrow} href={`/projects/${p.id}`}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 18 }}>
-                  <span className={s.listrowNum}>#{p.id}</span>
-                  <span className={s.listrowTitle}>{p.title}</span>
+        <Reveal delay={60}><p style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 8px" }}>Hover a project to preview it — click to open the case study.</p></Reveal>
+        <div className={m.explorer}>
+          <div className={m.list} onMouseLeave={() => setActive(MORE[0].id)}>
+            {MORE.map((p) => (
+              <a
+                key={p.id}
+                href={`/projects/${p.id}`}
+                className={m.row}
+                onMouseEnter={() => setActive(p.id)}
+                onFocus={() => setActive(p.id)}
+              >
+                <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+                  <span className={m.num}>#{p.id}</span>
+                  <span className={m.title}>{p.title}</span>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-                  <span className={s.listrowArrow}><Icon name="arrow-up-right" size={26} /></span>
-                </div>
+                <span className={m.arrow}><Icon name="arrow-up-right" size={22} /></span>
               </a>
-            </Reveal>
-          ))}
+            ))}
+          </div>
+          <Reveal variant="right" className={m.previewWrap}>
+            <MorePreview p={cur} />
+          </Reveal>
         </div>
       </div>
     </section>
@@ -354,30 +396,133 @@ export function MoreProducts() {
 }
 
 /* ---------------- agile ---------------- */
-export function Agile() {
+function AgilePanel({ st, i }: { st: AgileStage; i: number }) {
+  const gold = i % 2 === 1;
+  const accent = gold ? "var(--gold-400)" : "var(--accent-400)";
+  const rgb = gold ? "244,198,95" : "88,171,206";
   return (
-    <section id="agile" className={s.page} data-sx="back" style={{ background: "linear-gradient(150deg, #0c2236 0%, #134063 26%, #1f5478 44%, #6e5a2c 64%, #b08a36 82%, #14304d 100%)", color: "var(--ink-text)", overflow: "hidden", padding: "120px 0" }}>
-      <div className={[s.wrap, s.layer].join(" ")} data-layer="back" style={{ position: "relative", zIndex: 1 }}>
-        <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 16 }}>
-          {AGILE.map((st, i) => (
-            <Reveal key={st.name} delay={i * 90} variant="scale" className={s.stage}>
-              <div className={s.stagecard} style={{ background: "var(--ink-surface)", border: "1px solid var(--ink-border)", borderRadius: 16, padding: "24px 18px", height: "100%" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                  <span style={{ width: 40, height: 40, borderRadius: 11, background: "rgba(255,255,255,0.06)", border: "1px solid var(--ink-border)", display: "flex", alignItems: "center", justifyContent: "center", color: i % 2 ? "var(--gold-400)" : "var(--accent-400)" }}><Icon name={st.icon} size={20} /></span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--ink-text-dim)" }}>0{i + 1}</span>
-                </div>
-                <div style={{ fontSize: 18, fontWeight: 600, color: "#fff", marginBottom: 12 }}>{st.name}</div>
-                <div className={s.stageItems} style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                  {st.items.map((it) => (
-                    <div key={it} style={{ fontSize: 13, color: "var(--ink-text-dim)", display: "flex", gap: 7, alignItems: "center" }}>
-                      <span style={{ width: 4, height: 4, borderRadius: 9, background: i % 2 ? "var(--gold-400)" : "var(--accent-400)", flex: "none" }} />{it}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Reveal>
+    <div className={ag.panel}>
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <span className={ag.iconChip} style={{ color: accent }}><Icon name={st.icon} size={26} /></span>
+          <span className={ag.num} style={{ color: accent }}>0{i + 1}</span>
+        </div>
+        <div className={ag.name}>{st.name}</div>
+        <div>
+          {st.items.map((it) => (
+            <div key={it} className={ag.item}><span className={ag.dot} style={{ background: accent }} />{it}</div>
           ))}
+        </div>
+      </div>
+      <div className={ag.illus}>
+        <div className={ag.illusGlow} style={{ background: `radial-gradient(circle at 60% 42%, rgba(${rgb},0.28), transparent 65%)` }} />
+        <div className={ag.illusIcon} style={{ color: `rgba(${rgb},0.5)` }}><Icon name={st.icon} size={132} /></div>
+        <span className={[ag.streak, gold ? "" : ag.streakBlue].join(" ")} style={{ top: "22%", ["--sd" as string]: "7s" } as React.CSSProperties} />
+        <span className={ag.streak} style={{ top: "50%", ["--sd" as string]: "9s", animationDelay: "-2s" } as React.CSSProperties} />
+        <span className={[ag.streak, gold ? "" : ag.streakBlue].join(" ")} style={{ top: "76%", ["--sd" as string]: "8s", animationDelay: "-4s" } as React.CSSProperties} />
+      </div>
+    </div>
+  );
+}
+
+function AgileSlide({ st, d, i }: { st: AgileStage; d: number; i: number }) {
+  const cur = d === 0;
+  const past = d < 0;
+  const depth = Math.min(-d, 3);
+  let transform: string, opacity: number | string, filter: string, zIndex: number;
+  if (cur) {
+    transform = "translate3d(0,0,0) scale(1)";
+    opacity = 1; filter = "none"; zIndex = 30;
+  } else if (past) {
+    transform = `translate3d(${(depth * 42).toFixed(0)}px, 0, 0) scale(${(1 - depth * 0.05).toFixed(3)})`;
+    opacity = Math.max(0.22, 1 - depth * 0.3).toFixed(3);
+    filter = `brightness(${Math.max(0.5, 1 - depth * 0.16).toFixed(2)})`;
+    zIndex = 30 - depth;
+  } else {
+    transform = "translate3d(-120px, 0, 0) scale(.96)";
+    opacity = 0; filter = "blur(6px)"; zIndex = 1;
+  }
+  return (
+    <div
+      aria-hidden={!cur}
+      style={{
+        position: "absolute", inset: 0,
+        transform, opacity, filter, zIndex,
+        pointerEvents: cur ? "auto" : "none",
+        transformOrigin: "center left",
+        transition: "transform .72s cubic-bezier(.22,1,.36,1), opacity .55s var(--ease-out), filter .55s var(--ease-out)",
+        willChange: "transform, opacity",
+      }}
+    >
+      <AgilePanel st={st} i={i} />
+    </div>
+  );
+}
+
+export function Agile() {
+  const trackRef = React.useRef<HTMLDivElement>(null);
+  const idxRef = React.useRef(0);
+  const [active, setActive] = React.useState(0);
+  const [reduce] = React.useState(reduceMotion);
+  const N = AGILE.length;
+  const SECTION_BG = "linear-gradient(150deg, #0c2236 0%, #134063 26%, #1f5478 44%, #6e5a2c 64%, #b08a36 82%, #14304d 100%)";
+
+  React.useEffect(() => {
+    if (reduce) return;
+    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const el = trackRef.current; if (!el) return;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const dist = el.offsetHeight - vh;
+      const scrolled = clamp(-r.top, 0, dist);
+      const raw = dist > 0 ? clamp(scrolled / (dist * 0.9), 0, 1) : 0;
+      const ni = clamp(Math.floor(raw * N), 0, N - 1);
+      if (ni !== idxRef.current) { idxRef.current = ni; setActive(ni); }
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, [reduce, N]);
+
+  const Header = (
+    <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production — each stage arrives as you scroll." />
+  );
+
+  if (reduce) {
+    return (
+      <section id="agile" style={{ background: SECTION_BG, color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative" }}>
+        <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
+          {Header}
+          <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+            {AGILE.map((st, i) => <div key={st.name} style={{ minHeight: 280, position: "relative" }}><AgilePanel st={st} i={i} /></div>)}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section id="agile" style={{ background: "#0c1a2b", color: "var(--ink-text)", overflow: "clip", position: "relative" }}>
+      <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 86}vh` }}>
+        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "96px 0 52px", boxSizing: "border-box", overflow: "hidden", background: SECTION_BG }}>
+          <div className={ag.beam} aria-hidden="true" />
+          <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
+            {Header}
+            <div className={ag.stage} style={{ position: "relative", height: "clamp(360px, 52vh, 460px)", marginTop: 8 }}>
+              <span key={active} className={ag.sweep} aria-hidden="true" />
+              {AGILE.map((st, i) => <AgileSlide key={st.name} st={st} d={i - active} i={i} />)}
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", gap: 9, marginTop: 22 }}>
+              {AGILE.map((st, i) => (
+                <span key={st.name} aria-hidden="true" style={{ width: i === active ? 26 : 8, height: 8, borderRadius: 99, background: i === active ? "var(--brand-gradient)" : "rgba(255,255,255,0.22)", transition: "width .4s var(--ease-out), background .4s var(--ease-out)" }} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

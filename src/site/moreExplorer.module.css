@@ -1,0 +1,71 @@
+/* More from the studio — premium project explorer (list + live preview). */
+.explorer {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
+  margin-top: 10px;
+}
+.list { display: flex; flex-direction: column; }
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 17px 10px;
+  border-top: 1px solid var(--border-subtle);
+  transition: opacity 0.35s var(--ease-out), padding 0.35s var(--ease-out);
+}
+.row:last-child { border-bottom: 1px solid var(--border-subtle); }
+.list:hover .row:not(:hover) { opacity: 0.45; }
+.num {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-tertiary);
+  width: 40px;
+  flex: none;
+  transition: color 0.3s;
+}
+.title {
+  font-size: clamp(20px, 2.4vw, 30px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-secondary);
+  transition: color 0.3s var(--ease-out), transform 0.35s var(--ease-out);
+  display: inline-block;
+}
+.arrow { color: var(--gray-300); transition: color 0.3s, transform 0.3s var(--ease-out); }
+.row:hover, .row:focus-visible { padding-left: 16px; outline: none; }
+.row:hover .num, .row:focus-visible .num { color: var(--gold-400); }
+.row:hover .title, .row:focus-visible .title { color: #fff; transform: translateX(4px) scale(1.05); }
+.row:hover .arrow, .row:focus-visible .arrow { color: var(--gold-400); transform: translateX(4px); }
+
+.preview {
+  position: relative;
+  display: block;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 30px 70px -34px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  aspect-ratio: 16 / 11;
+  background: #0c1729;
+}
+.media { position: absolute; inset: 0; animation: expIn 0.55s var(--ease-out); }
+.media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7, 13, 24, 0) 30%, rgba(7, 13, 24, 0.88) 100%); pointer-events: none; }
+.body { position: absolute; left: 0; right: 0; bottom: 0; padding: clamp(18px, 2.4vw, 28px); animation: expIn 0.55s var(--ease-out); }
+.badges { display: flex; gap: 8px; margin-bottom: 12px; }
+.pTitle { font-size: clamp(22px, 2.6vw, 32px); font-weight: 700; letter-spacing: -0.02em; color: #fff; }
+.pDesc { font-size: 14.5px; line-height: 1.55; color: rgba(234, 241, 248, 0.82); margin-top: 8px; max-width: 520px; }
+.tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.tag { font-size: 12px; font-weight: 500; color: #fff; padding: 5px 11px; border-radius: 99px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); }
+@keyframes expIn { from { opacity: 0; transform: translateY(10px) scale(1.02); } to { opacity: 1; transform: none; } }
+@media (max-width: 920px) {
+  .explorer { grid-template-columns: 1fr; }
+  .previewWrap { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .media, .body { animation: none; }
+  .title { transition: none; }
+}
