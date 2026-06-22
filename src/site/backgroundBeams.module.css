@@ -1,0 +1,60 @@
+/* Background Beams With Collision — brand-colored falling beams + bottom explosions. */
+.root {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(120% 80% at 50% 0%, rgba(42, 146, 204, 0.1), transparent 60%);
+}
+.beam {
+  position: absolute;
+  top: 0;
+  border-radius: 9999px;
+  transform: translateY(-25vh);
+  opacity: 0;
+  animation: beamFall var(--dur, 8s) linear var(--delay, 0s) infinite;
+  will-change: transform, opacity;
+}
+@keyframes beamFall {
+  0% { transform: translateY(-25vh); opacity: 0; }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
+  100% { transform: translateY(105vh); opacity: 1; }
+}
+.explosion {
+  position: absolute;
+  bottom: 8vh;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+}
+.flash {
+  position: absolute;
+  left: -32px;
+  top: -32px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  animation: flash 0.5s ease-out forwards;
+}
+@keyframes flash {
+  0% { opacity: 0.9; transform: scale(0.4); }
+  100% { opacity: 0; transform: scale(1.7); }
+}
+.spark {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+  animation: spark var(--d, 1s) ease-out forwards;
+}
+@keyframes spark {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(var(--tx, 0), var(--ty, 0)); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .beam { animation: none; transform: none; top: auto; bottom: 0; opacity: 0.45; height: 38vh !important; }
+  .explosion { display: none; }
+}

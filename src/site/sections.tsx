@@ -2,10 +2,11 @@
 import React from "react";
 import { Button, Badge, Card, Icon } from "@/components";
 import {
-  Reveal, Parallax, CountUp, SectionHead, AnimatedBG, siteStyles as s, go,
+  Reveal, CountUp, SectionHead, AnimatedBG, siteStyles as s, go,
 } from "./helpers";
 import { LightPillar } from "./LightPillar";
 import { ParticleField } from "./ParticleField";
+import { BackgroundBeams } from "./BackgroundBeams";
 import productsData from "@/data/products.json";
 import servicesData from "@/data/services.json";
 import agileData from "@/data/agile.json";
@@ -25,9 +26,7 @@ const reduceMotion = () =>
 export function Hero() {
   return (
     <section id="top" className={s.page} style={{ overflow: "hidden", padding: "150px 0 110px" }}>
-      <Parallax factor={0.18} style={{ position: "absolute", inset: "-22% 0", zIndex: 0 }}>
-        <AnimatedBG variant="mesh" />
-      </Parallax>
+      <BackgroundBeams />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
         <Reveal>
           <div style={{ display: "inline-flex", marginBottom: 26 }}>
