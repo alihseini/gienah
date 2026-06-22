@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import {
-  ScrollProgress, Marquee, useOffscreenPause, useLayerChoreography, useSectionEntrance, siteStyles as s,
+  ScrollProgress, useOffscreenPause, useLayerChoreography, useSectionEntrance, siteStyles as s,
 } from "./helpers";
 import { Nav } from "./Nav";
+import { LogoTicker } from "./LogoTicker";
 import { Hero, Services, Featured, MoreProducts, Agile, About, Contact, Footer } from "./sections";
-import site from "@/data/site.json";
 
 export function SiteApp() {
   useOffscreenPause();
@@ -16,7 +16,7 @@ export function SiteApp() {
       <ScrollProgress />
       <Nav />
       <Hero />
-      <Marquee items={site.marquee} />
+      <LogoTicker />
       <Services />
       <Featured />
       <MoreProducts />
