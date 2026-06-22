@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import s from "./site.module.css";
+import { DiaTextReveal } from "./DiaTextReveal";
 
 /* ---------------- brand colors + helpers ---------------- */
 export const C = { blue1: "#58ABCE", blue2: "#2A92CC", gold1: "#F4C65F", gold2: "#E2AA3B" };
@@ -392,7 +393,7 @@ export function SectionHead({ tag, title, sub, light }: { tag: string; title: st
         <div className={s.eyebrow} style={light ? { color: "var(--accent-300)" } : undefined}>{tag}</div>
       </Reveal>
       <Reveal delay={80} variant="blur">
-        <h2 style={{ fontSize: "clamp(30px, 4.4vw, 46px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.08, color: light ? "#fff" : "var(--text-primary)" }}>{title}</h2>
+        <h2 style={{ fontSize: "clamp(30px, 4.4vw, 46px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.08 }}><DiaTextReveal text={title} /></h2>
       </Reveal>
       {sub && (
         <Reveal delay={140}>
