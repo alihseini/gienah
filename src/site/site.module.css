@@ -548,6 +548,23 @@
     0 12px 30px -8px rgba(42, 146, 204, 0.85),
     0 0 34px -6px rgba(88, 171, 206, 0.55);
 }
+.btnSecondaryDark {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.btnSecondaryDark:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-2px);
+}
+.btnGhostDark {
+  color: var(--text-secondary);
+}
+.btnGhostDark:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
 .darkBadgeOutline {
   color: var(--text-secondary);
   border-color: rgba(255, 255, 255, 0.18);

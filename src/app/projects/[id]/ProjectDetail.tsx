@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import { Button, Badge, Icon } from "@/components";
-import { Reveal, Parallax, ScrollProgress } from "@/site/helpers";
+import { Button, Badge, Card, Icon } from "@/components";
+import { Reveal, Parallax, ScrollProgress, AnimatedBG, siteStyles } from "@/site/helpers";
 import productsData from "@/data/products.json";
 import type { Product, Tone } from "@/data/types";
 import d from "./projectDetail.module.css";
@@ -20,7 +20,7 @@ function NotFound() {
       <div>
         <div style={{ fontSize: 22, fontWeight: 600 }}>Project not found</div>
         <p style={{ color: "var(--text-secondary)", marginTop: 8 }}>That case study doesn&apos;t exist.</p>
-        <div style={{ marginTop: 18 }}><Button variant="primary" as="a" href="/">Back to Gienah</Button></div>
+        <div style={{ marginTop: 18 }}><Button variant="primary" className={siteStyles.btnGlow} as="a" href="/">Back to Gienah</Button></div>
       </div>
     </div>
   );
@@ -33,6 +33,7 @@ export function ProjectDetail({ id }: { id: number }) {
   const nextId = ORDER[(idx + 1) % ORDER.length];
   const next = PRODUCTS.find((x) => x.id === nextId)!;
   const shots = p.shots.length ? p.shots : Array.from({ length: 2 }, () => null);
+  const catBadge = p.tone === "gold" ? siteStyles.darkBadgeWarning : siteStyles.darkBadgeAccent;
 
   return (
     <div className={d.page}>
@@ -44,29 +45,29 @@ export function ProjectDetail({ id }: { id: number }) {
             <img src="/assets/logo-mark.png" alt="" style={{ height: 28, width: "auto" }} />
             <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em" }}>Gienah</span>
           </a>
-          <Button size="sm" variant="ghost" as="a" href="/" leadingIcon={<Icon name="arrow-left" size={15} />}>All projects</Button>
+          <Button size="sm" variant="ghost" className={siteStyles.btnGhostDark} as="a" href="/" leadingIcon={<Icon name="arrow-left" size={15} />}>All projects</Button>
         </div>
       </header>
 
       {/* hero / banner */}
-      <section style={{ position: "relative", overflow: "hidden" }}>
-        <Parallax factor={0.18} style={{ position: "absolute", inset: "-20% 0" }}>
-          <div style={{ position: "absolute", inset: 0, background: p.tone === "gold" ? "radial-gradient(700px 320px at 30% 24%, var(--gold-50), transparent 66%)" : "radial-gradient(700px 320px at 30% 24%, var(--accent-50), transparent 66%)" }} />
+      <section style={{ position: "relative", overflow: "hidden", background: "radial-gradient(130% 90% at 50% 0%, #0c1b30 0%, #0a1322 54%, #070d18 100%)" }}>
+        <Parallax factor={0.16} style={{ position: "absolute", inset: "-22% 0", zIndex: 0 }}>
+          <AnimatedBG variant="mesh" />
         </Parallax>
-        <div className={d.wrap} style={{ position: "relative", paddingTop: 60, paddingBottom: 36 }}>
+        <div className={d.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 64, paddingBottom: 40 }}>
           <Reveal>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 18 }}>
-              <Badge variant={p.tone === "gold" ? "warning" : "accent"}>{p.category}</Badge>
-              <Badge variant="neutral">{p.year}</Badge>
+              <Badge variant={p.tone === "gold" ? "warning" : "accent"} className={catBadge}>{p.category}</Badge>
+              <Badge variant="neutral" className={siteStyles.darkBadgeNeutral}>{p.year}</Badge>
             </div>
           </Reveal>
-          <Reveal delay={70} variant="blur"><h1 style={{ fontSize: "clamp(40px, 7vw, 78px)", fontWeight: 700, letterSpacing: "-0.04em", margin: 0, lineHeight: 1.02 }}>{p.title}</h1></Reveal>
+          <Reveal delay={70} variant="blur"><h1 style={{ fontSize: "clamp(40px, 7vw, 78px)", fontWeight: 700, letterSpacing: "-0.04em", margin: 0, lineHeight: 1.02, color: "#fff" }}>{p.title}</h1></Reveal>
           <Reveal delay={130}><div style={{ fontFamily: "var(--font-mono)", fontSize: 13.5, color: "var(--text-tertiary)", marginTop: 16 }}>{p.tech}</div></Reveal>
           {(p.website || p.download) && (
             <Reveal delay={190}>
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 24 }}>
-                {p.website && <Button variant="primary" as="a" href={p.website} target="_blank" rel="noopener" trailingIcon={<Icon name="external-link" size={15} />}>Visit website</Button>}
-                {p.download && <Button variant="secondary" as="a" href={p.download} target="_blank" rel="noopener" leadingIcon={<Icon name="download" size={15} />}>Download</Button>}
+                {p.website && <Button variant="primary" className={siteStyles.btnGlow} as="a" href={p.website} target="_blank" rel="noopener" trailingIcon={<Icon name="external-link" size={15} />}>Visit website</Button>}
+                {p.download && <Button variant="secondary" className={siteStyles.btnSecondaryDark} as="a" href={p.download} target="_blank" rel="noopener" leadingIcon={<Icon name="download" size={15} />}>Download</Button>}
               </div>
             </Reveal>
           )}
@@ -74,7 +75,7 @@ export function ProjectDetail({ id }: { id: number }) {
       </section>
 
       {/* banner image */}
-      <section className={d.wrap} style={{ paddingBottom: 8 }}>
+      <section className={d.wrap} style={{ position: "relative", zIndex: 1, paddingBottom: 8, marginTop: -8 }}>
         <Reveal variant="scale">
           <div className={d.shot} style={{ height: "min(440px, 44vw)", background: p.banner ? "var(--bg-subtle)" : toneBg(p.tone, true) }}>
             {p.banner ? (
@@ -91,30 +92,33 @@ export function ProjectDetail({ id }: { id: number }) {
       </section>
 
       {/* description */}
-      <section className={d.wrap} style={{ paddingTop: 56, paddingBottom: 56 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1fr)", gap: "clamp(28px,5vw,64px)", alignItems: "start" }}>
-          <div>
-            <Reveal><div className={d.eyebrow}>Overview</div></Reveal>
-            {p.desc.map((para, i) => (
-              <Reveal key={i} delay={60 + i * 40}><p style={{ fontSize: 17.5, lineHeight: 1.75, color: "var(--text-secondary)", margin: "16px 0 0" }}>{para}</p></Reveal>
-            ))}
-          </div>
-          <Reveal delay={120} variant="right">
-            <div style={{ border: "1px solid var(--border-subtle)", borderRadius: 14, padding: 20, background: "var(--bg-subtle)" }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14 }}>At a glance</div>
-              {([["Year", p.year], ["Category", p.category], ["Stack", p.tech]] as [string, string][]).map(([k, v]) => (
-                <div key={k} style={{ display: "flex", flexDirection: "column", gap: 2, padding: "10px 0", borderTop: "1px solid var(--border-subtle)" }}>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--text-tertiary)" }}>{k}</span>
-                  <span style={{ fontSize: 14, color: "var(--text-primary)" }}>{v}</span>
-                </div>
+      <section style={{ position: "relative", overflow: "hidden" }}>
+        <AnimatedBG variant="blobs" />
+        <div className={d.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 56, paddingBottom: 56 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1fr)", gap: "clamp(28px,5vw,64px)", alignItems: "start" }}>
+            <div>
+              <Reveal><div className={d.eyebrow}>Overview</div></Reveal>
+              {p.desc.map((para, i) => (
+                <Reveal key={i} delay={60 + i * 40}><p style={{ fontSize: 17.5, lineHeight: 1.75, color: "var(--text-secondary)", margin: "16px 0 0" }}>{para}</p></Reveal>
               ))}
             </div>
-          </Reveal>
+            <Reveal delay={120} variant="right">
+              <Card className={siteStyles.glassCard} padding={22} style={{ borderRadius: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14, color: "#fff" }}>At a glance</div>
+                {([["Year", p.year], ["Category", p.category], ["Stack", p.tech]] as [string, string][]).map(([k, v]) => (
+                  <div key={k} style={{ display: "flex", flexDirection: "column", gap: 2, padding: "10px 0", borderTop: "1px solid var(--border-subtle)" }}>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--text-tertiary)" }}>{k}</span>
+                    <span style={{ fontSize: 14, color: "var(--text-primary)" }}>{v}</span>
+                  </div>
+                ))}
+              </Card>
+            </Reveal>
+          </div>
         </div>
       </section>
 
       {/* screenshots */}
-      <section className={d.wrap} style={{ paddingBottom: 80 }}>
+      <section className={d.wrap} style={{ position: "relative", zIndex: 1, paddingBottom: 80 }}>
         <Reveal><div className={d.eyebrow} style={{ marginBottom: 20 }}>Screens</div></Reveal>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 18 }}>
           {shots.map((src, i) => (
@@ -135,13 +139,14 @@ export function ProjectDetail({ id }: { id: number }) {
       </section>
 
       {/* next + cta */}
-      <section style={{ borderTop: "1px solid var(--border-subtle)", background: "var(--bg-subtle)", padding: "44px 0" }}>
-        <div className={d.wrap} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+      <section style={{ position: "relative", overflow: "hidden", borderTop: "1px solid var(--border-subtle)", background: "var(--bg-subtle)", padding: "52px 0" }}>
+        <AnimatedBG variant="glow" />
+        <div className={d.wrap} style={{ position: "relative", zIndex: 1, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
           <a href={`/projects/${nextId}`} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--text-tertiary)" }}>Next project</span>
-            <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", display: "inline-flex", alignItems: "center", gap: 8 }}>{next.title} <Icon name="arrow-right" size={20} /></span>
+            <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", display: "inline-flex", alignItems: "center", gap: 8, color: "#fff" }}>{next.title} <Icon name="arrow-right" size={20} /></span>
           </a>
-          <Button variant="primary" size="lg" as="a" href="/#contact">Start a project</Button>
+          <Button variant="primary" className={siteStyles.btnGlow} size="lg" as="a" href="/#contact">Start a project</Button>
         </div>
       </section>
     </div>

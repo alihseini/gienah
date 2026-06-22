@@ -1,11 +1,34 @@
-/* Case-study detail page — light theme (uses default tokens). */
-.page { background: var(--bg-base); color: var(--text-primary); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; min-height: 100vh; }
-.wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
-.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text-accent); }
-.shot {
-  border-radius: 16px; border: 1px solid var(--border-subtle);
-  display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px;
-  color: #fff; box-shadow: var(--shadow-md); overflow: hidden;
+/* Case-study detail page — dark cinematic theme (matches the site).
+ * Dark token overrides are scoped to .page so the design-system tokens stay intact. */
+.page {
+  --bg-base: #0a1322;
+  --bg-subtle: #0c1729;
+  --bg-muted: #0f1c33;
+  --surface-card: rgba(255,255,255,0.045);
+  --border-subtle: rgba(255,255,255,0.08);
+  --border-default: rgba(255,255,255,0.12);
+  --text-primary: #eaf1f8;
+  --text-secondary: #aabfd6;
+  --text-tertiary: #7f95af;
+  --brand-gradient-soft: linear-gradient(135deg, rgba(88,171,206,0.20), rgba(244,198,95,0.16));
+  background: #070d18;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
-.shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.header { position: sticky; top: 0; z-index: 30; background: rgba(255,255,255,0.82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-subtle); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--accent-300); }
+.shot {
+  border-radius: 16px; border: 1px solid rgba(255,255,255,0.10);
+  display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px;
+  color: #fff; box-shadow: 0 24px 60px -34px rgba(0,0,0,0.9); overflow: hidden; position: relative;
+}
+.shot::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.10), transparent 36%); pointer-events: none; }
+.shot img { width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 0; }
+.header {
+  position: sticky; top: 0; z-index: 30;
+  background: rgba(8,15,28,0.72);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border-subtle);
+}
