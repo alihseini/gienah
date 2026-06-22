@@ -1,0 +1,34 @@
+/* Meteors — thin glowing brand-colored beams falling diagonally behind content. */
+.wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.meteor {
+  position: absolute;
+  top: -14%;
+  left: var(--left, 50%);
+  width: 1.6px;
+  height: var(--len, 70px);
+  border-radius: 9999px;
+  background: linear-gradient(to bottom, transparent, currentColor);
+  filter: drop-shadow(0 0 6px currentColor);
+  opacity: 0;
+  transform: rotate(var(--rot, -20deg));
+  animation: meteorFall var(--dur, 6s) linear var(--delay, 0s) infinite;
+  will-change: transform, opacity;
+}
+@keyframes meteorFall {
+  0% { transform: translate3d(0, 0, 0) rotate(var(--rot, -20deg)); opacity: 0; }
+  8% { opacity: var(--op, 0.5); }
+  85% { opacity: var(--op, 0.5); }
+  100% { transform: translate3d(-36vh, 120vh, 0) rotate(var(--rot, -20deg)); opacity: 0; }
+}
+@media (max-width: 760px) {
+  .meteor:nth-child(n + 11) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .meteor { animation: none; opacity: 0; }
+}

@@ -10,6 +10,7 @@ import { BackgroundBeams } from "./BackgroundBeams";
 import { StarField } from "./StarField";
 import { LogoConstellation } from "./LogoConstellation";
 import { Aurora } from "./Aurora";
+import { Meteors } from "./Meteors";
 import { HeadingReveal } from "./HeadingReveal";
 import m from "./moreExplorer.module.css";
 import ag from "./agileStage.module.css";
@@ -190,6 +191,7 @@ export function Services() {
     return (
       <section id="services" style={{ background: "linear-gradient(180deg, #0c1729, #0a1322 70%)", overflow: "hidden", padding: "120px 0 96px", position: "relative" }}>
         <Aurora />
+        <Meteors />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
           {Header}
           <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
@@ -205,6 +207,7 @@ export function Services() {
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
         <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "100px 0 52px", boxSizing: "border-box", overflow: "hidden", background: "linear-gradient(180deg, #0c1729, #0a1322 70%)" }}>
           <Aurora />
+          <Meteors />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             {Header}
             <div style={{ position: "relative", height: "clamp(420px, 56vh, 520px)", marginTop: 8 }}>
