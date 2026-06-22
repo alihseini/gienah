@@ -7,6 +7,7 @@ import {
 import { LightPillar } from "./LightPillar";
 import { ParticleField } from "./ParticleField";
 import { BackgroundBeams } from "./BackgroundBeams";
+import { HeadingReveal } from "./HeadingReveal";
 import productsData from "@/data/products.json";
 import servicesData from "@/data/services.json";
 import agileData from "@/data/agile.json";
@@ -33,11 +34,11 @@ export function Hero() {
             <Badge variant="outline" className={s.darkBadgeOutline} leadingIcon={<Icon name="sparkles" size={13} />}>{site.hero.badge}</Badge>
           </div>
         </Reveal>
-        <Reveal delay={70} variant="blur">
-          <h1 style={{ fontSize: "clamp(40px, 7vw, 82px)", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-0.04em", margin: "0 auto", maxWidth: 980 }}>
-            {site.hero.titleLead} <span className={s.gradtext}>{site.hero.titleAccent}</span>
-          </h1>
-        </Reveal>
+        <HeadingReveal
+          as="h1"
+          style={{ fontSize: "clamp(40px, 7vw, 82px)", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-0.04em", margin: "0 auto", maxWidth: 980, color: "#fff" }}
+          segments={[{ text: site.hero.titleLead }, { text: site.hero.titleAccent, accent: true }]}
+        />
         <Reveal delay={140}>
           <p style={{ fontSize: 20, lineHeight: 1.6, color: "var(--text-secondary)", maxWidth: 600, margin: "26px auto 0" }}>{site.hero.sub}</p>
         </Reveal>
@@ -328,7 +329,7 @@ export function MoreProducts() {
     <section className={s.page} data-sx="front" style={{ background: "linear-gradient(180deg, #0a1322, #0c1a30)", overflow: "hidden", padding: "120px 0 96px" }}>
       <AnimatedBG variant="lines" />
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ maxWidth: 920, position: "relative", zIndex: 1 }}>
-        <Reveal><div className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }}>More from the studio</div></Reveal>
+        <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
         <Reveal delay={60}><p style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 30px" }}>Tap any project to open its case study.</p></Reveal>
         <div className={s.flowlist} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
           {MORE.map((p, i) => (
@@ -389,7 +390,7 @@ export function About() {
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
         <div>
           <Reveal><div className={s.eyebrow}>#ABOUT_US</div></Reveal>
-          <Reveal delay={70}><h2 style={{ fontSize: "clamp(30px,4vw,44px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.1 }}>A studio built to take products <span className={s.gradtext}>all the way.</span></h2></Reveal>
+          <HeadingReveal as="h2" style={{ fontSize: "clamp(30px,4vw,44px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.1 }} segments={[{ text: "A studio built to take products" }, { text: "all the way.", accent: true }]} />
           {site.about.paragraphs.map((para, i) => (
             <Reveal key={i} delay={130 + i * 60}><p style={{ fontSize: 17, lineHeight: 1.7, color: "var(--text-secondary)", marginTop: i ? 14 : 18 }}>{para}</p></Reveal>
           ))}
@@ -483,7 +484,7 @@ export function Contact() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(32px,6vw,72px)", alignItems: "start" }}>
           <div>
             <Reveal><div className={s.eyebrow}>#CONTACT_US</div></Reveal>
-            <Reveal delay={70}><h2 style={{ fontSize: "clamp(32px,4.4vw,52px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.05 }}>Hey.<br /><span className={s.gradtext}>Let&apos;s talk.</span></h2></Reveal>
+            <HeadingReveal as="h2" style={{ fontSize: "clamp(32px,4.4vw,52px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.05 }} segments={[{ text: "Hey." }, { br: true }, { text: "Let's talk.", accent: true }]} />
             <Reveal delay={130}><p style={{ fontSize: 17, lineHeight: 1.65, color: "var(--text-secondary)", marginTop: 18, maxWidth: 380 }}>Tell us about your idea, your timeline, or just say hi. We reply to every message.</p></Reveal>
             <Reveal delay={190}>
               <a href={`mailto:${site.email}`} style={{ display: "inline-flex", alignItems: "center", gap: 10, marginTop: 24, fontSize: 18, fontWeight: 600, color: "var(--text-accent)" }}>
