@@ -1,0 +1,40 @@
+/* Careers — standalone page, dark cinematic theme with a distinct blue→gold gradient. */
+.page {
+  --bg-base: #0a1322;
+  --bg-subtle: #0c1729;
+  --bg-muted: #0f1c33;
+  --surface-card: rgba(255, 255, 255, 0.045);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --text-primary: #eaf1f8;
+  --text-secondary: #aabfd6;
+  --text-tertiary: #7f95af;
+  --brand-gradient-soft: linear-gradient(135deg, rgba(88, 171, 206, 0.2), rgba(244, 198, 95, 0.16));
+  background: #070d18;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(8, 15, 28, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(158deg, #0c1a2e 0%, #143a5a 34%, #5a4a22 66%, #0c1a2e 100%);
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-300);
+}

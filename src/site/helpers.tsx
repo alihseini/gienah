@@ -269,6 +269,9 @@ export function Marquee({ items }: { items: string[] }) {
 }
 
 function Sparks({ count, colors, dark }: { count: number; colors: string[]; dark?: boolean }) {
+  // render only after mount — random positions would otherwise mismatch SSR/client hydration
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => { setMounted(true); }, []);
   const dots = React.useMemo(
     () =>
       Array.from({ length: count }, (_, i) => ({
@@ -282,6 +285,7 @@ function Sparks({ count, colors, dark }: { count: number; colors: string[]; dark
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
+  if (!mounted) return null;
   return (
     <>
       {dots.map((d, i) => (

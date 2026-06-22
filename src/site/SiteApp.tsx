@@ -4,7 +4,7 @@ import {
   ScrollProgress, Marquee, useOffscreenPause, useLayerChoreography, useSectionEntrance, siteStyles as s,
 } from "./helpers";
 import { Nav } from "./Nav";
-import { Hero, Services, Featured, MoreProducts, Agile, About, Careers, Contact, Footer } from "./sections";
+import { Hero, Services, Featured, MoreProducts, Agile, About, Contact, Footer } from "./sections";
 import site from "@/data/site.json";
 
 export function SiteApp() {
@@ -22,7 +22,6 @@ export function SiteApp() {
       <MoreProducts />
       <Agile />
       <About />
-      <Careers />
       <Contact />
       <Footer />
     </div>

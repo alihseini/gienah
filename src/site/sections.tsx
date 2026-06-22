@@ -412,37 +412,6 @@ export function About() {
   );
 }
 
-/* ---------------- careers ---------------- */
-export function Careers() {
-  return (
-    <section id="careers" className={s.page} data-sx="back" style={{ background: "linear-gradient(156deg, #0c1729 0%, #15304a 30%, #34352e 56%, #6e5527 78%, #0c1a2b 100%)", overflow: "hidden", padding: "120px 0" }}>
-      <AnimatedBG variant="mesh" />
-      <div className={[s.wrap, s.layer].join(" ")} data-layer="back" style={{ maxWidth: 860, position: "relative", zIndex: 1 }}>
-        <SectionHead tag="#JOB_OPPORTUNITIES" title="Build the next one with us" sub="We're a small, senior team that ships. If you care about craft and momentum, we'd love to talk." />
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {site.roles.map((r, i) => (
-            <Reveal key={r.title} delay={i * 60}>
-              <a href={`mailto:${site.email}?subject=Application`} style={{ display: "block" }}>
-                <Card interactive padding={20} className={[s.glassCard, s.glassCardInteractive].join(" ")} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <span style={{ width: 44, height: 44, borderRadius: 11, background: "var(--brand-gradient-soft)", color: "var(--accent-600)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}><Icon name={r.icon} size={20} /></span>
-                    <div>
-                      <div style={{ fontSize: 17, fontWeight: 600 }}>{r.title}</div>
-                      <div style={{ fontSize: 13.5, color: "var(--text-tertiary)", marginTop: 2 }}>{r.meta}</div>
-                    </div>
-                  </div>
-                  <span style={{ color: "var(--text-tertiary)" }}><Icon name="arrow-right" size={20} /></span>
-                </Card>
-              </a>
-            </Reveal>
-          ))}
-        </div>
-        <Reveal delay={120}><p style={{ textAlign: "center", fontSize: 14.5, color: "var(--text-secondary)", marginTop: 26 }}>Don&apos;t see your role? Tell us what you do best — <a href={`mailto:${site.email}`} style={{ color: "var(--text-accent)", fontWeight: 500 }}>{site.email}</a></p></Reveal>
-      </div>
-    </section>
-  );
-}
-
 /* ---------------- contact ---------------- */
 export function Contact() {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -527,7 +496,13 @@ export function Footer() {
           <span style={{ fontSize: 17, fontWeight: 600, letterSpacing: "-0.02em" }}>Gienah</span>
         </div>
         <div style={{ display: "flex", gap: 22, flexWrap: "wrap" }}>
-          {NAV.map(([label, id]) => <span key={id} className={s.navlink} onClick={() => go(id)}>{label}</span>)}
+          {NAV.map(([label, id]) =>
+            id.startsWith("/") ? (
+              <a key={id} className={s.navlink} href={id}>{label}</a>
+            ) : (
+              <span key={id} className={s.navlink} onClick={() => go(id)}>{label}</span>
+            )
+          )}
         </div>
         <div style={{ display: "flex", gap: 16 }}>
           {["instagram", "linkedin", "github"].map((n) => <a key={n} href="#" style={{ color: "var(--text-tertiary)" }}><Icon name={n} size={19} /></a>)}

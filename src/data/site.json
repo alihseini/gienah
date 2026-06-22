@@ -6,7 +6,7 @@
     ["Services", "services"],
     ["Products", "products"],
     ["Agile Methodology", "agile"],
-    ["Job Opportunities", "careers"],
+    ["Job Opportunities", "/careers"],
     ["About us", "about"],
     ["Contact us", "contact"]
   ],

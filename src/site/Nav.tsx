@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components";
 import { go, siteStyles as s } from "./helpers";
 import site from "@/data/site.json";
@@ -7,6 +8,7 @@ import site from "@/data/site.json";
 const NAV = site.nav as [string, string][];
 
 export function Nav() {
+  const router = useRouter();
   const [phase, setPhase] = React.useState<"closed" | "seed" | "open">("closed");
   const innerRef = React.useRef<HTMLDivElement>(null);
   const rootRef = React.useRef<HTMLDivElement>(null);
@@ -28,7 +30,11 @@ export function Nav() {
     seedTimer.current = setTimeout(() => setPhase("closed"), 240);
   };
   const toggle = () => (phase === "closed" ? open() : close());
-  const pick = (id: string) => { close(); setTimeout(() => go(id), 130); };
+  const pick = (id: string) => {
+    close();
+    if (id.startsWith("/")) { router.push(id); return; }
+    setTimeout(() => go(id), 130);
+  };
 
   React.useEffect(() => () => clearTimeout(seedTimer.current), []);
 
