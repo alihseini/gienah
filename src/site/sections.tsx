@@ -8,6 +8,7 @@ import { LightPillar } from "./LightPillar";
 import { ParticleField } from "./ParticleField";
 import { BackgroundBeams } from "./BackgroundBeams";
 import { StarField } from "./StarField";
+import { LogoConstellation } from "./LogoConstellation";
 import { Aurora } from "./Aurora";
 import { HeadingReveal } from "./HeadingReveal";
 import m from "./moreExplorer.module.css";
@@ -32,6 +33,7 @@ export function Hero() {
   return (
     <section id="top" className={s.page} style={{ overflow: "hidden", padding: "150px 0 110px" }}>
       <StarField />
+      <LogoConstellation />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
         <Reveal>
           <div style={{ display: "inline-flex", marginBottom: 26 }}>
