@@ -195,11 +195,11 @@ export function Services() {
   }
 
   return (
-    <section id="services" style={{ background: "linear-gradient(180deg, #0c1729, #0a1322 70%)", overflow: "clip", position: "relative" }}>
-      <AnimatedBG variant="blobs" />
+    <section id="services" style={{ background: "#0a1322", overflow: "clip", position: "relative" }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
-        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "100px 0 52px", boxSizing: "border-box", overflow: "hidden" }}>
-          <div className={s.wrap} style={{ width: "100%" }}>
+        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "100px 0 52px", boxSizing: "border-box", overflow: "hidden", background: "linear-gradient(180deg, #0c1729, #0a1322 70%)" }}>
+          <AnimatedBG variant="blobs" />
+          <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             {Header}
             <div style={{ position: "relative", height: "clamp(420px, 56vh, 520px)", marginTop: 8 }}>
               {SERVICES.map((svc, i) => <ServiceSlide key={svc.title} s={svc} d={i - active} />)}
@@ -301,11 +301,13 @@ export function Featured() {
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
   }, [N]);
   return (
-    <section id="products" style={{ background: "linear-gradient(158deg, #0e2236 0%, #14304a 32%, #3a3a36 58%, #7c5f2c 78%, #102338 100%)", position: "relative", overflow: "clip" }}>
-      <AnimatedBG variant="glow" />
+    <section id="products" style={{ background: "#102338", position: "relative", overflow: "clip" }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
-        <div style={{ position: "sticky", top: 0, minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden" }}>
-          <div className={s.wrap} style={{ width: "100%" }}>
+        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "linear-gradient(158deg, #0e2236 0%, #14304a 32%, #3a3a36 58%, #7c5f2c 78%, #102338 100%)" }}>
+          <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+            <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={1} rotationSpeed={0.3} glowAmount={0.002} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.5} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
+          </div>
+          <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
             <div style={{ position: "relative", height: "min(560px, 62vh)", marginTop: 6 }}>
               {FEATURED.map((p, i) => <ProductSlide key={p.id} p={p} d={i - active} />)}
@@ -353,9 +355,6 @@ export function MoreProducts() {
 export function Agile() {
   return (
     <section id="agile" className={s.page} data-sx="back" style={{ background: "linear-gradient(150deg, #0c2236 0%, #134063 26%, #1f5478 44%, #6e5a2c 64%, #b08a36 82%, #14304d 100%)", color: "var(--ink-text)", overflow: "hidden", padding: "120px 0" }}>
-      <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-        <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={1} rotationSpeed={0.3} glowAmount={0.002} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.5} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
-      </div>
       <div className={[s.wrap, s.layer].join(" ")} data-layer="back" style={{ position: "relative", zIndex: 1 }}>
         <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 16 }}>
