@@ -427,20 +427,66 @@ function AgilePanel({ st, i }: { st: AgileStage; i: number }) {
 
 export function Agile() {
   const SECTION_BG = "linear-gradient(150deg, #0c2236 0%, #134063 26%, #1f5478 44%, #6e5a2c 64%, #b08a36 82%, #14304d 100%)";
+  const timelineRef = React.useRef<HTMLDivElement>(null);
+  const spineRef = React.useRef<HTMLDivElement>(null);
+
+  // reveal each card when it nears the viewport (runs once; stays revealed on scroll-up)
+  React.useEffect(() => {
+    const root = timelineRef.current;
+    if (!root) return;
+    const slots = Array.from(root.querySelectorAll<HTMLElement>("[data-slot]"));
+    if (reduceMotion()) {
+      slots.forEach((el) => (el.dataset.shown = ""));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) { (e.target as HTMLElement).dataset.shown = ""; io.unobserve(e.target); } }),
+      { threshold: 0.25, rootMargin: "0px 0px -10% 0px" }
+    );
+    slots.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight * 0.85 && r.bottom > 0) el.dataset.shown = "";
+      else io.observe(el);
+    });
+    return () => io.disconnect();
+  }, []);
+
+  // draw the connection line with scroll progress
+  React.useEffect(() => {
+    if (reduceMotion()) return;
+    const root = timelineRef.current, spine = spineRef.current;
+    if (!root || !spine) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const r = root.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const p = Math.max(0, Math.min(1, (vh * 0.6 - r.top) / (r.height || 1)));
+      spine.style.setProperty("--p", String(p));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, []);
+
   return (
-    <section id="agile" data-sx="back" style={{ background: SECTION_BG, color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative" }}>
+    <section id="agile" style={{ background: SECTION_BG, color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative" }}>
       <div className={ag.beam} aria-hidden="true" />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
-        <div className={ag.timeline}>
+        <div className={ag.timeline} ref={timelineRef}>
+          <div className={ag.spine} ref={spineRef} aria-hidden="true">
+            <div className={ag.spineBase} />
+            <div className={ag.spineDraw} />
+          </div>
           {AGILE.map((st, i) => {
             const right = i % 2 === 0; // 01 right, 02 left, 03 right, …
             return (
-              <div key={st.name} className={[ag.slot, right ? ag.right : ag.left].join(" ")} style={{ zIndex: i + 1 }}>
-                <Reveal variant={right ? "right" : "left"} delay={i * 60}>
-                  <AgilePanel st={st} i={i} />
-                </Reveal>
+              <div key={st.name} data-slot className={[ag.slot, right ? ag.right : ag.left].join(" ")}>
                 <span className={ag.connector} aria-hidden="true" />
+                <AgilePanel st={st} i={i} />
               </div>
             );
           })}

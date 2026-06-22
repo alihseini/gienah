@@ -1,5 +1,7 @@
-/* Agile — alternating, slightly-overlapping timeline; cards slide in from their
-   side and fade up on scroll, over a stable background. */
+/* Agile — connected scroll timeline. Cards live in normal flow (own vertical
+   space, no overlap), alternate sides, and slide in from their side + fade up on
+   scroll. A central glowing line is "drawn" with scroll progress; per-card dots
+   light up with their card. */
 .beam {
   position: absolute;
   inset: -10% -10%;
@@ -8,23 +10,47 @@
   background: linear-gradient(118deg, transparent 30%, rgba(244, 198, 95, 0.1) 48%, rgba(88, 171, 206, 0.06) 56%, transparent 72%);
 }
 
-.timeline { position: relative; margin-top: 44px; display: flex; flex-direction: column; }
-.slot { width: clamp(420px, 60%, 660px); position: relative; }
-.slot + .slot { margin-top: clamp(-104px, -7vh, -64px); }
-.right { margin-left: auto; }
-.left { margin-right: auto; }
+.timeline { position: relative; margin-top: 48px; display: flex; flex-direction: column; gap: clamp(48px, 7vh, 96px); padding: 6px 0; }
+
+/* drawn connection line */
+.spine { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; z-index: 0; pointer-events: none; }
+.spineBase { position: absolute; inset: 0; background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.16) 0 2px, transparent 2px 10px); }
+.spineDraw {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: calc(var(--p, 0) * 100%);
+  background: linear-gradient(to bottom, #58abce, #2a92cc, #f4c65f, #e2aa3b);
+  border-radius: 2px;
+  box-shadow: 0 0 10px 1px rgba(88, 171, 206, 0.6);
+}
+
+.slot {
+  width: clamp(380px, 56%, 620px);
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.8s var(--ease-out), transform 0.85s var(--ease-out);
+  will-change: opacity, transform;
+}
+.right { align-self: flex-end; transform: translate(80px, 60px); }
+.left { align-self: flex-start; transform: translate(-80px, 60px); }
+.slot[data-shown] { opacity: 1; transform: none; }
+
 .connector {
   position: absolute;
-  bottom: 28%;
-  width: 9px;
-  height: 9px;
+  top: 50%;
+  margin-top: -6px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: #bfe2f3;
-  box-shadow: 0 0 12px 3px rgba(88, 171, 206, 0.7);
+  opacity: 0;
+  transform: scale(0.3);
+  transition: opacity 0.6s var(--ease-out) 0.15s, transform 0.6s var(--ease-out) 0.15s;
   z-index: 2;
 }
-.right .connector { left: -4px; }
-.left .connector { right: -4px; background: #f3d68a; box-shadow: 0 0 12px 3px rgba(244, 198, 95, 0.7); }
+.slot[data-shown] .connector { opacity: 1; transform: scale(1); }
+.right .connector { left: -6px; background: #bfe2f3; box-shadow: 0 0 14px 4px rgba(88, 171, 206, 0.75); }
+.left .connector { right: -6px; background: #f3d68a; box-shadow: 0 0 14px 4px rgba(244, 198, 95, 0.75); }
 
 .panel {
   position: relative;
@@ -79,12 +105,17 @@
   50% { transform: rotate(-32deg) translateX(7%); opacity: 1; }
 }
 @media (max-width: 860px) {
-  .slot { width: 100%; }
-  .slot + .slot { margin-top: 18px; }
+  .timeline { gap: 28px; }
+  .slot { width: 100%; align-self: stretch; }
+  .right, .left { transform: translateY(60px); }
   .panel { grid-template-columns: 1fr; }
   .illus { display: none; }
   .connector { display: none; }
+  .spine { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
+  .slot { opacity: 1 !important; transform: none !important; transition: none; }
+  .connector { opacity: 1; transform: scale(1); }
   .streak { animation: none; }
+  .spineDraw { height: 100% !important; }
 }
