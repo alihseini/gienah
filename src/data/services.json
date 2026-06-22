@@ -1,0 +1,74 @@
+[
+  {
+    "icon": "lightbulb",
+    "no": "01",
+    "title": "Consultancy",
+    "tone": "gold",
+    "desc": "We help transform ideas into validated products with a clear business direction, launch strategy, and execution roadmap.",
+    "caps": [
+      "Product discovery workshops",
+      "Idea validation and market research",
+      "Product requirement planning",
+      "Business model design",
+      "Competitive analysis",
+      "Go-to-market strategy",
+      "MVP prioritization",
+      "Stakeholder alignment"
+    ],
+    "tags": ["Strategy", "Discovery", "MVP Planning"]
+  },
+  {
+    "icon": "pen-tool",
+    "no": "02",
+    "title": "Design",
+    "tone": "azure",
+    "desc": "We create scalable digital experiences that balance usability, business goals, and visual excellence.",
+    "caps": [
+      "User journey mapping",
+      "UX architecture",
+      "UI design systems",
+      "Interactive prototyping",
+      "Landing page design",
+      "Design auditing",
+      "Accessibility improvements",
+      "Conversion-focused UX"
+    ],
+    "tags": ["UI/UX", "Design System", "Prototype"]
+  },
+  {
+    "icon": "code-xml",
+    "no": "03",
+    "title": "Development",
+    "tone": "gold",
+    "desc": "We engineer reliable and scalable products using modern technologies and production-ready architecture.",
+    "caps": [
+      "Frontend engineering",
+      "Backend development",
+      "API architecture",
+      "CMS implementation",
+      "Performance optimization",
+      "Cloud deployment",
+      "Technical consulting",
+      "Product maintenance"
+    ],
+    "tags": ["Frontend", "Backend", "CMS"]
+  },
+  {
+    "icon": "trending-up",
+    "no": "04",
+    "title": "Growth",
+    "tone": "azure",
+    "desc": "We help products attract users, increase engagement, and scale through measurable growth systems.",
+    "caps": [
+      "SEO strategy",
+      "Content marketing",
+      "Analytics setup",
+      "Conversion optimization",
+      "Marketing automation",
+      "User acquisition planning",
+      "Funnel optimization",
+      "Performance reporting"
+    ],
+    "tags": ["SEO", "Marketing", "Analytics"]
+  }
+]

@@ -1,0 +1,6 @@
+/* Gienah — Webfonts
+ * Geist (UI / display) + Geist Mono (code, labels, data) via Google Fonts.
+ * NOTE: linked from the Google Fonts CDN. For production, self-host the .woff2
+ * binaries and replace these @import lines with local @font-face rules.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap');

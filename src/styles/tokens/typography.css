@@ -1,0 +1,47 @@
+/* Gienah — Typography
+ * Geist for everything UI + display; Geist Mono for code, data, eyebrow labels.
+ * Tight tracking on large display sizes; comfortable line-height on body.
+ */
+:root {
+  --font-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+  --font-display: var(--font-sans);
+
+  /* Weights */
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  /* Type scale (px) — display → caption */
+  --text-display-2xl: 76px;
+  --text-display-xl:  60px;
+  --text-display-lg:  48px;
+  --text-display-md:  38px;
+  --text-h1: 32px;
+  --text-h2: 26px;
+  --text-h3: 21px;
+  --text-h4: 18px;
+  --text-body-lg: 18px;
+  --text-body:    16px;
+  --text-body-sm: 14px;
+  --text-caption: 13px;
+  --text-micro:   11px;
+
+  /* Line heights */
+  --leading-tight: 1.05;
+  --leading-snug: 1.18;
+  --leading-heading: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* Letter spacing */
+  --tracking-tighter: -0.04em;
+  --tracking-tight: -0.02em;
+  --tracking-snug: -0.01em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.02em;
+  --tracking-eyebrow: 0.08em;  /* mono uppercase eyebrows */
+}

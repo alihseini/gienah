@@ -1,0 +1,197 @@
+[
+  {
+    "id": 1,
+    "title": "Tops",
+    "year": "2020",
+    "category": "App / iOS & Android",
+    "tech": "React Native · Node.js · Golang · AI",
+    "tone": "gold",
+    "featured": true,
+    "website": "https://topsapp.net/",
+    "download": "https://play.google.com/store/apps/details?id=net.topsapp.app",
+    "banner": "/uploads/tops-banner1.png",
+    "shots": ["/uploads/tops1.png", "/uploads/tops2.png"],
+    "blurb": "A feature-rich educational game for high-school students — a fully complex, high-tech service built on AI and microservices that scales past 5M users. Its unique AI engine recommends the best course for each pupil from their data.",
+    "desc": [
+      "Tops Game is a feature-rich educational game for high-school students — a fully complex project and high-tech service that includes AI and microservices technology.",
+      "This platform can tolerate more than 5M users. It connects different students with the same characteristics to each other, then evaluates them.",
+      "Tops also has a unique AI engine that recommends the best course for each pupil based on their data."
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Air Properties",
+    "year": "2024",
+    "category": "App / PWA",
+    "tech": "React · Node.js · Python · AI",
+    "tone": "azure",
+    "featured": true,
+    "banner": "/uploads/air-banner.png",
+    "shots": ["/uploads/air-ui1.png", "/uploads/air-ui2.png"],
+    "blurb": "An LLM-powered platform reinventing the real-estate experience. Users chat with the AI about listings, get personalized home recommendations tuned to their preferences, and book a viewing with an agent — all seamlessly.",
+    "desc": [
+      "Air Properties is an innovative project powered by LLMs and advanced AI, designed to revolutionize the real-estate experience.",
+      "The platform provides personalized home recommendations tailored to user preferences. Users can chat with the AI about various properties, receive smart suggestions based on their interests, and even schedule a viewing with an agent seamlessly.",
+      "Its intelligent algorithms understand user preferences deeply, offering homes that align perfectly with their needs and lifestyle."
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Tapsi Garage",
+    "year": "2023",
+    "category": "App / PWA · Admin panel",
+    "tech": "React · Node.js",
+    "tone": "gold",
+    "featured": true,
+    "banner": "/uploads/garage-banner.png",
+    "shots": ["/uploads/garage-ui1.png", "/uploads/garage-ui2.png", "/uploads/garage-ui3.png"],
+    "blurb": "The ultimate hub for car maintenance inside the Tapsi super-app. Browse and buy spare parts, tools and accessories, then connect with professional mechanics nearby for repairs, pickup or delivery.",
+    "desc": [
+      "Tapsi Garage is the ultimate hub for car maintenance and repair, seamlessly integrated into the Tapsi super-app.",
+      "Browse and purchase a wide range of essential car products — spare parts, maintenance tools and accessories — all tailored to your needs.",
+      "Beyond shopping, Tapsi Garage offers a smart, convenient way to connect with professional mechanics near you: replacing a part, picking up your items, or arranging delivery directly to your location.",
+      "It's built to save time, reduce hassle and deliver a smooth experience for car owners."
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Nabz Energy",
+    "year": "2025",
+    "category": "App / PWA · Admin panel",
+    "tech": "React · Node.js · Microservices",
+    "tone": "azure",
+    "featured": true,
+    "banner": "/uploads/nabz-banner.jpg",
+    "shots": ["/uploads/nabz-ui1.jpg", "/uploads/nabz-ui2.png"],
+    "blurb": "A platform that nudges people to cut gas and electricity use through awareness and gamification. AI-driven reports, challenges, points and rewards make sustainable habits engaging — and measurable.",
+    "desc": [
+      "Nabz Energy encourages users to reduce their gas and electricity consumption through awareness-building and gamification.",
+      "By leveraging AI and data analytics, the platform helps users understand how to optimize their energy usage. Users monitor consumption, compete with others, and join engaging challenges aimed at reducing energy use.",
+      "Incentives such as points, badges and rewards boost engagement, while smart reports give personalized recommendations to lower costs and adopt more efficient habits.",
+      "The goal: raise awareness and promote a more sustainable lifestyle — for individuals and the environment."
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Tapsi Legal",
+    "year": "2024",
+    "category": "App / Admin panel",
+    "tech": "React · Node.js",
+    "tone": "gold",
+    "featured": false,
+    "banner": "/uploads/legal-banner.png",
+    "shots": [],
+    "blurb": "A centralized platform that streamlines legal and contractual processes for Tapsi's subsidiaries.",
+    "desc": [
+      "Tapsi Legal streamlines all legal and contractual processes for Tapsi's subsidiaries.",
+      "It provides a centralized solution for managing legal documents, drafting contracts, and overseeing compliance across the organization.",
+      "Built for scalability and efficiency, it lets teams handle legal workflows seamlessly — reducing administrative overhead and keeping operations structured and organized."
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Stonade",
+    "year": "2024",
+    "category": "App / iOS · Android · PWA",
+    "tech": "React Native · React",
+    "tone": "azure",
+    "featured": false,
+    "banner": "/uploads/stonade-banner.png",
+    "shots": ["/uploads/stonade-ui1.png", "/uploads/stonade-ui2.png"],
+    "blurb": "A modern marketplace for buying and selling stone products in London, across iOS, Android and web.",
+    "desc": [
+      "Stonade is a modern marketplace for buying and selling stone products in London.",
+      "A dedicated store where customers explore a wide range of high-quality stones for construction and decoration.",
+      "Built with cutting-edge technology, it ensures a seamless shopping experience across iOS, Android and web — connecting buyers and sellers intuitively and efficiently."
+    ]
+  },
+  {
+    "id": 7,
+    "title": "HR Management",
+    "year": "2023",
+    "category": "App / UI & UX",
+    "tech": "React · Node.js · PWA",
+    "tone": "gold",
+    "featured": false,
+    "banner": null,
+    "shots": [],
+    "blurb": "A versatile HR panel with a powerful form builder and editor for end-to-end HR operations.",
+    "desc": [
+      "A versatile HR panel for companies, akin to SharePoint, built with React and Node.js.",
+      "Central to the platform is an HR-focused form builder enabling effortless creation of diverse forms, plus an interactive form editor crucial for HR operations.",
+      "The system includes a comprehensive employee list for form assignment. Employees complete forms in the panel, with results shared among managers and team members — streamlining HR processes end to end."
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Wigo",
+    "year": "2021",
+    "category": "App",
+    "tech": "React · PWA · Node.js",
+    "tone": "azure",
+    "featured": false,
+    "banner": "/uploads/wigo-banner1.png",
+    "shots": ["/uploads/wigo1.png"],
+    "blurb": "An advanced car-tracking app delivering real-time location, speed, route history and stops.",
+    "desc": [
+      "An advanced car-tracking app delivering accurate information about your vehicle's whereabouts and performance.",
+      "Using GPS hardware attached to the car's OBD port, it provides real-time tracking of location, speed, route history and stops — all from your phone.",
+      "Manage routing and avoid delays with real-time updates on traffic, road conditions and weather, then review history data for insights into driving habits and maintenance decisions."
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Airshow 2022",
+    "year": "2022",
+    "category": "App / UI & UX",
+    "tech": "React · PWA · Node.js",
+    "tone": "gold",
+    "featured": false,
+    "website": "https://app.iranairshow.app/",
+    "banner": "/uploads/airshow-banner1.png",
+    "shots": ["/uploads/airshow-ui1.png", "/uploads/airshow-ui2.png", "/uploads/airshow-ui3.png", "/uploads/airshow-ui4.png"],
+    "blurb": "A one-stop exhibition app for visitors and exhibitors — live schedules, in-venue routing and direct contact.",
+    "desc": [
+      "An exhibition application offering a one-stop experience for visitors and exhibitors alike.",
+      "Visitors get live updates, real-time event schedules and news, in-venue routing, and direct contact with exhibitors to make connections and gather information.",
+      "Exhibitors get a comprehensive platform to showcase products and services — uploading files and certificates, advertising their booth and events, and increasing brand visibility.",
+      "It streamlines the entire exhibition experience with live updates, schedules, routing, advertising and direct contact."
+    ]
+  },
+  {
+    "id": 10,
+    "title": "iLnekrad",
+    "year": "2022",
+    "category": "App",
+    "tech": "React · PWA · Golang",
+    "tone": "azure",
+    "featured": false,
+    "banner": "/uploads/ilnkard-banner1.png",
+    "shots": ["/uploads/ilenkard-ui1.png", "/uploads/ilenkard-ui2.png", "/uploads/ilenkard-ui3.png", "/uploads/ilenkard-ui5.png", "/uploads/ilenkard-ui6.png"],
+    "blurb": "A state-of-the-art car-tracking app: real-time tracking, routing management and history-data analysis.",
+    "desc": [
+      "A state-of-the-art car-tracking app for a hassle-free, safe driving experience: real-time tracking, routing management and history-data analysis.",
+      "A GPS device on the car's OBD port lets you track location anytime, locate the car if stolen or misplaced, and monitor speed to stay within legal limits.",
+      "Routing management helps navigate unfamiliar roads, avoid traffic and reach destinations faster, with alerts if the car moves without permission.",
+      "History data reveals driving habits and potential issues so you can act proactively and avoid breakdowns."
+    ]
+  },
+  {
+    "id": 11,
+    "title": "Charb Chimie",
+    "year": "2023",
+    "category": "App / UI & UX",
+    "tech": "React · PWA · Node.js",
+    "tone": "gold",
+    "featured": false,
+    "banner": "/uploads/charb-banner11.png",
+    "shots": ["/uploads/charb-ui11.png", "/uploads/charb-ui222.png", "/uploads/charb-ui333.png", "/uploads/charb-ui44.png", "/uploads/charb-ui555.png", "/uploads/charb-ui66.png"],
+    "blurb": "A web panel for an oleic factory — salary slips, schedules, internal chat and a built-in LMS.",
+    "desc": [
+      "A web panel for an oleic factory that manages employee information efficiently and effectively.",
+      "Employees access their salary slip, schedule and organizational chat from a single, user-friendly interface, plus a robust employee-profile feature for tracking performance and training needs.",
+      "A key feature is the internal LMS, used to create and deliver customized training programs for new hires so they have the knowledge and skills to succeed.",
+      "Overall, it helps manage human-resources processes more efficiently — so the focus stays on building a strong, productive workforce."
+    ]
+  }
+]

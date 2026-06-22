@@ -1,0 +1,44 @@
+{
+  "org": { "name": "Helios", "plan": "Pro plan" },
+  "user": { "name": "Priya Raman", "email": "priya@helios.io" },
+  "nav": [
+    { "id": "overview", "label": "Overview", "icon": "layout-dashboard" },
+    { "id": "deployments", "label": "Deployments", "icon": "rocket" },
+    { "id": "observability", "label": "Observability", "icon": "activity" },
+    { "id": "storage", "label": "Storage", "icon": "database" },
+    { "id": "settings", "label": "Settings", "icon": "settings" }
+  ],
+  "deploys": [
+    { "name": "gienah-api", "branch": "main", "status": "Ready", "color": "success", "who": "Priya Raman", "time": "32s ago", "sha": "a91f0c2" },
+    { "name": "edge-router", "branch": "main", "status": "Building", "color": "warning", "who": "Sam Okoro", "time": "now", "sha": "7d2e1b8" },
+    { "name": "web-dashboard", "branch": "feat/usage-graphs", "status": "Ready", "color": "success", "who": "Lin Wu", "time": "4m ago", "sha": "33c9a40" },
+    { "name": "billing-worker", "branch": "fix/retry", "status": "Failed", "color": "danger", "who": "Sam Okoro", "time": "22m ago", "sha": "0ab77e1" },
+    { "name": "gienah-api", "branch": "main", "status": "Ready", "color": "success", "who": "Priya Raman", "time": "1h ago", "sha": "b41dd9f" }
+  ],
+  "metrics": [
+    { "label": "Requests", "value": "1.24M", "delta": "12.4%", "positive": true },
+    { "label": "p50 latency", "value": "48ms", "delta": "3.1%", "positive": true },
+    { "label": "Error rate", "value": "0.02%", "delta": "0.4%", "positive": false },
+    { "label": "Bandwidth", "value": "284 GB", "delta": "8.0%", "positive": true }
+  ],
+  "traffic": [40, 55, 48, 70, 62, 85, 78, 96, 88, 74, 90, 110, 102, 120, 96, 130, 118, 140, 126, 150],
+  "activity": [
+    ["git-commit-horizontal", "Sam Okoro", "pushed to main", "2m"],
+    ["user-plus", "Priya Raman", "invited Lin Wu", "1h"],
+    ["check-circle", "Gienah", "promoted gienah-api", "1h"],
+    ["key", "Priya Raman", "rotated API key", "3h"]
+  ],
+  "regions": [["us-east-1", 92], ["eu-west-1", 74], ["ap-south-1", 58], ["us-west-2", 46], ["sa-east-1", 28]],
+  "latency": [60, 72, 65, 80, 58, 90, 70, 64, 96, 78, 70, 84, 62, 76, 68, 88, 60, 72],
+  "latencyStats": [["p50", "48ms"], ["p95", "120ms"], ["p99", "210ms"]],
+  "storage": [
+    ["database", "primary-pg", "PostgreSQL 16", "42.8 GB / 100 GB", "success", "Healthy"],
+    ["box", "assets", "Object storage", "1.2 TB", "success", "Healthy"],
+    ["zap", "edge-cache", "Redis 7", "8.4 GB / 16 GB", "warning", "Filling"]
+  ],
+  "settingsToggles": [
+    ["Automatic deploys", "Deploy every push to main", true],
+    ["Preview environments", "Build a preview per pull request", true],
+    ["Require approvals", "Two reviewers before production", false]
+  ]
+}

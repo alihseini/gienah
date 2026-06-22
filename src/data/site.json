@@ -1,0 +1,44 @@
+{
+  "brand": "Gienah",
+  "email": "info@gienah.tech",
+  "founded": "2020",
+  "nav": [
+    ["Services", "services"],
+    ["Products", "products"],
+    ["Agile Methodology", "agile"],
+    ["Job Opportunities", "careers"],
+    ["About us", "about"],
+    ["Contact us", "contact"]
+  ],
+  "marquee": ["React", "React Native", "Node.js", "Golang", "Python", "AI / LLMs", "Microservices", "PWA", "Admin Panels", "UI / UX"],
+  "hero": {
+    "badge": "Digital product studio · since 2020",
+    "titleLead": "Creating digital experiences",
+    "titleAccent": "beyond your expectations.",
+    "sub": "Gienah is a software studio that turns ambitious ideas into products people love — from strategy and design to engineering and growth.",
+    "stats": [
+      ["11+", "Products shipped"],
+      ["5M+", "Users reached"],
+      ["6", "Industries served"],
+      ["2020", "Founded"]
+    ]
+  },
+  "roles": [
+    { "title": "Senior Frontend Engineer", "meta": "React / TypeScript · Remote", "icon": "code-xml" },
+    { "title": "Product Designer", "meta": "UI/UX · Remote / Hybrid", "icon": "pen-tool" },
+    { "title": "Backend Engineer", "meta": "Node.js / Golang · Remote", "icon": "server" },
+    { "title": "Growth Marketer", "meta": "SEO / Content · Remote", "icon": "trending-up" }
+  ],
+  "about": {
+    "paragraphs": [
+      "Since 2020, Gienah has partnered with startups and enterprises to design, build and grow digital products across education, mobility, energy, real estate and beyond. We work as one team across strategy, design, engineering and growth — so nothing gets lost in the handoff.",
+      "From AI-powered platforms serving millions to focused internal tools, we sweat the details that make software feel effortless."
+    ],
+    "stats": [
+      ["users", "5M+ users", "reached across shipped products"],
+      ["package", "11+ products", "designed & engineered end to end"],
+      ["layers", "6 industries", "edtech, mobility, energy, more"],
+      ["sparkles", "AI-first", "LLMs & ML woven into products"]
+    ]
+  }
+}

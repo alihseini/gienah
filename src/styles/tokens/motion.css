@@ -1,0 +1,17 @@
+/* Gienah — Motion
+ * Quick, confident, restrained. Mostly opacity + small translate. No bounces on UI.
+ * A gentle spring-ish ease for entrances; snappy ease-out for hover/press.
+ */
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);      /* @kind other */ /* entrances, reveals */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);   /* @kind other */ /* moves, layout */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);   /* @kind other */ /* default UI */
+
+  --duration-fast: 120ms;     /* @kind other */ /* hover, press, color */
+  --duration-base: 180ms;     /* @kind other */ /* most transitions */
+  --duration-slow: 280ms;     /* @kind other */ /* panels, dialogs */
+  --duration-slower: 480ms;   /* @kind other */ /* hero / scroll reveals */
+
+  /* Press feedback */
+  --press-scale: 0.98;         /* @kind other */
+}

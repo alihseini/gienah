@@ -1,0 +1,130 @@
+/* Gienah — Color system
+ * Duotone brand derived from the logo: a faceted hexagon split between warm
+ * GOLD (#E2AA3B) and cool AZURE (#2A92CC). Azure is the primary interactive
+ * accent; gold is the warm co-primary for highlights, the duotone pairing, and
+ * premium moments. A cool-slate neutral scale carries the rest.
+ * Build UIs against the semantic aliases, not the raw scale steps.
+ */
+:root {
+  /* ---- Neutral (cool slate) ---- */
+  --gray-0:   #ffffff;
+  --gray-25:  #fcfcfd;
+  --gray-50:  #f7f8fa;
+  --gray-100: #eff1f4;
+  --gray-150: #e7eaef;
+  --gray-200: #dce0e7;
+  --gray-300: #c4cad4;
+  --gray-400: #9aa2b1;
+  --gray-500: #6b7484;
+  --gray-600: #4a5260;
+  --gray-700: #343a45;
+  --gray-800: #21262e;
+  --gray-900: #14171c;
+  --gray-950: #0b0d11;
+
+  /* ---- Accent — Gienah Azure (from logo's cool half, #2A92CC) ---- */
+  --accent-50:  #ecf6fc;
+  --accent-100: #d2ebf8;
+  --accent-200: #a7d8f1;
+  --accent-300: #71bee6;
+  --accent-400: #45a4d9;
+  --accent-500: #2a92cc;  /* logo azure — brand reference */
+  --accent-600: #1f7cae;  /* interactive fills (white text passes AA) */
+  --accent-700: #1a6790;
+  --accent-800: #195573;
+  --accent-900: #18475f;
+
+  /* ---- Gold — warm co-primary (from logo's warm half, #E2AA3B) ---- */
+  --gold-50:  #fdf6e6;
+  --gold-100: #fae9c0;
+  --gold-200: #f4d485;
+  --gold-300: #eec45f;  /* logo light face */
+  --gold-400: #e8b443;
+  --gold-500: #e2aa3b;  /* logo gold — brand reference */
+  --gold-600: #c68d28;
+  --gold-700: #9c6e1e;
+  --gold-800: #7c581b;
+  --gold-900: #674a19;
+
+  /* ---- Success (emerald) ---- */
+  --green-50:  #e9f8ef;
+  --green-100: #c9eed7;
+  --green-500: #18925a;
+  --green-600: #137a4a;
+  --green-700: #0f6038;
+
+  /* ---- Warning (orange-amber — kept distinct from brand gold) ---- */
+  --amber-50:  #fdf0e0;
+  --amber-100: #f9dcb4;
+  --amber-500: #db7c09;
+  --amber-600: #b86406;
+  --amber-700: #8f4e05;
+
+  /* ---- Danger (red) ---- */
+  --red-50:  #fdecec;
+  --red-100: #fbd3d3;
+  --red-500: #e0454a;
+  --red-600: #c5343a;
+  --red-700: #a3262c;
+
+  /* ======== Semantic aliases ======== */
+  /* Backgrounds */
+  --bg-base:    var(--gray-0);
+  --bg-subtle:  var(--gray-50);
+  --bg-muted:   var(--gray-100);
+  --bg-inset:   var(--gray-150);
+  --bg-canvas:  #fafbfc;
+
+  /* Surfaces */
+  --surface-card:   var(--gray-0);
+  --surface-raised: var(--gray-0);
+  --surface-overlay: var(--gray-0);
+  --surface-sunken: var(--gray-50);
+
+  /* Borders */
+  --border-subtle:  var(--gray-150);
+  --border-default: var(--gray-200);
+  --border-strong:  var(--gray-300);
+  --border-accent:  var(--accent-500);
+
+  /* Text */
+  --text-primary:   var(--gray-900);
+  --text-secondary: var(--gray-600);
+  --text-tertiary:  var(--gray-500);
+  --text-disabled:  var(--gray-400);
+  --text-inverse:   var(--gray-0);
+  --text-accent:    var(--accent-600);
+  --text-success:   var(--green-600);
+  --text-warning:   var(--amber-700);
+  --text-danger:    var(--red-600);
+
+  /* Interactive accent (azure) */
+  --accent:         var(--accent-600);
+  --accent-hover:   var(--accent-700);
+  --accent-active:  var(--accent-800);
+  --accent-contrast: var(--gray-0);
+  --accent-soft:    var(--accent-50);
+  --accent-soft-border: var(--accent-100);
+
+  /* Gold aliases */
+  --gold:           var(--gold-500);
+  --gold-soft:      var(--gold-50);
+  --text-gold:      var(--gold-700);
+
+  /* Duotone — the signature gold→azure of the mark. Use sparingly. */
+  --brand-gradient: linear-gradient(125deg, var(--gold-500) 0%, var(--gold-400) 30%, var(--accent-500) 72%, var(--accent-600) 100%);
+  --brand-gradient-soft: linear-gradient(125deg, var(--gold-50), var(--accent-50));
+
+  /* Focus ring */
+  --ring-accent: 0 0 0 3px rgba(42, 146, 204, 0.24);
+  --ring-danger: 0 0 0 3px rgba(224, 69, 74, 0.20);
+
+  /* Ink for dark sections (marketing) */
+  --ink-bg:       var(--gray-950);
+  --ink-surface:  #14171c;
+  --ink-border:   #262b33;
+  --ink-text:     #e8eaee;
+  --ink-text-dim: #9aa2b1;
+  --ink-accent:   var(--accent-400);
+  --ink-gold:     var(--gold-400);
+}
