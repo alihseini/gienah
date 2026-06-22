@@ -7,6 +7,8 @@ import {
 import { LightPillar } from "./LightPillar";
 import { ParticleField } from "./ParticleField";
 import { BackgroundBeams } from "./BackgroundBeams";
+import { StarField } from "./StarField";
+import { Aurora } from "./Aurora";
 import { HeadingReveal } from "./HeadingReveal";
 import productsData from "@/data/products.json";
 import servicesData from "@/data/services.json";
@@ -27,7 +29,7 @@ const reduceMotion = () =>
 export function Hero() {
   return (
     <section id="top" className={s.page} style={{ overflow: "hidden", padding: "150px 0 110px" }}>
-      <BackgroundBeams />
+      <StarField />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
         <Reveal>
           <div style={{ display: "inline-flex", marginBottom: 26 }}>
@@ -183,7 +185,7 @@ export function Services() {
   if (reduce) {
     return (
       <section id="services" style={{ background: "linear-gradient(180deg, #0c1729, #0a1322 70%)", overflow: "hidden", padding: "120px 0 96px", position: "relative" }}>
-        <AnimatedBG variant="blobs" />
+        <Aurora />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
           {Header}
           <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
@@ -198,7 +200,7 @@ export function Services() {
     <section id="services" style={{ background: "#0a1322", overflow: "clip", position: "relative" }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
         <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "100px 0 52px", boxSizing: "border-box", overflow: "hidden", background: "linear-gradient(180deg, #0c1729, #0a1322 70%)" }}>
-          <AnimatedBG variant="blobs" />
+          <Aurora />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             {Header}
             <div style={{ position: "relative", height: "clamp(420px, 56vh, 520px)", marginTop: 8 }}>
@@ -386,7 +388,7 @@ export function Agile() {
 export function About() {
   return (
     <section id="about" className={s.page} data-sx="front" style={{ background: "var(--bg-base)", overflow: "hidden", padding: "120px 0" }}>
-      <AnimatedBG variant="blobs" />
+      <BackgroundBeams />
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
         <div>
           <Reveal><div className={s.eyebrow}>#ABOUT_US</div></Reveal>
