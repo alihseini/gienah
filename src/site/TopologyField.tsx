@@ -31,18 +31,18 @@ export function TopologyField() {
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const mobile = w < 760;
-      dist = mobile ? 130 : 165;
+      dist = mobile ? 150 : 190;
       // density scaled to area, clamped to the requested node ranges
-      const target = Math.round((w * h) / (mobile ? 26000 : 22000));
-      const count = Math.max(mobile ? 18 : 35, Math.min(mobile ? 30 : 58, target));
+      const target = Math.round((w * h) / (mobile ? 20000 : 16000));
+      const count = Math.max(mobile ? 26 : 50, Math.min(mobile ? 40 : 80, target));
       nodes = new Array(count).fill(0).map(() => {
-        const gold = Math.random() < 0.12;
+        const gold = Math.random() < 0.16;
         return {
           x: rand(0, w), y: rand(0, h),
-          vx: rand(-1, 1) * 0.14, vy: rand(-1, 1) * 0.14,
-          r: gold ? rand(1.6, 2.8) : rand(1, 2.4),
+          vx: rand(-1, 1) * 0.4, vy: rand(-1, 1) * 0.4,
+          r: gold ? rand(2, 3.4) : rand(1.4, 2.8),
           gold,
-          glow: Math.random() < 0.35,
+          glow: Math.random() < 0.5,
           ph: Math.random() * Math.PI * 2,
         };
       });
@@ -69,8 +69,8 @@ export function TopologyField() {
           if (d2 > dist * dist) continue;
           const d = Math.sqrt(d2);
           const k = 1 - d / dist;
-          ctx.strokeStyle = (a.gold || b.gold) ? "rgba(226,170,59," + (k * 0.16).toFixed(3) + ")"
-            : "rgba(88,171,206," + (k * 0.2).toFixed(3) + ")";
+          ctx.strokeStyle = (a.gold || b.gold) ? "rgba(226,170,59," + (k * 0.42).toFixed(3) + ")"
+            : "rgba(88,171,206," + (k * 0.5).toFixed(3) + ")";
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
@@ -80,15 +80,15 @@ export function TopologyField() {
 
       // nodes — soft breathing glow, gold accents brighter
       for (const n of nodes) {
-        const breathe = n.glow ? 0.6 + 0.4 * Math.sin(t * 0.7 + n.ph) : 0.55;
-        const a = (n.gold ? 0.6 : 0.42) * breathe + 0.12;
+        const breathe = n.glow ? 0.6 + 0.4 * Math.sin(t * 1.1 + n.ph) : 0.7;
+        const a = (n.gold ? 0.95 : 0.75) * breathe + 0.2;
         if (n.glow) {
-          const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 5);
-          g.addColorStop(0, n.gold ? "rgba(244,198,95," + (a * 0.5).toFixed(3) + ")" : "rgba(42,146,204," + (a * 0.5).toFixed(3) + ")");
+          const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 6);
+          g.addColorStop(0, n.gold ? "rgba(244,198,95," + (a * 0.85).toFixed(3) + ")" : "rgba(42,146,204," + (a * 0.8).toFixed(3) + ")");
           g.addColorStop(1, "rgba(0,0,0,0)");
           ctx.fillStyle = g;
           ctx.beginPath();
-          ctx.arc(n.x, n.y, n.r * 5, 0, Math.PI * 2);
+          ctx.arc(n.x, n.y, n.r * 6, 0, Math.PI * 2);
           ctx.fill();
         }
         ctx.fillStyle = n.gold ? GOLD[0] : (Math.random() < 0.5 ? BLUE : BLUE2);
