@@ -9,6 +9,7 @@ import { ParticleField } from "./ParticleField";
 import { BackgroundBeams } from "./BackgroundBeams";
 import { StarField } from "./StarField";
 import { LogoConstellation } from "./LogoConstellation";
+import { HeroAtmosphere } from "./HeroAtmosphere";
 import { Aurora } from "./Aurora";
 import { Meteors } from "./Meteors";
 import { HeadingReveal } from "./HeadingReveal";
@@ -32,10 +33,41 @@ const reduceMotion = () =>
 
 /* ---------------- hero ---------------- */
 export function Hero() {
+  const atmoRef = React.useRef<HTMLDivElement>(null);
+  const constRef = React.useRef<HTMLDivElement>(null);
+
+  // very subtle pointer parallax on the background layers only (text stays still).
+  // atmosphere drifts a little, the constellation a little more, for soft depth.
+  React.useEffect(() => {
+    if (reduceMotion()) return;
+    if (window.matchMedia && !window.matchMedia("(pointer: fine)").matches) return;
+    let raf = 0;
+    let x = 0, y = 0, tx = 0, ty = 0;
+    const tick = () => {
+      raf = 0;
+      x += (tx - x) * 0.08; y += (ty - y) * 0.08;
+      const a = atmoRef.current, c = constRef.current;
+      if (a) a.style.transform = `translate3d(${(-x * 10).toFixed(2)}px, ${(-y * 8).toFixed(2)}px, 0)`;
+      if (c) c.style.transform = `translate3d(${(-x * 22).toFixed(2)}px, ${(-y * 16).toFixed(2)}px, 0)`;
+      if (Math.abs(tx - x) > 0.001 || Math.abs(ty - y) > 0.001) raf = requestAnimationFrame(tick);
+    };
+    const onMove = (e: MouseEvent) => {
+      tx = e.clientX / window.innerWidth - 0.5;
+      ty = e.clientY / window.innerHeight - 0.5;
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => { window.removeEventListener("mousemove", onMove); if (raf) cancelAnimationFrame(raf); };
+  }, []);
+
   return (
     <section id="top" className={s.page} style={{ overflow: "hidden", padding: "150px 0 110px" }}>
+      {/* layered background: atmosphere → stars → main Gienah constellation (all behind content) */}
+      <HeroAtmosphere ref={atmoRef} />
       <StarField />
-      <LogoConstellation />
+      <div ref={constRef} style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none", willChange: "transform" }}>
+        <LogoConstellation />
+      </div>
       <div className={s.wrap} style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
         <Reveal>
           <div style={{ display: "inline-flex", marginBottom: 26 }}>
