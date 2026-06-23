@@ -1,0 +1,22 @@
+/* Magic UI–style typing cursor for section descriptions.
+ * A subtle, thin caret that blinks while typing and is removed on completion
+ * (the cursor element is unmounted by TypingAnimation when the text finishes). */
+.cursor {
+  display: inline-block;
+  width: 1px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: currentColor;
+  opacity: 0.65;
+  animation: typingBlink 1.05s steps(1) infinite;
+}
+
+@keyframes typingBlink {
+  0%, 50% { opacity: 0.65; }
+  50.01%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor { display: none; animation: none; }
+}

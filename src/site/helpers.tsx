@@ -2,6 +2,7 @@
 import React from "react";
 import s from "./site.module.css";
 import { HeadingReveal } from "./HeadingReveal";
+import { TypingAnimation } from "./TypingAnimation";
 
 /* ---------------- brand colors + helpers ---------------- */
 export const C = { blue1: "#58ABCE", blue2: "#2A92CC", gold1: "#F4C65F", gold2: "#E2AA3B" };
@@ -399,7 +400,7 @@ export function SectionHead({ tag, title, sub, light }: { tag: string; title: st
       <HeadingReveal as="h2" segments={[{ text: title }]} style={{ fontSize: "clamp(30px, 4.4vw, 46px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.08, color: light ? "#fff" : "var(--text-primary)" }} />
       {sub && (
         <Reveal delay={140}>
-          <p style={{ fontSize: 18, lineHeight: 1.6, color: light ? "var(--ink-text-dim)" : "var(--text-secondary)", margin: "16px auto 0", maxWidth: 560 }}>{sub}</p>
+          <TypingAnimation as="p" text={sub} style={{ fontSize: 18, lineHeight: 1.6, color: light ? "var(--ink-text-dim)" : "var(--text-secondary)", margin: "16px auto 0", maxWidth: 560 }} />
         </Reveal>
       )}
     </div>

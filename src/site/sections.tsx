@@ -12,6 +12,7 @@ import { LogoConstellation } from "./LogoConstellation";
 import { Aurora } from "./Aurora";
 import { Meteors } from "./Meteors";
 import { HeadingReveal } from "./HeadingReveal";
+import { TypingAnimation } from "./TypingAnimation";
 import m from "./moreExplorer.module.css";
 import ag from "./agileStage.module.css";
 import productsData from "@/data/products.json";
@@ -47,7 +48,7 @@ export function Hero() {
           segments={[{ text: site.hero.titleLead }, { text: site.hero.titleAccent, accent: true }]}
         />
         <Reveal delay={140}>
-          <p style={{ fontSize: 20, lineHeight: 1.6, color: "var(--text-secondary)", maxWidth: 600, margin: "26px auto 0" }}>{site.hero.sub}</p>
+          <TypingAnimation as="p" text={site.hero.sub} style={{ fontSize: 20, lineHeight: 1.6, color: "var(--text-secondary)", maxWidth: 600, margin: "26px auto 0" }} />
         </Reveal>
         <Reveal delay={210}>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 34, flexWrap: "wrap" }}>
@@ -372,7 +373,7 @@ export function MoreProducts() {
       <div style={{ position: "absolute", inset: 0, opacity: 0.4, zIndex: 0 }}><AnimatedBG variant="blobs" /></div>
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1 }}>
         <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
-        <Reveal delay={60}><p style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 8px" }}>Hover a project to preview it — click to open the case study.</p></Reveal>
+        <Reveal delay={60}><TypingAnimation as="p" text="Hover a project to preview it — click to open the case study." style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 8px" }} /></Reveal>
         <div className={m.explorer}>
           <div className={m.list} onMouseLeave={() => setActive(MORE[0].id)}>
             {MORE.map((p) => (
@@ -510,9 +511,13 @@ export function About() {
         <div>
           <Reveal><div className={s.eyebrow}>#ABOUT_US</div></Reveal>
           <HeadingReveal as="h2" style={{ fontSize: "clamp(30px,4vw,44px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.1 }} segments={[{ text: "A studio built to take products" }, { text: "all the way.", accent: true }]} />
-          {site.about.paragraphs.map((para, i) => (
-            <Reveal key={i} delay={130 + i * 60}><p style={{ fontSize: 17, lineHeight: 1.7, color: "var(--text-secondary)", marginTop: i ? 14 : 18 }}>{para}</p></Reveal>
-          ))}
+          {site.about.paragraphs.map((para, i) => {
+            // cascade: each paragraph begins typing once the previous one finishes
+            const startDelay = 130 + site.about.paragraphs.slice(0, i).reduce((sum, p) => sum + p.length * 22 + 280, 0);
+            return (
+              <Reveal key={i} delay={130 + i * 60}><TypingAnimation as="p" text={para} speed={22} startDelay={startDelay} style={{ fontSize: 17, lineHeight: 1.7, color: "var(--text-secondary)", marginTop: i ? 14 : 18 }} /></Reveal>
+            );
+          })}
           <Reveal delay={250}><div style={{ marginTop: 26 }}><Button variant="primary" className={s.btnGlow} onClick={() => go("contact")}>Start a project</Button></div></Reveal>
         </div>
         <Reveal delay={120}>
@@ -573,7 +578,7 @@ export function Contact() {
           <div>
             <Reveal><div className={s.eyebrow}>#CONTACT_US</div></Reveal>
             <HeadingReveal as="h2" style={{ fontSize: "clamp(32px,4.4vw,52px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.05 }} segments={[{ text: "Hey." }, { br: true }, { text: "Let's talk.", accent: true }]} />
-            <Reveal delay={130}><p style={{ fontSize: 17, lineHeight: 1.65, color: "var(--text-secondary)", marginTop: 18, maxWidth: 380 }}>Tell us about your idea, your timeline, or just say hi. We reply to every message.</p></Reveal>
+            <Reveal delay={130}><TypingAnimation as="p" text="Tell us about your idea, your timeline, or just say hi. We reply to every message." style={{ fontSize: 17, lineHeight: 1.65, color: "var(--text-secondary)", marginTop: 18, maxWidth: 380 }} /></Reveal>
             <Reveal delay={190}>
               <a href={`mailto:${site.email}`} style={{ display: "inline-flex", alignItems: "center", gap: 10, marginTop: 24, fontSize: 18, fontWeight: 600, color: "var(--text-accent)" }}>
                 <Icon name="mail" size={20} /> {site.email}
