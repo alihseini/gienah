@@ -173,7 +173,8 @@ function ServiceSlide({ s: svc, d }: { s: Service; d: number }) {
     filter = `brightness(${Math.max(0.55, 1 - depth * 0.16).toFixed(2)})`;
     zIndex = 30 - depth;
   } else {
-    transform = "translate3d(0, 64px, 0) scale(.965)";
+    // incoming card: rise + fade only (no scale) so it doesn't grow as it becomes active
+    transform = "translate3d(0, 64px, 0)";
     opacity = 0; filter = "blur(5px)"; zIndex = 1;
   }
   return (
@@ -293,7 +294,8 @@ function ProductSlide({ p, d }: { p: Product; d: number }) {
   const style: React.CSSProperties = {
     position: "absolute", inset: 0, display: "flex", alignItems: "center",
     gap: "clamp(28px, 5vw, 80px)",
-    transform: cur ? "translate3d(0,0,0) scale(1)" : `translate3d(${d > 0 ? 96 : -72}px,0,0) scale(.965)`,
+    // slide + fade only — no scale, so a product never grows/pops as it becomes active
+    transform: cur ? "translate3d(0,0,0)" : `translate3d(${d > 0 ? 96 : -72}px,0,0)`,
     opacity: cur ? 1 : 0,
     filter: cur ? "none" : "blur(6px)",
     pointerEvents: cur ? "auto" : "none",
@@ -376,7 +378,7 @@ function MorePreview({ p }: { p: Product }) {
   const toneBg = p.tone === "gold" ? "linear-gradient(150deg, #f4d485, #e2aa3b 70%, #c68d28)" : "linear-gradient(150deg, #a7d8f1, #2a92cc 70%, #1f7cae)";
   const tags = p.tech.split("·").map((x) => x.trim()).filter(Boolean).slice(0, 4);
   return (
-    <a href={`/projects/${p.id}`} className={m.preview} data-parallax="medium" data-parallax-scale="0.05">
+    <a href={`/projects/${p.id}`} className={m.preview} data-parallax="32">
       <div className={m.media} key={`media-${p.id}`}>
         {media ? (
           <img src={media} alt={p.title} />
@@ -562,7 +564,7 @@ export function About() {
         <Reveal delay={120}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             {site.about.stats.map(([ic, t, d], i) => (
-              <Card key={t} padding={20} className={s.glassCard} data-parallax={String(18 + (i % 2) * 14)} data-parallax-scale="0.03" style={{ marginTop: i % 2 ? 24 : 0 }}>
+              <Card key={t} padding={20} className={s.glassCard} data-parallax={String(18 + (i % 2) * 14)} style={{ marginTop: i % 2 ? 24 : 0 }}>
                 <span style={{ color: "var(--accent-600)" }}><Icon name={ic} size={22} /></span>
                 <div style={{ fontSize: 17, fontWeight: 600, marginTop: 12 }}>{t}</div>
                 <div style={{ fontSize: 13.5, color: "var(--text-tertiary)", marginTop: 4, lineHeight: 1.5 }}>{d}</div>
@@ -593,9 +595,11 @@ export function Contact() {
       const p = clamp((vh - r.top) / total, 0, 1);
       const e = p * p * (3 - 2 * p);
       progRef.current = e;
-      const scale = (0.95 + e * 0.12).toFixed(4);
+      // content RISES only (translateY) — no scroll scale on text/cards (the inner
+      // Reveals + the section's own entrance already handle scale; stacking another
+      // scroll-linked scale here made the content pop larger as it revealed).
       const ty = ((0.62 - e) * 34).toFixed(1);
-      el.style.transform = `translate3d(0, ${ty}px, 0) scale(${scale})`;
+      el.style.transform = `translate3d(0, ${ty}px, 0)`;
       const bg = bgRef.current;
       // background lights drift slower than the content + breathe in scale (decorative depth)
       if (bg) bg.style.transform = `translate3d(0, ${((0.5 - e) * 46).toFixed(1)}px, 0) scale(${(1 + e * 0.1).toFixed(4)})`;
@@ -609,7 +613,9 @@ export function Contact() {
   const [sent, setSent] = React.useState(false);
   return (
     <section id="contact" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--bg-base)", overflow: "hidden", padding: "120px 0", zIndex: 7 }}>
-      <div ref={bgRef} style={{ position: "absolute", inset: 0, willChange: "opacity, filter, transform", transition: "opacity .2s linear" }}>
+      {/* overscan (inset:-90) so the scroll translate/scale can never expose a bare
+          strip — the layer always covers the section; the section clips the excess. */}
+      <div ref={bgRef} style={{ position: "absolute", inset: -90, willChange: "opacity, filter, transform", transition: "opacity .2s linear" }}>
         <AnimatedBG variant="glow" />
       </div>
       <ParticleField progressRef={progRef} />

@@ -136,14 +136,18 @@ export function Parallax({
      data-parallax="slow|medium|fast|text"  → named depth layer, OR
      data-parallax="40"                      → custom ± y amplitude in px
      data-parallax-scale="0.05"              → optional scale amplitude (peaks centered)
-   Layers (different speeds = depth):
-     slow   — background glows / decoration: largest drift, no scale
-     medium — main visuals / images: medium drift + slight scale
+   Layers (different speeds = depth). Presets are translateY ONLY — a scroll-linked
+   scale is never applied implicitly, because content elements also run a reveal
+   (which has its own scale) and two scales compounding causes a size "pop". Scale
+   is opt-in via data-parallax-scale and should be used only on decorative visuals
+   that have no reveal of their own.
+     slow   — background glows / decoration: largest drift
+     medium — main visuals / images: medium drift
      fast   — cards / icons: visible drift, snappier
      text   — text blocks: minimal drift, readability first */
 const PARALLAX_PRESETS: Record<string, { y: number; scale: number }> = {
   slow: { y: 60, scale: 0 },
-  medium: { y: 34, scale: 0.04 },
+  medium: { y: 34, scale: 0 },
   fast: { y: 44, scale: 0 },
   text: { y: 12, scale: 0 },
 };
@@ -154,8 +158,18 @@ export function useParallax() {
     const mobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
     const factor = mobile ? 0.5 : 1; // mobile: ~half the movement
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-    type Item = { el: HTMLElement; y: number; scale: number };
+    type Item = { el: HTMLElement; y: number; scale: number; top: number; h: number };
     let items: Item[] = [];
+    // layout position (document-space), measured WITHOUT transforms via the
+    // offsetTop chain — so the element's own transform and any ancestor reveal /
+    // entrance transform never feed back into the parallax (that feedback was what
+    // made content jump/grow for a moment while a section was revealing).
+    const docTop = (node: HTMLElement) => {
+      let t = 0;
+      let n: HTMLElement | null = node;
+      while (n) { t += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      return t;
+    };
     const collect = () => {
       items = Array.from(document.querySelectorAll<HTMLElement>("[data-parallax]")).map((el) => {
         const raw = el.dataset.parallax || "medium";
@@ -163,7 +177,7 @@ export function useParallax() {
         const y = (preset ? preset.y : parseFloat(raw) || 0) * factor;
         const scaleAttr = el.dataset.parallaxScale ? parseFloat(el.dataset.parallaxScale) : preset ? preset.scale : 0;
         el.style.willChange = "transform";
-        return { el, y, scale: (scaleAttr || 0) * factor };
+        return { el, y, scale: (scaleAttr || 0) * factor, top: docTop(el), h: el.offsetHeight };
       });
     };
     collect();
@@ -171,12 +185,13 @@ export function useParallax() {
     const update = () => {
       raf = 0;
       const vh = window.innerHeight || 1;
-      for (const { el, y, scale } of items) {
-        const r = el.getBoundingClientRect();
-        if (r.height === 0) continue; // hidden (e.g. responsive display:none) — skip
-        const p = clamp((r.top + r.height / 2 - vh / 2) / vh, -1, 1);
+      const sy = window.scrollY || window.pageYOffset || 0;
+      for (const { el, y, scale, top, h } of items) {
+        if (h === 0) continue; // hidden (e.g. responsive display:none) — skip
+        // viewport-centred progress from LAYOUT position only: -1 below → 0 centred → 1 above
+        const p = clamp((top + h / 2 - sy - vh / 2) / vh, -1, 1);
         const ty = (-p * y).toFixed(1);
-        // scale peaks when centered and never drops below 1 (so content can't shrink into a collision)
+        // scale peaks when centred and never drops below 1 (so content can't shrink into a collision)
         const sc = scale ? (1 + (1 - Math.abs(p)) * scale).toFixed(4) : null;
         el.style.transform = sc ? `translate3d(0, ${ty}px, 0) scale(${sc})` : `translate3d(0, ${ty}px, 0)`;
       }
@@ -185,9 +200,11 @@ export function useParallax() {
     const onResize = () => { collect(); onScroll(); };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
+    window.addEventListener("load", onResize);
+    // re-measure after first layout settles (fonts/images can shift offsets)
     const settle = setTimeout(() => { collect(); update(); }, 300);
     update();
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onResize); clearTimeout(settle); if (raf) cancelAnimationFrame(raf); };
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onResize); window.removeEventListener("load", onResize); clearTimeout(settle); if (raf) cancelAnimationFrame(raf); };
   }, []);
 }
 
@@ -293,18 +310,32 @@ export function useLayerChoreography() {
   React.useEffect(() => {
     if (reduceMotion()) return;
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-    let els: HTMLElement[] = [];
-    const collect = () => { els = Array.from(document.querySelectorAll<HTMLElement>("[data-layer]")); };
+    // layout position, transform-independent (see useParallax) — so this hook is not
+    // disturbed by its own transform or by the section's data-sx entrance transform.
+    const docTop = (node: HTMLElement) => {
+      let t = 0; let n: HTMLElement | null = node;
+      while (n) { t += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      return t;
+    };
+    type L = { el: HTMLElement; depth: string | null; top: number; h: number };
+    let els: L[] = [];
+    const collect = () => {
+      els = Array.from(document.querySelectorAll<HTMLElement>("[data-layer]")).map((el) => ({
+        el, depth: el.getAttribute("data-layer"), top: docTop(el), h: el.offsetHeight,
+      }));
+    };
     collect();
     let raf = 0;
     const update = () => {
       raf = 0;
       const H = window.innerHeight || 1;
-      for (const el of els) {
-        const depth = el.getAttribute("data-layer");
-        const r = el.getBoundingClientRect();
-        const enter = clamp((H - r.top) / (0.62 * H), 0, 1);
-        const leave = clamp((0.58 * H - r.bottom) / (0.58 * H), 0, 1);
+      const sy = window.scrollY || window.pageYOffset || 0;
+      for (const { el, depth, top, h } of els) {
+        if (h === 0) continue;
+        const rTop = top - sy;
+        const rBottom = top + h - sy;
+        const enter = clamp((H - rTop) / (0.62 * H), 0, 1);
+        const leave = clamp((0.58 * H - rBottom) / (0.58 * H), 0, 1);
         const emerge = depth === "back" ? 40 : 16;
         const push = depth === "back" ? 20 : 32;
         const y = emerge * (1 - enter) + push * leave;
@@ -316,9 +347,11 @@ export function useLayerChoreography() {
     const onResize = () => { collect(); onScroll(); };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
+    window.addEventListener("load", onResize);
+    // re-measure after first layout settles (fonts/images can shift offsets)
     const settle = setTimeout(() => { collect(); update(); }, 300);
     update();
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onResize); clearTimeout(settle); if (raf) cancelAnimationFrame(raf); };
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onResize); window.removeEventListener("load", onResize); clearTimeout(settle); if (raf) cancelAnimationFrame(raf); };
   }, []);
 }
 

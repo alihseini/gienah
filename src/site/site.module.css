@@ -69,8 +69,10 @@
 /* ===== scroll reveal ===== */
 .reveal {
   opacity: 0;
-  transform: translateY(54px) scale(0.955);
-  filter: blur(7px);
+  /* opacity-forward reveal: a SMALL slide, no scale — a large slide / scale fought
+     the scroll movement and read as a jump/pop the first time content entered. */
+  transform: translateY(18px);
+  filter: blur(4px);
   transition:
     opacity 0.9s var(--ease-out),
     transform 1s var(--ease-out),
@@ -78,17 +80,17 @@
   will-change: opacity, transform;
 }
 .reveal.vLeft {
-  transform: translateX(-66px) scale(0.97);
+  transform: translateX(-24px);
 }
 .reveal.vRight {
-  transform: translateX(66px) scale(0.97);
+  transform: translateX(24px);
 }
 .reveal.vScale {
-  transform: scale(0.84);
+  transform: translateY(16px);
 }
 .reveal.vBlur {
-  transform: translateY(26px) scale(0.97);
-  filter: blur(20px);
+  transform: translateY(16px);
+  filter: blur(12px);
 }
 .reveal.vFade {
   transform: none;
@@ -182,11 +184,11 @@
 }
 .site :global([data-sx="front"]) {
   opacity: 0;
-  transform: translateY(34px) scale(0.965);
+  transform: translateY(34px);
 }
 .site :global([data-sx="back"]) {
   opacity: 0;
-  transform: translateY(22px) scale(0.984);
+  transform: translateY(22px);
 }
 .site :global([data-sx][data-shown]) {
   opacity: 1;
@@ -406,8 +408,8 @@
   animation: deviceFloat 7s var(--ease-in-out) infinite;
 }
 @keyframes deviceFloat {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-22px) scale(1.035); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-22px); }
 }
 
 /* gentle floating for icon chips inside cards (Services) — subtle life, not scroll-linked */
