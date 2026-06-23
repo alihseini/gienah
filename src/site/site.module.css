@@ -5,6 +5,9 @@
 
 /* ===== site dark cinematic theme (scoped — re-themes tokens for descendants) ===== */
 .site {
+  /* shared Hero base color — every main section's base background uses this so the
+     whole page reads as one continuous dark field (matches the .site body bg). */
+  --page-bg: #070d18;
   --bg-base: #0a1322;
   --bg-subtle: #0c1729;
   --bg-muted: #0f1c33;

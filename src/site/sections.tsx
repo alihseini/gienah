@@ -231,7 +231,7 @@ export function Services() {
 
   if (reduce) {
     return (
-      <section id="services" className={s.panel} style={{ background: "linear-gradient(180deg, #0c1729, #0a1322 70%)", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
+      <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
         <Aurora />
         <Meteors />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
@@ -245,7 +245,7 @@ export function Services() {
   }
 
   return (
-    <section id="services" className={s.panel} style={{ background: "#0a1322", overflow: "clip", position: "relative", zIndex: 2 }}>
+    <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
         <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "100px 0 52px", boxSizing: "border-box", overflow: "hidden", background: "linear-gradient(180deg, #0c1729, #0a1322 70%)" }}>
           <Aurora />
@@ -353,7 +353,7 @@ export function Featured() {
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
   }, [N]);
   return (
-    <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "#102338", position: "relative", overflow: "clip", zIndex: 3 }}>
+    <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
         <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "linear-gradient(158deg, #0e2236 0%, #14304a 32%, #3a3a36 58%, #7c5f2c 78%, #102338 100%)" }}>
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
@@ -444,7 +444,7 @@ export function MoreProducts() {
   const [active, setActive] = React.useState(MORE[0].id);
   const cur = MORE.find((p) => p.id === active) || MORE[0];
   return (
-    <section className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "linear-gradient(180deg, #0a1322, #0c1a30)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
+    <section className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
       {/* layer 0: dark base (section bg) → topology network field */}
       <div className={m.topo}><TopologyField /></div>
       {/* layer 1: readability mask / vignette */}
@@ -515,9 +515,10 @@ function AgilePanel({ st, i }: { st: AgileStage; i: number }) {
 }
 
 export function Agile() {
-  const SECTION_BG = "linear-gradient(150deg, #0c2236 0%, #134063 26%, #1f5478 44%, #6e5a2c 64%, #b08a36 82%, #14304d 100%)";
   const timelineRef = React.useRef<HTMLDivElement>(null);
-  const spineRef = React.useRef<HTMLDivElement>(null);
+  // curved connector path through every card's node, measured from layout (so the
+  // cards' reveal transforms never shift the anchors). Recomputed on resize.
+  const [conn, setConn] = React.useState<{ d: string; w: number; h: number } | null>(null);
 
   // reveal each card when it nears the viewport (runs once; stays revealed on scroll-up)
   React.useEffect(() => {
@@ -540,18 +541,51 @@ export function Agile() {
     return () => io.disconnect();
   }, []);
 
-  // draw the connection line with scroll progress
+  // build the smooth S-curve that links node → node down the alternating timeline
   React.useEffect(() => {
-    if (reduceMotion()) return;
-    const root = timelineRef.current, spine = spineRef.current;
-    if (!root || !spine) return;
+    const root = timelineRef.current;
+    if (!root) return;
+    const build = () => {
+      const slots = Array.from(root.querySelectorAll<HTMLElement>("[data-slot]"));
+      if (slots.length < 2) { setConn(null); return; }
+      const w = root.clientWidth, h = root.clientHeight;
+      // anchor = each card's node center, derived from layout offsets (transform-free).
+      // right card (i even): node on its inner/left edge; left card: inner/right edge.
+      const pts = slots.map((slot, i) => {
+        const right = i % 2 === 0;
+        const x = right ? slot.offsetLeft : slot.offsetLeft + slot.offsetWidth;
+        const y = slot.offsetTop + slot.offsetHeight / 2;
+        return { x, y };
+      });
+      let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+      for (let i = 1; i < pts.length; i++) {
+        const a = pts[i - 1], b = pts[i];
+        const my = (a.y + b.y) / 2; // control points at the vertical midpoint → soft S-curve
+        d += ` C ${a.x.toFixed(1)} ${my.toFixed(1)} ${b.x.toFixed(1)} ${my.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+      }
+      setConn({ d, w, h });
+    };
+    build();
+    const ro = new ResizeObserver(build);
+    ro.observe(root);
+    window.addEventListener("resize", build);
+    const t = setTimeout(build, 400); // re-measure after fonts/layout settle
+    return () => { ro.disconnect(); window.removeEventListener("resize", build); clearTimeout(t); };
+  }, []);
+
+  // draw the curved path with scroll progress (sets --p on the timeline; the SVG
+  // draw-path reads it via stroke-dashoffset). Reduced motion → fully drawn.
+  React.useEffect(() => {
+    const root = timelineRef.current;
+    if (!root) return;
+    if (reduceMotion()) { root.style.setProperty("--p", "1"); return; }
     let raf = 0;
     const update = () => {
       raf = 0;
       const r = root.getBoundingClientRect();
       const vh = window.innerHeight || 1;
       const p = Math.max(0, Math.min(1, (vh * 0.6 - r.top) / (r.height || 1)));
-      spine.style.setProperty("--p", String(p));
+      root.style.setProperty("--p", String(p));
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -561,15 +595,31 @@ export function Agile() {
   }, []);
 
   return (
-    <section id="agile" className={[s.panel, s.overlap].join(" ")} style={{ background: SECTION_BG, color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative", zIndex: 5 }}>
+    <section id="agile" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative", zIndex: 5 }}>
+      {/* Hero-style atmosphere: subtle star field + a very soft brand glow (no logo
+          constellation, no fog/topology/meteors/aurora) — keeps Agile visually
+          connected to the Hero but simpler. Both sit behind the content (z-index 1). */}
+      <ScrollParallax max={48}><StarField /></ScrollParallax>
       <ScrollParallax max={56}><div className={ag.beam} aria-hidden="true" /></ScrollParallax>
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
         <div className={ag.timeline} ref={timelineRef}>
-          <div className={ag.spine} ref={spineRef} aria-hidden="true">
-            <div className={ag.spineBase} />
-            <div className={ag.spineDraw} />
-          </div>
+          {conn && (
+            <svg className={ag.connSvg} width={conn.w} height={conn.h} viewBox={`0 0 ${conn.w} ${conn.h}`} fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="agileConnGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#58ABCE" />
+                  <stop offset="0.4" stopColor="#2A92CC" />
+                  <stop offset="0.72" stopColor="#F4C65F" />
+                  <stop offset="1" stopColor="#E2AA3B" />
+                </linearGradient>
+              </defs>
+              {/* faint dotted full path — the "track" */}
+              <path className={ag.connBase} d={conn.d} />
+              {/* glowing path drawn with scroll progress */}
+              <path className={ag.connDraw} d={conn.d} pathLength={1} stroke="url(#agileConnGrad)" />
+            </svg>
+          )}
           {AGILE.map((st, i) => {
             const right = i % 2 === 0; // 01 right, 02 left, 03 right, …
             return (
@@ -588,7 +638,7 @@ export function Agile() {
 /* ---------------- about ---------------- */
 export function About() {
   return (
-    <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--bg-base)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
+    <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
       <ScrollParallax max={52}><BackgroundBeams /></ScrollParallax>
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
         <div>
@@ -654,7 +704,7 @@ export function Contact() {
   }, []);
   const [sent, setSent] = React.useState(false);
   return (
-    <section id="contact" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--bg-base)", overflow: "hidden", padding: "120px 0", zIndex: 7 }}>
+    <section id="contact" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 7 }}>
       {/* overscan (inset:-90) so the scroll translate/scale can never expose a bare
           strip — the layer always covers the section; the section clips the excess. */}
       <div ref={bgRef} style={{ position: "absolute", inset: -90, willChange: "opacity, filter, transform", transition: "opacity .2s linear" }}>
