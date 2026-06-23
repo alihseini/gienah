@@ -124,51 +124,94 @@ export function Parallax({
   );
 }
 
-/* ---------------- ScrollParallax (safe, bounded background/decoration drift) ----------------
-   Small scroll-linked translate for DECORATIVE layers only — never the outer
-   section wrapper. The element is absolutely positioned with a slight overscan
-   (inset: -max) so the translate can never expose an empty edge of the parent.
-   Movement is clamped to ±max px and disabled under prefers-reduced-motion. */
+/* ---------------- scroll-linked parallax layers ----------------
+   One shared rAF loop drives every [data-parallax] element so the page feels
+   alive while scrolling without N competing loops. Each element declares how far
+   it should drift; the loop maps the element's position in the viewport
+   (-1 entering → 0 centered → 1 leaving) to a bounded translateY (+ optional
+   scale). Movement NEVER touches the outer section wrappers, stays in-flow, and
+   is halved on mobile / disabled under prefers-reduced-motion.
+
+   Declare motion with attributes:
+     data-parallax="slow|medium|fast|text"  → named depth layer, OR
+     data-parallax="40"                      → custom ± y amplitude in px
+     data-parallax-scale="0.05"              → optional scale amplitude (peaks centered)
+   Layers (different speeds = depth):
+     slow   — background glows / decoration: largest drift, no scale
+     medium — main visuals / images: medium drift + slight scale
+     fast   — cards / icons: visible drift, snappier
+     text   — text blocks: minimal drift, readability first */
+const PARALLAX_PRESETS: Record<string, { y: number; scale: number }> = {
+  slow: { y: 60, scale: 0 },
+  medium: { y: 34, scale: 0.04 },
+  fast: { y: 44, scale: 0 },
+  text: { y: 12, scale: 0 },
+};
+
+export function useParallax() {
+  React.useEffect(() => {
+    if (reduceMotion()) return;
+    const mobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
+    const factor = mobile ? 0.5 : 1; // mobile: ~half the movement
+    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+    type Item = { el: HTMLElement; y: number; scale: number };
+    let items: Item[] = [];
+    const collect = () => {
+      items = Array.from(document.querySelectorAll<HTMLElement>("[data-parallax]")).map((el) => {
+        const raw = el.dataset.parallax || "medium";
+        const preset = PARALLAX_PRESETS[raw];
+        const y = (preset ? preset.y : parseFloat(raw) || 0) * factor;
+        const scaleAttr = el.dataset.parallaxScale ? parseFloat(el.dataset.parallaxScale) : preset ? preset.scale : 0;
+        el.style.willChange = "transform";
+        return { el, y, scale: (scaleAttr || 0) * factor };
+      });
+    };
+    collect();
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const vh = window.innerHeight || 1;
+      for (const { el, y, scale } of items) {
+        const r = el.getBoundingClientRect();
+        if (r.height === 0) continue; // hidden (e.g. responsive display:none) — skip
+        const p = clamp((r.top + r.height / 2 - vh / 2) / vh, -1, 1);
+        const ty = (-p * y).toFixed(1);
+        // scale peaks when centered and never drops below 1 (so content can't shrink into a collision)
+        const sc = scale ? (1 + (1 - Math.abs(p)) * scale).toFixed(4) : null;
+        el.style.transform = sc ? `translate3d(0, ${ty}px, 0) scale(${sc})` : `translate3d(0, ${ty}px, 0)`;
+      }
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    const onResize = () => { collect(); onScroll(); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    const settle = setTimeout(() => { collect(); update(); }, 300);
+    update();
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onResize); clearTimeout(settle); if (raf) cancelAnimationFrame(raf); };
+  }, []);
+}
+
+/* Background/decoration wrapper: absolutely positioned with a slight overscan
+   (inset: -max) so the parallax translate can never expose an empty edge of the
+   parent. Driven by useParallax() via the data-parallax attribute. */
 export function ScrollParallax({
   max = 16,
-  axis = "y",
+  scale,
   children,
   style,
   className = "",
 }: {
   max?: number;
-  axis?: "y" | "x";
+  scale?: number;
   children: React.ReactNode;
   style?: React.CSSProperties;
   className?: string;
 }) {
-  const ref = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
-    const el = ref.current;
-    if (!el || reduceMotion()) return;
-    const mobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
-    const amp = mobile ? max * 0.55 : max;
-    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-    let raf = 0;
-    const apply = () => {
-      raf = 0;
-      const r = el.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
-      // -1 (entering from below) → 0 (centered) → 1 (leaving upward)
-      const norm = clamp((r.top + r.height / 2 - vh / 2) / vh, -1, 1);
-      const d = (-norm * amp).toFixed(1);
-      el.style.transform = axis === "x" ? `translate3d(${d}px,0,0)` : `translate3d(0,${d}px,0)`;
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(apply); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    apply();
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [max, axis]);
   return (
     <div
-      ref={ref}
       aria-hidden="true"
+      data-parallax={String(max)}
+      {...(scale ? { "data-parallax-scale": String(scale) } : {})}
       className={[s.parallax, className].filter(Boolean).join(" ")}
       style={{ position: "absolute", inset: -Math.abs(max), zIndex: 0, pointerEvents: "none", ...style }}
     >

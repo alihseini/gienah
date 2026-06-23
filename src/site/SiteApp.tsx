@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import {
-  ScrollProgress, useOffscreenPause, useLayerChoreography, useSectionEntrance, siteStyles as s,
+  ScrollProgress, useOffscreenPause, useLayerChoreography, useSectionEntrance, useParallax, siteStyles as s,
 } from "./helpers";
 import { Nav } from "./Nav";
 import { LogoTicker } from "./LogoTicker";
@@ -11,6 +11,7 @@ export function SiteApp() {
   useOffscreenPause();
   useLayerChoreography();
   useSectionEntrance();
+  useParallax();
   return (
     <div className={s.site}>
       <ScrollProgress />

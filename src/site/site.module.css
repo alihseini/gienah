@@ -402,7 +402,21 @@
   padding: 11px;
   box-shadow: var(--shadow-xl);
   flex: none;
-  animation: floaty 6.5s var(--ease-in-out) infinite;
+  /* product visual floats a little more + breathes in scale, so it feels alive */
+  animation: deviceFloat 7s var(--ease-in-out) infinite;
+}
+@keyframes deviceFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-22px) scale(1.035); }
+}
+
+/* gentle floating for icon chips inside cards (Services) — subtle life, not scroll-linked */
+.floatIcon {
+  animation: iconFloat 5.5s var(--ease-in-out) infinite;
+}
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
 }
 .device::after {
   content: "";
@@ -799,12 +813,16 @@
   .parallax {
     transform: none !important;
   }
-  .device {
+  .device,
+  .floatIcon {
     animation: none !important;
   }
   .marquee,
   .blob {
     animation: none !important;
+  }
+  .site :global([data-parallax]) {
+    transform: none !important;
   }
   .abg * {
     animation: none !important;

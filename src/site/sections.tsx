@@ -62,13 +62,17 @@ export function Hero() {
 
   return (
     <section id="top" className={s.page} style={{ overflow: "hidden", padding: "150px 0 110px" }}>
-      {/* layered background: atmosphere → stars → main Gienah constellation (all behind content) */}
-      <HeroAtmosphere ref={atmoRef} />
-      {/* stars drift a touch slower than the page as you scroll (subtle depth) */}
-      <ScrollParallax max={22}><StarField /></ScrollParallax>
-      <div ref={constRef} style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none", willChange: "transform" }}>
-        <LogoConstellation />
-      </div>
+      {/* layered background, all behind content & with different scroll speeds for depth:
+          atmosphere (slowest glow) → stars (medium) → main constellation (fastest).
+          Each keeps its existing pointer-parallax / float; the wrappers only add the
+          scroll-linked drift on top, so text & buttons stay perfectly still. */}
+      <ScrollParallax max={30}><HeroAtmosphere ref={atmoRef} /></ScrollParallax>
+      <ScrollParallax max={48}><StarField /></ScrollParallax>
+      <ScrollParallax max={64}>
+        <div ref={constRef} style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none", willChange: "transform" }}>
+          <LogoConstellation />
+        </div>
+      </ScrollParallax>
       <div className={s.wrap} style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
         <Reveal>
           <div style={{ display: "inline-flex", marginBottom: 26 }}>
@@ -128,7 +132,7 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
         <span className={s.svcRing} aria-hidden="true" style={{ opacity: dim ? 0.35 : 1 }}><i /></span>
         <div style={{ position: "relative", zIndex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 22 }}>
-            <span style={{ width: 64, height: 64, borderRadius: 18, background: "var(--brand-gradient-soft)", color: gold ? "var(--gold-700)" : "var(--accent-600)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", boxShadow: `0 10px 30px -10px ${glowA}` }}><Icon name={svc.icon} size={30} /></span>
+            <span className={s.floatIcon} style={{ width: 64, height: 64, borderRadius: 18, background: "var(--brand-gradient-soft)", color: gold ? "var(--gold-700)" : "var(--accent-600)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", boxShadow: `0 10px 30px -10px ${glowA}` }}><Icon name={svc.icon} size={30} /></span>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: accent, letterSpacing: "0.04em" }}>SERVICE {svc.no}</span>
           </div>
           <h3 style={{ fontSize: "clamp(34px, 4.4vw, 54px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 18px", color: "#fff", lineHeight: 1.04 }}>{svc.title}</h3>
@@ -372,7 +376,7 @@ function MorePreview({ p }: { p: Product }) {
   const toneBg = p.tone === "gold" ? "linear-gradient(150deg, #f4d485, #e2aa3b 70%, #c68d28)" : "linear-gradient(150deg, #a7d8f1, #2a92cc 70%, #1f7cae)";
   const tags = p.tech.split("·").map((x) => x.trim()).filter(Boolean).slice(0, 4);
   return (
-    <a href={`/projects/${p.id}`} className={m.preview}>
+    <a href={`/projects/${p.id}`} className={m.preview} data-parallax="medium" data-parallax-scale="0.05">
       <div className={m.media} key={`media-${p.id}`}>
         {media ? (
           <img src={media} alt={p.title} />
@@ -404,17 +408,18 @@ export function MoreProducts() {
   return (
     <section className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "linear-gradient(180deg, #0a1322, #0c1a30)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
       {/* background blobs drift slower than the content for soft parallax depth */}
-      <ScrollParallax max={28} style={{ opacity: 0.4 }}><AnimatedBG variant="blobs" /></ScrollParallax>
+      <ScrollParallax max={62} style={{ opacity: 0.4 }}><AnimatedBG variant="blobs" /></ScrollParallax>
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1 }}>
         <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
         <Reveal delay={60}><TypingAnimation as="p" text="Hover a project to preview it — click to open the case study." style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 8px" }} /></Reveal>
         <div className={m.explorer}>
           <div className={m.list} onMouseLeave={() => setActive(MORE[0].id)}>
-            {MORE.map((p) => (
+            {MORE.map((p, i) => (
               <a
                 key={p.id}
                 href={`/projects/${p.id}`}
                 className={m.row}
+                data-parallax={String(10 + (i % 3) * 7)}
                 onMouseEnter={() => setActive(p.id)}
                 onFocus={() => setActive(p.id)}
               >
@@ -455,8 +460,8 @@ function AgilePanel({ st, i }: { st: AgileStage; i: number }) {
         </div>
       </div>
       <div className={ag.illus}>
-        <div className={ag.illusGlow} style={{ background: `radial-gradient(circle at 60% 42%, rgba(${rgb},0.28), transparent 65%)` }} />
-        <div className={ag.illusIcon} style={{ color: `rgba(${rgb},0.5)` }}><Icon name={st.icon} size={132} /></div>
+        <div className={ag.illusGlow} data-parallax="30" style={{ background: `radial-gradient(circle at 60% 42%, rgba(${rgb},0.28), transparent 65%)` }} />
+        <div className={ag.illusIcon} data-parallax="46" style={{ color: `rgba(${rgb},0.5)` }}><Icon name={st.icon} size={132} /></div>
         <span className={[ag.streak, gold ? "" : ag.streakBlue].join(" ")} style={{ top: "22%", ["--sd" as string]: "7s" } as React.CSSProperties} />
         <span className={ag.streak} style={{ top: "50%", ["--sd" as string]: "9s", animationDelay: "-2s" } as React.CSSProperties} />
         <span className={[ag.streak, gold ? "" : ag.streakBlue].join(" ")} style={{ top: "76%", ["--sd" as string]: "8s", animationDelay: "-4s" } as React.CSSProperties} />
@@ -513,7 +518,7 @@ export function Agile() {
 
   return (
     <section id="agile" className={[s.panel, s.overlap].join(" ")} style={{ background: SECTION_BG, color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative", zIndex: 5 }}>
-      <ScrollParallax max={22}><div className={ag.beam} aria-hidden="true" /></ScrollParallax>
+      <ScrollParallax max={56}><div className={ag.beam} aria-hidden="true" /></ScrollParallax>
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
         <div className={ag.timeline} ref={timelineRef}>
@@ -540,7 +545,7 @@ export function Agile() {
 export function About() {
   return (
     <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--bg-base)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
-      <ScrollParallax max={18}><BackgroundBeams /></ScrollParallax>
+      <ScrollParallax max={52}><BackgroundBeams /></ScrollParallax>
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
         <div>
           <Reveal><div className={s.eyebrow}>#ABOUT_US</div></Reveal>
@@ -557,7 +562,7 @@ export function About() {
         <Reveal delay={120}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             {site.about.stats.map(([ic, t, d], i) => (
-              <Card key={t} padding={20} className={s.glassCard} style={{ marginTop: i % 2 ? 24 : 0 }}>
+              <Card key={t} padding={20} className={s.glassCard} data-parallax={String(18 + (i % 2) * 14)} data-parallax-scale="0.03" style={{ marginTop: i % 2 ? 24 : 0 }}>
                 <span style={{ color: "var(--accent-600)" }}><Icon name={ic} size={22} /></span>
                 <div style={{ fontSize: 17, fontWeight: 600, marginTop: 12 }}>{t}</div>
                 <div style={{ fontSize: 13.5, color: "var(--text-tertiary)", marginTop: 4, lineHeight: 1.5 }}>{d}</div>
@@ -589,10 +594,11 @@ export function Contact() {
       const e = p * p * (3 - 2 * p);
       progRef.current = e;
       const scale = (0.95 + e * 0.12).toFixed(4);
-      const ty = ((0.62 - e) * 30).toFixed(1);
+      const ty = ((0.62 - e) * 34).toFixed(1);
       el.style.transform = `translate3d(0, ${ty}px, 0) scale(${scale})`;
       const bg = bgRef.current;
-      if (bg) bg.style.transform = `scale(${(1 + e * 0.06).toFixed(4)})`;
+      // background lights drift slower than the content + breathe in scale (decorative depth)
+      if (bg) bg.style.transform = `translate3d(0, ${((0.5 - e) * 46).toFixed(1)}px, 0) scale(${(1 + e * 0.1).toFixed(4)})`;
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(apply); };
     window.addEventListener("scroll", onScroll, { passive: true });
