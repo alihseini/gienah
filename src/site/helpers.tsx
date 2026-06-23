@@ -124,6 +124,59 @@ export function Parallax({
   );
 }
 
+/* ---------------- ScrollParallax (safe, bounded background/decoration drift) ----------------
+   Small scroll-linked translate for DECORATIVE layers only — never the outer
+   section wrapper. The element is absolutely positioned with a slight overscan
+   (inset: -max) so the translate can never expose an empty edge of the parent.
+   Movement is clamped to ±max px and disabled under prefers-reduced-motion. */
+export function ScrollParallax({
+  max = 16,
+  axis = "y",
+  children,
+  style,
+  className = "",
+}: {
+  max?: number;
+  axis?: "y" | "x";
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+  className?: string;
+}) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || reduceMotion()) return;
+    const mobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
+    const amp = mobile ? max * 0.55 : max;
+    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+    let raf = 0;
+    const apply = () => {
+      raf = 0;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      // -1 (entering from below) → 0 (centered) → 1 (leaving upward)
+      const norm = clamp((r.top + r.height / 2 - vh / 2) / vh, -1, 1);
+      const d = (-norm * amp).toFixed(1);
+      el.style.transform = axis === "x" ? `translate3d(${d}px,0,0)` : `translate3d(0,${d}px,0)`;
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(apply); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    apply();
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, [max, axis]);
+  return (
+    <div
+      ref={ref}
+      aria-hidden="true"
+      className={[s.parallax, className].filter(Boolean).join(" ")}
+      style={{ position: "absolute", inset: -Math.abs(max), zIndex: 0, pointerEvents: "none", ...style }}
+    >
+      {children}
+    </div>
+  );
+}
+
 /* ---------------- CountUp ---------------- */
 export function CountUp({ value }: { value: string }) {
   const m = String(value).match(/^(\D*)(\d+)(.*)$/);

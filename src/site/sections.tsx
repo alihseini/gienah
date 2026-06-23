@@ -2,7 +2,7 @@
 import React from "react";
 import { Button, Badge, Card, Icon } from "@/components";
 import {
-  Reveal, CountUp, SectionHead, AnimatedBG, siteStyles as s, go,
+  Reveal, CountUp, SectionHead, AnimatedBG, ScrollParallax, siteStyles as s, go,
 } from "./helpers";
 import { LightPillar } from "./LightPillar";
 import { ParticleField } from "./ParticleField";
@@ -64,7 +64,8 @@ export function Hero() {
     <section id="top" className={s.page} style={{ overflow: "hidden", padding: "150px 0 110px" }}>
       {/* layered background: atmosphere → stars → main Gienah constellation (all behind content) */}
       <HeroAtmosphere ref={atmoRef} />
-      <StarField />
+      {/* stars drift a touch slower than the page as you scroll (subtle depth) */}
+      <ScrollParallax max={22}><StarField /></ScrollParallax>
       <div ref={constRef} style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none", willChange: "transform" }}>
         <LogoConstellation />
       </div>
@@ -222,7 +223,7 @@ export function Services() {
 
   if (reduce) {
     return (
-      <section id="services" style={{ background: "linear-gradient(180deg, #0c1729, #0a1322 70%)", overflow: "hidden", padding: "120px 0 96px", position: "relative" }}>
+      <section id="services" className={s.panel} style={{ background: "linear-gradient(180deg, #0c1729, #0a1322 70%)", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
         <Aurora />
         <Meteors />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
@@ -236,7 +237,7 @@ export function Services() {
   }
 
   return (
-    <section id="services" style={{ background: "#0a1322", overflow: "clip", position: "relative" }}>
+    <section id="services" className={s.panel} style={{ background: "#0a1322", overflow: "clip", position: "relative", zIndex: 2 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
         <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "100px 0 52px", boxSizing: "border-box", overflow: "hidden", background: "linear-gradient(180deg, #0c1729, #0a1322 70%)" }}>
           <Aurora />
@@ -343,7 +344,7 @@ export function Featured() {
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
   }, [N]);
   return (
-    <section id="products" style={{ background: "#102338", position: "relative", overflow: "clip" }}>
+    <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "#102338", position: "relative", overflow: "clip", zIndex: 3 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
         <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "linear-gradient(158deg, #0e2236 0%, #14304a 32%, #3a3a36 58%, #7c5f2c 78%, #102338 100%)" }}>
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
@@ -401,8 +402,9 @@ export function MoreProducts() {
   const [active, setActive] = React.useState(MORE[0].id);
   const cur = MORE.find((p) => p.id === active) || MORE[0];
   return (
-    <section className={s.page} data-sx="front" style={{ background: "linear-gradient(180deg, #0a1322, #0c1a30)", overflow: "hidden", padding: "120px 0 96px" }}>
-      <div style={{ position: "absolute", inset: 0, opacity: 0.4, zIndex: 0 }}><AnimatedBG variant="blobs" /></div>
+    <section className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "linear-gradient(180deg, #0a1322, #0c1a30)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
+      {/* background blobs drift slower than the content for soft parallax depth */}
+      <ScrollParallax max={28} style={{ opacity: 0.4 }}><AnimatedBG variant="blobs" /></ScrollParallax>
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1 }}>
         <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
         <Reveal delay={60}><TypingAnimation as="p" text="Hover a project to preview it — click to open the case study." style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 8px" }} /></Reveal>
@@ -510,8 +512,8 @@ export function Agile() {
   }, []);
 
   return (
-    <section id="agile" style={{ background: SECTION_BG, color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative" }}>
-      <div className={ag.beam} aria-hidden="true" />
+    <section id="agile" className={[s.panel, s.overlap].join(" ")} style={{ background: SECTION_BG, color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative", zIndex: 5 }}>
+      <ScrollParallax max={22}><div className={ag.beam} aria-hidden="true" /></ScrollParallax>
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
         <div className={ag.timeline} ref={timelineRef}>
@@ -537,8 +539,8 @@ export function Agile() {
 /* ---------------- about ---------------- */
 export function About() {
   return (
-    <section id="about" className={s.page} data-sx="front" style={{ background: "var(--bg-base)", overflow: "hidden", padding: "120px 0" }}>
-      <BackgroundBeams />
+    <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--bg-base)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
+      <ScrollParallax max={18}><BackgroundBeams /></ScrollParallax>
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
         <div>
           <Reveal><div className={s.eyebrow}>#ABOUT_US</div></Reveal>
@@ -600,7 +602,7 @@ export function Contact() {
   }, []);
   const [sent, setSent] = React.useState(false);
   return (
-    <section id="contact" className={s.page} data-sx="front" style={{ background: "var(--bg-base)", overflow: "hidden", padding: "120px 0" }}>
+    <section id="contact" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--bg-base)", overflow: "hidden", padding: "120px 0", zIndex: 7 }}>
       <div ref={bgRef} style={{ position: "absolute", inset: 0, willChange: "opacity, filter, transform", transition: "opacity .2s linear" }}>
         <AnimatedBG variant="glow" />
       </div>

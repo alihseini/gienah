@@ -29,6 +29,9 @@
   color: var(--text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  /* clip (not hidden) so it never becomes a scroll container that would break
+     the sticky Services/Products tracks; prevents any horizontal overflow. */
+  overflow-x: clip;
 }
 .lucide {
   stroke-width: 1.75px;
@@ -191,6 +194,36 @@
 }
 .layer {
   will-change: transform, opacity;
+}
+
+/* ===== safe stacked-panel overlap =====
+   Every main section stays in normal document flow with its own solid background.
+   `.panel` rounds the top edge + adds a soft depth shadow so the next section
+   reads as a premium card sliding over the previous one. `.overlap` pulls a
+   section up over the one above it — the negative margin is always smaller than
+   that section's own top padding, so content never collides and (because each
+   section has its own opaque background + a higher z-index) no black gap can show.
+   No transforms, no fixed/absolute, no opacity:0 — layout cannot break. */
+.panel {
+  position: relative;
+  border-top-left-radius: clamp(20px, 3vw, 32px);
+  border-top-right-radius: clamp(20px, 3vw, 32px);
+  box-shadow:
+    0 -34px 64px -40px rgba(0, 0, 0, 0.62),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.overlap {
+  margin-top: -72px;
+}
+
+@media (max-width: 760px) {
+  .overlap {
+    margin-top: -40px;
+  }
+  .panel {
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+  }
 }
 
 /* #AGILE stage cards — premium gold hover */
