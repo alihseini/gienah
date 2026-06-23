@@ -6,6 +6,7 @@ import {
 } from "./helpers";
 import { LightPillar } from "./LightPillar";
 import { ParticleField } from "./ParticleField";
+import { TopologyField } from "./TopologyField";
 import { BackgroundBeams } from "./BackgroundBeams";
 import { StarField } from "./StarField";
 import { LogoConstellation } from "./LogoConstellation";
@@ -375,13 +376,16 @@ export function Featured() {
   );
 }
 
-function MorePreview({ p }: { p: Product }) {
+/* One full visual layer (media + optional content) of the preview card. Only the
+   topmost (incoming) layer renders the body, so text never overlaps during the
+   crossfade. */
+function PreviewLayer({ p, body, incoming }: { p: Product; body: boolean; incoming: boolean }) {
   const media = p.banner || p.shots[0] || null;
   const toneBg = p.tone === "gold" ? "linear-gradient(150deg, #f4d485, #e2aa3b 70%, #c68d28)" : "linear-gradient(150deg, #a7d8f1, #2a92cc 70%, #1f7cae)";
   const tags = p.tech.split("·").map((x) => x.trim()).filter(Boolean).slice(0, 4);
   return (
-    <a href={`/projects/${p.id}`} className={m.preview} data-parallax="32">
-      <div className={m.media} key={`media-${p.id}`}>
+    <div className={[m.layer, incoming ? m.layerIn : ""].filter(Boolean).join(" ")}>
+      <div className={m.media}>
         {media ? (
           <img src={media} alt={p.title} />
         ) : (
@@ -390,18 +394,48 @@ function MorePreview({ p }: { p: Product }) {
           </div>
         )}
       </div>
-      <div className={m.overlay} />
-      <div className={m.body} key={`body-${p.id}`}>
-        <div className={m.badges}>
-          <Badge variant={p.tone === "gold" ? "warning" : "accent"} className={p.tone === "gold" ? s.darkBadgeWarning : s.darkBadgeAccent}>{p.category}</Badge>
-          <Badge variant="neutral" className={s.darkBadgeNeutral}>{p.year}</Badge>
+      <div className={m.overlayDark} />
+      <div className={m.glow} />
+      {body && (
+        <div className={[m.body, incoming ? m.stagger : ""].filter(Boolean).join(" ")}>
+          <div className={m.badges}>
+            <Badge variant={p.tone === "gold" ? "warning" : "accent"} className={p.tone === "gold" ? s.darkBadgeWarning : s.darkBadgeAccent}>{p.category}</Badge>
+            <Badge variant="neutral" className={s.darkBadgeNeutral}>{p.year}</Badge>
+          </div>
+          <div className={m.pTitle}>{p.title}</div>
+          <div className={m.pDesc}>{p.blurb}</div>
+          <div className={m.tags}>
+            {tags.map((t) => <span key={t} className={m.tag}>{t}</span>)}
+          </div>
         </div>
-        <div className={m.pTitle}>{p.title}</div>
-        <div className={m.pDesc}>{p.blurb}</div>
-        <div className={m.tags}>
-          {tags.map((t) => <span key={t} className={m.tag}>{t}</span>)}
-        </div>
-      </div>
+      )}
+    </div>
+  );
+}
+
+/* Crossfading preview: keeps at most the previous + current project mounted so
+   the outgoing media fades out beneath the incoming one. Card size is fixed via
+   aspect-ratio, so there's no layout jump. */
+function MorePreview({ p }: { p: Product }) {
+  type L = { p: Product; key: number };
+  const keyRef = React.useRef(0);
+  const [layers, setLayers] = React.useState<L[]>([{ p, key: 0 }]);
+  React.useEffect(() => {
+    setLayers((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.p.id === p.id) return prev;
+      keyRef.current += 1;
+      // keep only the outgoing (last) layer + the new incoming one
+      return [...prev.slice(-1), { p, key: keyRef.current }];
+    });
+    const t = setTimeout(() => setLayers((prev) => prev.slice(-1)), 560);
+    return () => clearTimeout(t);
+  }, [p]);
+  return (
+    <a href={`/projects/${p.id}`} className={m.preview} data-parallax="28">
+      {layers.map((l, i) => (
+        <PreviewLayer key={l.key} p={l.p} body={i === layers.length - 1} incoming={i === layers.length - 1 && layers.length > 1} />
+      ))}
     </a>
   );
 }
@@ -411,9 +445,14 @@ export function MoreProducts() {
   const cur = MORE.find((p) => p.id === active) || MORE[0];
   return (
     <section className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "linear-gradient(180deg, #0a1322, #0c1a30)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
+      {/* layer 0: dark base (section bg) → topology network field */}
+      <div className={m.topo}><TopologyField /></div>
+      {/* layer 1: readability mask / vignette */}
+      <div className={m.mask} />
       {/* background blobs drift slower than the content for soft parallax depth */}
-      <ScrollParallax max={62} style={{ opacity: 0.4 }}><AnimatedBG variant="blobs" /></ScrollParallax>
-      <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1 }}>
+      <ScrollParallax max={62} style={{ opacity: 0.28, zIndex: 0 }}><AnimatedBG variant="blobs" /></ScrollParallax>
+      {/* layer 2: content */}
+      <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 2 }}>
         <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
         <Reveal delay={60}><TypingAnimation as="p" text="Hover a project to preview it — click to open the case study." style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 8px" }} /></Reveal>
         <div className={m.explorer}>
@@ -422,12 +461,13 @@ export function MoreProducts() {
               <a
                 key={p.id}
                 href={`/projects/${p.id}`}
-                className={m.row}
+                className={[m.row, p.id === active ? m.rowActive : ""].filter(Boolean).join(" ")}
                 data-parallax={String(10 + (i % 3) * 7)}
                 onMouseEnter={() => setActive(p.id)}
                 onFocus={() => setActive(p.id)}
+                onTouchStart={() => setActive(p.id)}
               >
-                <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+                <div className={m.rowLeft}>
                   <span className={m.num}>#{p.id}</span>
                   <span className={m.title}>{p.title}</span>
                 </div>
