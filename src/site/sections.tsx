@@ -168,7 +168,9 @@ function ServiceSlide({ s: svc, d }: { s: Service; d: number }) {
     transform = "translate3d(0,0,0) scale(1)";
     opacity = 1; filter = "none"; zIndex = 30;
   } else if (past) {
-    transform = `translate3d(0, ${(-depth * 26).toFixed(1)}px, 0) scale(${(1 - depth * 0.05).toFixed(3)})`;
+    // recede travel is capped (≈42px max) so the top of a deep card never crosses
+    // the ~64px gap up into the section description above the deck
+    transform = `translate3d(0, ${(-depth * 14).toFixed(1)}px, 0) scale(${(1 - depth * 0.05).toFixed(3)})`;
     opacity = Math.max(0.28, 1 - depth * 0.26).toFixed(3);
     filter = `brightness(${Math.max(0.55, 1 - depth * 0.16).toFixed(2)})`;
     zIndex = 30 - depth;
