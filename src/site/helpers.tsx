@@ -226,45 +226,6 @@ export function useLayerChoreography() {
   }, []);
 }
 
-/* layered, scroll-linked section transitions: leaving sections recede (scale
-   down + move back + dim), entering sections rise up + scale up + fade in.
-   Drives all [data-scroll-section] wrappers from one rAF loop. */
-export function useLayeredSections() {
-  React.useEffect(() => {
-    if (reduceMotion()) return;
-    const els = Array.from(document.querySelectorAll<HTMLElement>("[data-scroll-section]"));
-    if (!els.length) return;
-    const mobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
-    const yIn = mobile ? 56 : 120;
-    const yOut = mobile ? -18 : -40;
-    const sIn = mobile ? 0.012 : 0.025;
-    const sOut = mobile ? 0.018 : 0.04;
-    const oAmt = mobile ? 0.05 : 0.1;
-    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const vh = window.innerHeight || 1;
-      for (const el of els) {
-        const r = el.getBoundingClientRect();
-        const enter = clamp((vh - r.top) / (0.55 * vh), 0, 1); // 0 below viewport → 1 settled
-        const leave = clamp((0.45 * vh - r.bottom) / (0.55 * vh), 0, 1); // grows as it exits upward
-        const y = (1 - enter) * yIn + leave * yOut;
-        const scale = 1 - (1 - enter) * sIn - leave * sOut;
-        const op = 1 - (1 - enter) * oAmt - leave * oAmt;
-        el.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;
-        el.style.opacity = op.toFixed(3);
-      }
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    const settle = setTimeout(update, 250);
-    update();
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); clearTimeout(settle); if (raf) cancelAnimationFrame(raf); };
-  }, []);
-}
-
 export function useSectionEntrance() {
   React.useEffect(() => {
     if (reduceMotion()) {
