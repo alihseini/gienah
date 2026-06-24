@@ -247,7 +247,7 @@ export function Services() {
   return (
     <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
-        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "100px 0 52px", boxSizing: "border-box", overflow: "hidden", background: "linear-gradient(180deg, #0c1729, #0a1322 70%)" }}>
+        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "100px 0 52px", boxSizing: "border-box", overflow: "hidden", background: "radial-gradient(70% 60% at 80% 12%, rgba(88,171,206,0.22), rgba(244,198,95,0.11) 36%, transparent 64%), radial-gradient(60% 64% at 12% 90%, rgba(42,146,204,0.16), transparent 62%), var(--page-bg)" }}>
           <Aurora />
           <Meteors />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
@@ -355,8 +355,8 @@ export function Featured() {
   return (
     <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
-        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "linear-gradient(158deg, #0e2236 0%, #14304a 32%, #3a3a36 58%, #7c5f2c 78%, #102338 100%)" }}>
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "radial-gradient(70% 60% at 80% 12%, rgba(88,171,206,0.22), rgba(244,198,95,0.11) 36%, transparent 64%), radial-gradient(60% 64% at 12% 90%, rgba(42,146,204,0.16), transparent 62%), var(--page-bg)" }}>
+          <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
             <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={1} rotationSpeed={0.3} glowAmount={0.002} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.5} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
           </div>
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
