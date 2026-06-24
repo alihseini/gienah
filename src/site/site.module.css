@@ -195,9 +195,6 @@
    No transforms, no fixed/absolute, no opacity:0 — layout cannot break. */
 .panel {
   position: relative;
-  box-shadow:
-    0 -34px 64px -40px rgba(0, 0, 0, 0.62),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 /* shared Hero-style atmosphere base — a soft brand aurora (upper-right blue→gold
    aura + lower-left cool glow) painted over each section's solid --page-bg fill so
@@ -241,13 +238,7 @@
   }
 }
 .overlap {
-  margin-top: -72px;
-}
-
-@media (max-width: 760px) {
-  .overlap {
-    margin-top: -40px;
-  }
+  margin-top: 0;
 }
 
 /* #AGILE stage cards — premium gold hover */
