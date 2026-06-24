@@ -195,8 +195,6 @@
    No transforms, no fixed/absolute, no opacity:0 — layout cannot break. */
 .panel {
   position: relative;
-  border-top-left-radius: clamp(20px, 3vw, 32px);
-  border-top-right-radius: clamp(20px, 3vw, 32px);
   box-shadow:
     0 -34px 64px -40px rgba(0, 0, 0, 0.62),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -208,10 +206,6 @@
 @media (max-width: 760px) {
   .overlap {
     margin-top: -40px;
-  }
-  .panel {
-    border-top-left-radius: 18px;
-    border-top-right-radius: 18px;
   }
 }
 
