@@ -1,10 +1,29 @@
 "use client";
 import React from "react";
-import { Card, Button, Icon } from "@/components";
-import { Reveal, AnimatedBG, ScrollProgress, siteStyles } from "@/site/helpers";
+import { Button, Icon } from "@/components";
+import { ScrollProgress, siteStyles } from "@/site/helpers";
 import { HeadingReveal } from "@/site/HeadingReveal";
+import { Stagger, FadeIn, Lift, Press } from "@/site/motion";
 import site from "@/data/site.json";
 import c from "./careers.module.css";
+
+type Role = { title: string; meta: string; icon: string };
+const ROLES = site.roles as Role[];
+
+/* Editable, reusable content for the supporting sections. */
+const WHY = [
+  { icon: "users", title: "Small senior team", desc: "No layers, no busywork — you work directly with the people shipping the product." },
+  { icon: "target", title: "High ownership", desc: "Own real surfaces end to end, from the first sketch to production." },
+  { icon: "gem", title: "Craft-focused", desc: "We sweat the details. Design and engineering quality are the point, not an afterthought." },
+  { icon: "waves", title: "Calm shipping culture", desc: "Steady momentum over crunch — clarity, focus, and a sustainable pace." },
+];
+
+const HOW = [
+  "Senior, async-friendly collaboration",
+  "Design and engineering, close together",
+  "Small teams, high trust",
+  "Ship with clarity and momentum",
+];
 
 export function CareersPage() {
   return (
@@ -17,50 +36,83 @@ export function CareersPage() {
             <img src="/assets/logo-mark.png" alt="" style={{ height: 28, width: "auto" }} />
             <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em" }}>Gienah</span>
           </a>
-          <Button size="sm" variant="ghost" className={siteStyles.btnGhostDark} as="a" href="/" leadingIcon={<Icon name="arrow-left" size={15} />}>Back to home</Button>
+          <Press><Button size="sm" variant="ghost" className={siteStyles.btnGhostDark} as="a" href="/" leadingIcon={<Icon name="arrow-left" size={15} />}>Back to home</Button></Press>
         </div>
       </header>
 
+      {/* ---------- hero ---------- */}
       <section className={c.hero}>
-        <AnimatedBG variant="lines" />
-        <div className={c.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 96, paddingBottom: 68, textAlign: "center" }}>
-          <Reveal><div className={c.eyebrow}>#JOB_OPPORTUNITIES</div></Reveal>
-          <HeadingReveal as="h1" style={{ fontSize: "clamp(40px,7vw,72px)", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1.04, margin: "14px auto 0", maxWidth: 860, color: "#fff" }} segments={[{ text: "Build the next one" }, { text: "with us.", accent: true }]} />
-          <Reveal delay={140}><p style={{ fontSize: 19, lineHeight: 1.6, color: "var(--text-secondary)", maxWidth: 560, margin: "20px auto 0" }}>We&apos;re a small, senior team that ships. If you care about craft and momentum, we&apos;d love to talk.</p></Reveal>
+        <div className={c.heroStars} aria-hidden="true" />
+        <div className={c.heroStar} aria-hidden="true" />
+        <div className={c.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 100, paddingBottom: 72, textAlign: "center" }}>
+          <FadeIn><div className={c.kicker}>Join Gienah</div></FadeIn>
+          <HeadingReveal as="h1" className={c.heroTitle} segments={[{ text: "Build the next one" }, { text: "with us.", accent: true }]} />
+          <FadeIn delay={0.12}><p className={c.heroLede}>We&apos;re a small, senior team that ships. If you care about craft and momentum, we&apos;d love to talk.</p></FadeIn>
         </div>
       </section>
 
-      <section className={c.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 48, paddingBottom: 56 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
-          {site.roles.map((r, i) => (
-            <Reveal key={r.title} delay={i * 70}>
-              <a href={`mailto:${site.email}?subject=Application`} style={{ display: "block", height: "100%" }}>
-                <Card interactive padding={22} className={[siteStyles.glassCard, siteStyles.glassCardInteractive].join(" ")} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, height: "100%" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <span style={{ width: 46, height: 46, borderRadius: 12, background: "var(--brand-gradient-soft)", color: "var(--accent-600)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}><Icon name={r.icon} size={21} /></span>
+      {/* ---------- open roles ---------- */}
+      <section className={c.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 52, paddingBottom: 12 }}>
+        <FadeIn><div className={c.eyebrow}>Open roles</div></FadeIn>
+        <Stagger className={c.jobs} gap={0.07}>
+          {ROLES.map((r) => (
+            <Lift asItem key={r.title}>
+              <a href={`mailto:${site.email}?subject=Application — ${encodeURIComponent(r.title)}`} className={c.jobLink}>
+                <div className={c.jobCard}>
+                  <div className={c.jobLeft}>
+                    <span className={c.jobIcon}><Icon name={r.icon} size={21} /></span>
                     <div>
-                      <div style={{ fontSize: 17, fontWeight: 600 }}>{r.title}</div>
-                      <div style={{ fontSize: 13.5, color: "var(--text-tertiary)", marginTop: 2 }}>{r.meta}</div>
+                      <div className={c.jobTitle}>{r.title}</div>
+                      <div className={c.jobMeta}>{r.meta}</div>
                     </div>
                   </div>
-                  <span style={{ color: "var(--text-tertiary)" }}><Icon name="arrow-right" size={20} /></span>
-                </Card>
+                  <span className={c.jobArrow}><Icon name="arrow-right" size={20} /></span>
+                </div>
               </a>
-            </Reveal>
+            </Lift>
           ))}
-        </div>
+        </Stagger>
       </section>
 
-      <section style={{ position: "relative", overflow: "hidden", borderTop: "1px solid var(--border-subtle)", background: "var(--bg-subtle)", padding: "64px 0" }}>
-        <AnimatedBG variant="glow" />
+      {/* ---------- why join ---------- */}
+      <section className={c.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 48, paddingBottom: 12 }}>
+        <FadeIn><div className={c.eyebrow}>Why join Gienah?</div></FadeIn>
+        <Stagger className={c.why} gap={0.08}>
+          {WHY.map((w) => (
+            <Lift asItem key={w.title} className={c.whyCard}>
+              <span className={c.whyIcon}><Icon name={w.icon} size={22} /></span>
+              <div className={c.whyTitle}>{w.title}</div>
+              <div className={c.whyDesc}>{w.desc}</div>
+            </Lift>
+          ))}
+        </Stagger>
+      </section>
+
+      {/* ---------- how we work ---------- */}
+      <section className={c.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 36, paddingBottom: 8 }}>
+        <FadeIn>
+          <div className={c.howStrip}>
+            {HOW.map((h) => (
+              <span key={h} className={c.howItem}>
+                <span className={c.howDot}><Icon name="check" size={13} /></span>
+                {h}
+              </span>
+            ))}
+          </div>
+        </FadeIn>
+      </section>
+
+      {/* ---------- bottom cta ---------- */}
+      <section className={c.cta} style={{ marginTop: 64 }}>
+        <div className={c.ctaGlow} aria-hidden="true" />
         <div className={c.wrap} style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-          <Reveal><p style={{ fontSize: 16, color: "var(--text-secondary)", margin: "0 0 18px" }}>Don&apos;t see your role? Tell us what you do best.</p></Reveal>
-          <Reveal delay={80}>
+          <FadeIn><p className={c.ctaText}>Don&apos;t see your role? Tell us what you do best — we hire for talent, not just titles.</p></FadeIn>
+          <FadeIn delay={0.08}>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-              <Button variant="primary" size="lg" className={siteStyles.btnGlow} as="a" href={`mailto:${site.email}`}>{site.email}</Button>
-              <Button variant="secondary" size="lg" className={siteStyles.btnSecondaryDark} as="a" href="/#contact">Start a project</Button>
+              <Press><Button variant="primary" size="lg" className={siteStyles.btnGlow} as="a" href={`mailto:${site.email}`} leadingIcon={<Icon name="mail" size={17} />}>{site.email}</Button></Press>
+              <Press><Button variant="secondary" size="lg" className={siteStyles.btnSecondaryDark} as="a" href="/#contact">Start a project</Button></Press>
             </div>
-          </Reveal>
+          </FadeIn>
         </div>
       </section>
     </div>

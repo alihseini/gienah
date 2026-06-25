@@ -1,4 +1,5 @@
-/* Careers — standalone page, dark cinematic theme with a distinct blue→gold gradient. */
+/* Careers — standalone premium hiring page, dark cosmic theme.
+ * Keyframes live in this module (project rule). Only opacity/transform animate. */
 .page {
   --bg-base: #0a1322;
   --bg-subtle: #0c1729;
@@ -16,7 +17,11 @@
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
 }
-.wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
 .header {
   position: sticky;
   top: 0;
@@ -26,15 +31,299 @@
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border-subtle);
 }
-.hero {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(158deg, #0c1a2e 0%, #143a5a 34%, #5a4a22 66%, #0c1a2e 100%);
-}
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--accent-300);
+}
+
+/* ---------------- hero ---------------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 84% at 50% -10%, rgba(20, 58, 90, 0.55), transparent 60%),
+    linear-gradient(160deg, #0b1626 0%, #102a44 36%, #2a2a2e 66%, #0a1322 100%);
+}
+/* faint sparse stars, kept to the edges so the centred headline stays clean */
+.heroStars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-repeat: no-repeat;
+  background-image:
+    radial-gradient(1px 1px at 8% 18%, rgba(190, 222, 250, 0.55), transparent 60%),
+    radial-gradient(1px 1px at 15% 70%, rgba(170, 210, 245, 0.45), transparent 60%),
+    radial-gradient(1.4px 1.4px at 6% 44%, rgba(210, 234, 255, 0.6), transparent 62%),
+    radial-gradient(1px 1px at 90% 22%, rgba(190, 222, 250, 0.5), transparent 60%),
+    radial-gradient(1px 1px at 94% 60%, rgba(170, 210, 245, 0.45), transparent 60%),
+    radial-gradient(1.4px 1.4px at 86% 78%, rgba(210, 234, 255, 0.55), transparent 62%),
+    radial-gradient(1.4px 1.4px at 11% 84%, rgba(246, 214, 142, 0.5), transparent 60%),
+    radial-gradient(1.4px 1.4px at 91% 40%, rgba(246, 214, 142, 0.45), transparent 60%);
+}
+/* small, subtle Gienah star — OFF-CENTRE (upper-right), never behind the headline */
+.heroStar {
+  position: absolute;
+  top: 16%;
+  right: 13%;
+  width: 4px;
+  height: 4px;
+  pointer-events: none;
+}
+.heroStar::before {
+  /* halo */
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 220px;
+  height: 220px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(88, 171, 206, 0.34), rgba(42, 146, 204, 0.12) 42%, transparent 70%);
+  mix-blend-mode: screen;
+  filter: blur(6px);
+}
+.heroStar::after {
+  /* blue-white core */
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 60px;
+  height: 60px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, rgba(220, 240, 255, 0.9) 22%, rgba(150, 205, 235, 0.5) 46%, transparent 70%);
+  mix-blend-mode: screen;
+  animation: careersTwinkle 5.5s var(--ease-in-out) infinite;
+}
+@keyframes careersTwinkle {
+  0%,
+  100% {
+    opacity: 0.78;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-300);
+}
+.heroTitle {
+  font-size: clamp(40px, 7vw, 72px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.04;
+  margin: 14px auto 0;
+  max-width: 860px;
+  color: #fff;
+}
+.heroLede {
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 560px;
+  margin: 20px auto 0;
+}
+
+/* ---------------- job cards ---------------- */
+.jobs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+.jobLink {
+  display: block;
+  height: 100%;
+  text-decoration: none;
+}
+.jobCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 20px 22px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.022));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition:
+    border-color 0.35s var(--ease-out),
+    box-shadow 0.35s var(--ease-out),
+    background 0.35s var(--ease-out);
+}
+.jobCard:hover {
+  border-color: rgba(88, 171, 206, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 26px 56px -32px rgba(0, 0, 0, 0.85),
+    0 0 44px -14px rgba(88, 171, 206, 0.4);
+}
+.jobLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.jobIcon {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-400);
+  background: var(--brand-gradient-soft);
+  border: 1px solid rgba(88, 171, 206, 0.22);
+  transition: box-shadow 0.35s var(--ease-out), color 0.35s var(--ease-out);
+}
+.jobCard:hover .jobIcon {
+  color: #cfeaff;
+  box-shadow: 0 0 26px -6px rgba(88, 171, 206, 0.7);
+}
+.jobTitle {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.jobMeta {
+  font-size: 13.5px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+.jobArrow {
+  color: var(--text-tertiary);
+  flex: none;
+  transition: transform 0.35s var(--ease-out), color 0.35s var(--ease-out);
+}
+.jobCard:hover .jobArrow {
+  transform: translateX(5px);
+  color: var(--accent-300);
+}
+
+/* ---------------- why join ---------------- */
+.why {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+.whyCard {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 24px 22px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: border-color 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+}
+.whyCard:hover {
+  border-color: rgba(88, 171, 206, 0.45);
+  box-shadow:
+    0 26px 56px -32px rgba(0, 0, 0, 0.85),
+    0 0 40px -16px rgba(88, 171, 206, 0.32);
+}
+.whyIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: var(--gold-400);
+  background: rgba(244, 198, 95, 0.1);
+  border: 1px solid rgba(244, 198, 95, 0.22);
+  margin-bottom: 14px;
+}
+.whyTitle {
+  font-size: 16.5px;
+  font-weight: 600;
+  color: #fff;
+}
+.whyDesc {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+/* ---------------- how we work strip ---------------- */
+.howStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: 20px 22px;
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.025);
+}
+.howItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 4px 6px;
+}
+.howDot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 50%;
+  color: var(--accent-300);
+  background: rgba(88, 171, 206, 0.14);
+}
+
+/* ---------------- bottom cta ---------------- */
+.cta {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--border-subtle);
+  background: linear-gradient(180deg, #0a1322, #070d18);
+  padding: 70px 0 78px;
+}
+.ctaGlow {
+  position: absolute;
+  left: 50%;
+  bottom: -50%;
+  width: 76%;
+  height: 130%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(88, 171, 206, 0.2), rgba(244, 198, 95, 0.06) 42%, transparent 70%);
+  filter: blur(48px);
+  mix-blend-mode: screen;
+  opacity: 0.9;
+}
+.ctaText {
+  font-size: 17px;
+  color: var(--text-secondary);
+  margin: 0 0 20px;
+}
+
+/* ---------------- responsive ---------------- */
+@media (max-width: 720px) {
+  .howStrip {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .heroStar::after {
+    animation: none;
+  }
 }
