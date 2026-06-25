@@ -421,8 +421,12 @@
 /* ===== devices (product phone frames) ===== */
 .device {
   /* every internal dimension is derived from --dw so the phone scales without
-     deforming — change only --dw and the radius / padding / notch stay in ratio */
-  --dw: 270px;
+     deforming — change only --dw and the radius / padding / notch stay in ratio.
+     On the desktop deck the width is also capped to the viewport height (29vh →
+     ~59vh tall) so the phone always fits inside .featDeck on short windows and
+     never spills out of the 100vh sticky frame. Carousel phones override --dw
+     with a fixed px (higher specificity), so they're unaffected. */
+  --dw: min(270px, 29vh);
   position: relative;
   width: var(--dw);
   height: calc(var(--dw) * 2.044);
@@ -848,6 +852,58 @@
 /* the featured product deck (fixed-height stage the absolute product slides fill) */
 .featDeck {
   height: min(560px, 62vh);
+}
+/* desktop scroll-deck stages: vertical padding inside the 100vh sticky frame.
+   On short windows the padding (and decks) shrink so the dot indicators and the
+   product phone are never clipped off the bottom of the frame. */
+.stage {
+  padding-top: 92px;
+  padding-bottom: 44px;
+}
+.stageSvc {
+  padding: 100px 0 52px;
+}
+.svcDeck {
+  position: relative;
+  margin-top: 8px;
+  height: clamp(380px, 56vh, 520px);
+}
+@media (max-height: 860px) {
+  .stage {
+    padding-top: 60px;
+    padding-bottom: 30px;
+  }
+  .stageSvc {
+    padding: 60px 0 30px;
+  }
+  .featDeck {
+    height: min(520px, 56vh);
+  }
+  .svcDeck {
+    height: clamp(320px, 52vh, 460px);
+  }
+  /* keep the phone inside the (now shorter) deck — 26vh ≈ 53vh tall < 56vh */
+  .device {
+    --dw: min(240px, 26vh);
+  }
+}
+@media (max-height: 700px) {
+  .stage {
+    padding-top: 34px;
+    padding-bottom: 18px;
+  }
+  .stageSvc {
+    padding: 36px 0 18px;
+  }
+  .featDeck {
+    height: min(460px, 52vh);
+  }
+  .svcDeck {
+    height: clamp(264px, 48vh, 420px);
+  }
+  .device {
+    --dw: min(208px, 23vh);
+  }
 }
 @media (max-width: 920px) {
   .navDesktop {
