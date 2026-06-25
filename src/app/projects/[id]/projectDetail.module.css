@@ -21,11 +21,40 @@
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  position: relative;
 }
 .page[data-tone="gold"] {
   --proj-accent: #f4c65f;
   --proj-accent-2: #e2aa3b;
   --proj-rgb: 244, 198, 95;
+}
+/* ONE unified cosmic surface spanning the whole page body (behind all content).
+   Sections are separated by spacing, glass cards, glow and soft dividers — never
+   by a change of background band. Static gradients + a tiled faint starfield. */
+.canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 30% at 50% 0%, rgba(16, 42, 68, 0.55), transparent 70%),
+    radial-gradient(70% 16% at 82% 26%, rgba(88, 171, 206, 0.1), transparent 70%),
+    radial-gradient(60% 16% at 10% 54%, rgba(244, 198, 95, 0.05), transparent 70%),
+    radial-gradient(90% 26% at 50% 100%, rgba(42, 146, 204, 0.16), transparent 72%),
+    #070d18;
+}
+.canvasStars {
+  position: absolute;
+  inset: 0;
+  opacity: 0.4;
+  background-repeat: repeat;
+  background-size: 360px 340px;
+  background-image:
+    radial-gradient(1px 1px at 18% 24%, rgba(190, 222, 250, 0.5), transparent 60%),
+    radial-gradient(1px 1px at 68% 58%, rgba(170, 210, 245, 0.42), transparent 60%),
+    radial-gradient(1.3px 1.3px at 44% 82%, rgba(210, 234, 255, 0.45), transparent 62%),
+    radial-gradient(1px 1px at 86% 14%, rgba(246, 214, 142, 0.4), transparent 60%);
 }
 .wrap {
   max-width: 1080px;
@@ -58,9 +87,10 @@
 /* ---------------- hero ---------------- */
 .hero {
   position: relative;
+  z-index: 1;
   overflow: hidden;
   padding: 70px 0 46px;
-  background: radial-gradient(130% 92% at 50% 0%, #0c1b30 0%, #0a1322 54%, #070d18 100%);
+  /* no background band — the unified .canvas + .heroGlow provide the cosmic look */
 }
 /* subtle, off-centre project glow — kept to the top-right, never behind the
    title or CTA (which are left-aligned) */
@@ -423,10 +453,20 @@
 /* ---------------- cinematic outro ---------------- */
 .outro {
   position: relative;
+  z-index: 1;
   overflow: hidden;
-  border-top: 1px solid var(--border-subtle);
-  background: linear-gradient(180deg, #0a1322, #070d18);
   padding: 64px 0 72px;
+}
+/* soft, centred divider instead of a hard full-width border + background band */
+.outro::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(680px, 82%);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
 }
 .outroGlow {
   position: absolute;

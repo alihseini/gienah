@@ -96,6 +96,7 @@ export function ProjectDetail({ id }: { id: number }) {
 
   return (
     <div className={d.page} data-tone={p.tone}>
+      <div className={d.canvas} aria-hidden="true"><div className={d.canvasStars} /></div>
       <ScrollProgress />
       <div style={{ height: 3, background: "var(--brand-gradient)" }} />
       <header className={d.header}>
@@ -160,7 +161,7 @@ export function ProjectDetail({ id }: { id: number }) {
       </section>
 
       {/* ---------- overview + at a glance ---------- */}
-      <section style={{ position: "relative", overflow: "hidden" }}>
+      <section style={{ position: "relative", overflow: "hidden", zIndex: 1 }}>
         <div className={d.softGlow} data-pos="left" aria-hidden="true" />
         <div className={d.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 64, paddingBottom: 24 }}>
           <div className={d.overviewGrid}>
