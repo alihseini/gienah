@@ -28,7 +28,7 @@ const HOW = [
 export function CareersPage() {
   return (
     <div className={c.page}>
-      <div className={c.canvas} aria-hidden="true"><div className={c.canvasStars} /></div>
+      <div className={c.canvas} aria-hidden="true"><div className={c.canvasStars} /><div className={c.canvasStars2} /></div>
       <ScrollProgress />
       <div style={{ height: 3, background: "var(--brand-gradient)" }} />
       <header className={c.header}>

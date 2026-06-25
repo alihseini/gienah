@@ -34,17 +34,54 @@
     radial-gradient(90% 26% at 50% 100%, rgba(42, 146, 204, 0.16), transparent 72%),
     #070d18;
 }
+/* Layered starfield (Hero star language at MEDIUM density): a faint tiled base
+   everywhere + a brighter, size-varied, soft-glow layer with a gentle twinkle.
+   The bright layer is edge-emphasised (dimmer through the central content column)
+   so headlines / cards / CTAs stay clean while the outer zones feel cosmic. */
 .canvasStars {
   position: absolute;
   inset: 0;
-  opacity: 0.4;
+  opacity: 0.58;
   background-repeat: repeat;
-  background-size: 360px 340px;
+  background-size: 300px 300px;
   background-image:
-    radial-gradient(1px 1px at 18% 24%, rgba(190, 222, 250, 0.5), transparent 60%),
-    radial-gradient(1px 1px at 68% 58%, rgba(170, 210, 245, 0.42), transparent 60%),
-    radial-gradient(1.3px 1.3px at 44% 82%, rgba(210, 234, 255, 0.45), transparent 62%),
-    radial-gradient(1px 1px at 86% 14%, rgba(246, 214, 142, 0.4), transparent 60%);
+    radial-gradient(1px 1px at 12% 18%, rgba(190, 222, 250, 0.5), transparent 60%),
+    radial-gradient(1px 1px at 62% 30%, rgba(170, 210, 245, 0.44), transparent 60%),
+    radial-gradient(1px 1px at 38% 62%, rgba(205, 230, 255, 0.46), transparent 60%),
+    radial-gradient(1px 1px at 82% 72%, rgba(180, 216, 248, 0.42), transparent 60%),
+    radial-gradient(1px 1px at 24% 88%, rgba(200, 228, 255, 0.44), transparent 60%),
+    radial-gradient(1.2px 1.2px at 88% 12%, rgba(246, 214, 142, 0.4), transparent 60%);
+}
+.canvasStars2 {
+  position: absolute;
+  inset: 0;
+  opacity: 0.9;
+  background-repeat: repeat;
+  background-size: 430px 470px;
+  background-image:
+    radial-gradient(30px 30px at 18% 24%, rgba(88, 171, 206, 0.12), transparent 70%),
+    radial-gradient(34px 34px at 84% 60%, rgba(244, 198, 95, 0.08), transparent 70%),
+    radial-gradient(2px 2px at 18% 24%, rgba(220, 238, 255, 0.95), transparent 64%),
+    radial-gradient(2.2px 2.2px at 64% 14%, rgba(230, 242, 255, 0.95), transparent 64%),
+    radial-gradient(1.7px 1.7px at 40% 40%, rgba(196, 228, 252, 0.85), transparent 62%),
+    radial-gradient(2px 2px at 84% 60%, rgba(246, 214, 142, 0.88), transparent 62%),
+    radial-gradient(1.8px 1.8px at 10% 70%, rgba(220, 238, 255, 0.85), transparent 62%),
+    radial-gradient(2px 2px at 30% 86%, rgba(244, 206, 128, 0.78), transparent 62%),
+    radial-gradient(1.7px 1.7px at 58% 78%, rgba(206, 232, 255, 0.85), transparent 62%),
+    radial-gradient(1.8px 1.8px at 92% 30%, rgba(220, 238, 255, 0.82), transparent 62%),
+    radial-gradient(1.6px 1.6px at 50% 96%, rgba(200, 230, 255, 0.8), transparent 62%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, 0.55) 32%, rgba(0, 0, 0, 0.55) 68%, #000 100%);
+  mask-image: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, 0.55) 32%, rgba(0, 0, 0, 0.55) 68%, #000 100%);
+  animation: canvasTwinkle 7s var(--ease-in-out) infinite;
+}
+@keyframes canvasTwinkle {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.92;
+  }
 }
 .wrap {
   max-width: 1080px;
@@ -376,7 +413,8 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .heroStar::after {
+  .heroStar::after,
+  .canvasStars2 {
     animation: none;
   }
 }

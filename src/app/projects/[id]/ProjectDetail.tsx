@@ -96,7 +96,7 @@ export function ProjectDetail({ id }: { id: number }) {
 
   return (
     <div className={d.page} data-tone={p.tone}>
-      <div className={d.canvas} aria-hidden="true"><div className={d.canvasStars} /></div>
+      <div className={d.canvas} aria-hidden="true"><div className={d.canvasStars} /><div className={d.canvasStars2} /></div>
       <ScrollProgress />
       <div style={{ height: 3, background: "var(--brand-gradient)" }} />
       <header className={d.header}>
