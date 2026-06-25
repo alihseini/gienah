@@ -17,6 +17,7 @@ export function ProductsBackdrop() {
       <div className={s.aurora} />
       <div className={s.glass} />
       <div className={s.stars} />
+      <div className={s.starsWarm} />
       <div className={s.rim} />
       <div className={s.vignette} />
     </div>
