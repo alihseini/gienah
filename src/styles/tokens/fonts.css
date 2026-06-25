@@ -1,6 +1,7 @@
 /* Gienah — Webfonts
- * Geist (UI / display) + Geist Mono (code, labels, data) via Google Fonts.
- * NOTE: linked from the Google Fonts CDN. For production, self-host the .woff2
- * binaries and replace these @import lines with local @font-face rules.
+ * Geist (UI / display) + Geist Mono (code, labels, data) are now loaded via
+ * next/font/google in src/app/layout.tsx — self-hosted at build time with a
+ * metric-matched fallback (no runtime CDN request, no font-swap layout shift).
+ * The previous remote @import from the Google Fonts CDN was the main cause of
+ * the local/production rendering mismatch and is intentionally removed.
  */
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap');
