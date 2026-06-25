@@ -245,10 +245,7 @@ export function Services() {
   // scroll-stepped deck. Detected after mount so SSR + first paint agree.
   const [carousel, setCarousel] = React.useState(false);
   React.useEffect(() => {
-    // also fall back to the swipe carousel on short windows — the 100vh scroll
-    // deck can't fit the card content + header + dots when the viewport is short,
-    // so the natural-height carousel (which just scrolls) is used instead.
-    const mq = window.matchMedia("(max-width: 1024px), (max-height: 700px)");
+    const mq = window.matchMedia("(max-width: 1024px)");
     const apply = () => setCarousel(mq.matches);
     apply();
     mq.addEventListener("change", apply);
@@ -305,14 +302,14 @@ export function Services() {
   return (
     <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
-        <div className={s.stageSvc} style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "radial-gradient(70% 60% at 80% 12%, rgba(88,171,206,0.22), rgba(244,198,95,0.11) 36%, transparent 64%), radial-gradient(60% 64% at 12% 90%, rgba(42,146,204,0.16), transparent 62%), var(--page-bg)" }}>
+        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "100px 0 52px", boxSizing: "border-box", overflow: "hidden", background: "radial-gradient(70% 60% at 80% 12%, rgba(88,171,206,0.22), rgba(244,198,95,0.11) 36%, transparent 64%), radial-gradient(60% 64% at 12% 90%, rgba(42,146,204,0.16), transparent 62%), var(--page-bg)" }}>
           <Aurora />
           <Meteors />
           {/* Gienah star accent above the title + a soft halo wash over the deck */}
           <GienahLight pos="top" tone="blue" size="md" flare={false} />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             {Header}
-            <div className={s.svcDeck}>
+            <div style={{ position: "relative", height: "clamp(420px, 56vh, 520px)", marginTop: 8 }}>
               {SERVICES.map((svc, i) => <ServiceSlide key={svc.title} s={svc} d={i - active} />)}
             </div>
             <div style={{ display: "flex", justifyContent: "center", gap: 9, marginTop: 22 }}>
@@ -479,10 +476,7 @@ export function Featured() {
   // server and client agree — no hydration mismatch.
   const [carousel, setCarousel] = React.useState(false);
   React.useEffect(() => {
-    // also fall back to the swipe carousel on short windows — the 100vh scroll
-    // deck can't fit the card content + header + dots when the viewport is short,
-    // so the natural-height carousel (which just scrolls) is used instead.
-    const mq = window.matchMedia("(max-width: 1024px), (max-height: 700px)");
+    const mq = window.matchMedia("(max-width: 1024px)");
     const apply = () => setCarousel(mq.matches);
     apply();
     mq.addEventListener("change", apply);
@@ -519,7 +513,7 @@ export function Featured() {
   return (
     <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
-        <div className={s.stage} style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
+        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
           {/* Three.js LightPillar kept, but dimmed to a subtle distant accent so
               the new cosmic-glass backdrop and the products stay dominant */}
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.5 }}>

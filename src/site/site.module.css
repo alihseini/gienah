@@ -421,12 +421,8 @@
 /* ===== devices (product phone frames) ===== */
 .device {
   /* every internal dimension is derived from --dw so the phone scales without
-     deforming — change only --dw and the radius / padding / notch stay in ratio.
-     On the desktop deck the width is also capped to the viewport height (29vh →
-     ~59vh tall) so the phone always fits inside .featDeck on short windows and
-     never spills out of the 100vh sticky frame. Carousel phones override --dw
-     with a fixed px (higher specificity), so they're unaffected. */
-  --dw: min(270px, 29vh);
+     deforming — change only --dw and the radius / padding / notch stay in ratio */
+  --dw: 270px;
   position: relative;
   width: var(--dw);
   height: calc(var(--dw) * 2.044);
@@ -852,43 +848,6 @@
 /* the featured product deck (fixed-height stage the absolute product slides fill) */
 .featDeck {
   height: min(560px, 62vh);
-}
-/* desktop scroll-deck stages: vertical padding inside the 100vh sticky frame.
-   On short windows the padding (and decks) shrink so the dot indicators and the
-   product phone are never clipped off the bottom of the frame. */
-.stage {
-  padding-top: 92px;
-  padding-bottom: 44px;
-}
-.stageSvc {
-  padding: 100px 0 52px;
-}
-/* the Services deck never shrinks below the panel's content height (~440px) or
-   the capabilities/tags clip — on windows too short to fit that, the section
-   switches to the swipe carousel (JS: max-height 700px) instead of clipping. */
-.svcDeck {
-  position: relative;
-  margin-top: 8px;
-  height: clamp(440px, 58vh, 520px);
-}
-@media (max-height: 860px) {
-  .stage {
-    padding-top: 52px;
-    padding-bottom: 26px;
-  }
-  .stageSvc {
-    padding: 48px 0 24px;
-  }
-  .featDeck {
-    height: min(520px, 56vh);
-  }
-  .svcDeck {
-    height: clamp(440px, 56vh, 500px);
-  }
-  /* keep the phone inside the (now shorter) deck — 26vh ≈ 53vh tall < 56vh */
-  .device {
-    --dw: min(240px, 26vh);
-  }
 }
 @media (max-width: 920px) {
   .navDesktop {
