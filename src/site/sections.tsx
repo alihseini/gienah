@@ -65,22 +65,26 @@ export function Hero() {
   }, []);
 
   return (
-    <section id="top" className={s.page} style={{ overflow: "hidden", padding: "150px 0 110px" }}>
+    <section id="top" className={s.page} style={{ overflow: "hidden", padding: "172px 0 110px" }}>
       {/* layered background, all behind content & with different scroll speeds for depth:
           atmosphere (slowest glow) → stars (medium) → main constellation (fastest).
           Each keeps its existing pointer-parallax / float; the wrappers only add the
-          scroll-linked drift on top, so text & buttons stay perfectly still. */}
-      <ScrollParallax max={30}><HeroAtmosphere ref={atmoRef} /></ScrollParallax>
-      <ScrollParallax max={48}><StarField /></ScrollParallax>
-      <ScrollParallax max={64}>
-        <div ref={constRef} style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none", willChange: "transform" }}>
-          <LogoConstellation />
-        </div>
-      </ScrollParallax>
-      {/* Gienah light signature: a subtle off-centre star tucked into a safe
-          corner — never behind the headline/CTA; the hero star field stays the
-          main identity */}
-      <GienahLight pos="corner" tone="mixed" size="md" flare twinkle />
+          scroll-linked drift on top, so text & buttons stay perfectly still.
+          The .heroBg wrapper masks the top so the starfield/constellation fades out
+          of the navbar zone (never sits behind the floating nav). */}
+      <div className={s.heroBg} aria-hidden="true">
+        <ScrollParallax max={30}><HeroAtmosphere ref={atmoRef} /></ScrollParallax>
+        <ScrollParallax max={48}><StarField /></ScrollParallax>
+        <ScrollParallax max={64}>
+          <div ref={constRef} style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none", willChange: "transform" }}>
+            <LogoConstellation />
+          </div>
+        </ScrollParallax>
+        {/* Gienah light signature: a subtle off-centre star tucked into a safe
+            corner — never behind the headline/CTA; the hero star field stays the
+            main identity */}
+        <GienahLight pos="corner" tone="mixed" size="md" flare twinkle />
+      </div>
       <div className={s.wrap} style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
         <FadeIn y={12}>
           <div style={{ display: "inline-flex", marginBottom: 26 }}>
@@ -340,12 +344,48 @@ function ProductSlide({ p, d }: { p: Product; d: number }) {
   );
 }
 
+/* Mobile/tablet product card — full, readable content in a swipe-carousel cell
+   (no absolute positioning, natural height; reuses the same product data). */
+function ProductCard({ p }: { p: Product }) {
+  return (
+    <div className={s.pcard}>
+      <PhoneFrame p={p} />
+      <div className={s.pcardText}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+          <Badge variant={p.tone === "gold" ? "warning" : "accent"} className={p.tone === "gold" ? s.darkBadgeWarning : s.darkBadgeAccent}>{p.category}</Badge>
+          <Badge variant="neutral" className={s.darkBadgeNeutral}>{p.year}</Badge>
+        </div>
+        <h3 style={{ fontSize: "clamp(24px, 5vw, 32px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 12px" }}>{p.title}</h3>
+        <p style={{ fontSize: 15.5, lineHeight: 1.6, color: "var(--text-secondary)", margin: "0 0 14px" }}>{p.blurb}</p>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-tertiary)", marginBottom: 18 }}>{p.tech}</div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          {p.website && <Button variant="primary" size="sm" className={s.btnGlow} as="a" href={p.website} target="_blank" rel="noopener" trailingIcon={<Icon name="external-link" size={14} />}>Website</Button>}
+          {p.download && <Button variant="secondary" size="sm" as="a" href={p.download} target="_blank" rel="noopener" leadingIcon={<Icon name="download" size={14} />}>Download</Button>}
+          <Button variant={p.website ? "ghost" : "primary"} size="sm" className={p.website ? "" : s.btnGlow} as="a" href={`/projects/${p.id}`} trailingIcon={<Icon name="arrow-right" size={14} />}>Case study</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Featured() {
   const trackRef = React.useRef<HTMLDivElement>(null);
   const idxRef = React.useRef(0);
   const [active, setActive] = React.useState(0);
+  // mobile/tablet (<=1024) renders a native swipe carousel; desktop keeps the
+  // sticky deck. Detected AFTER mount (SSR + first paint render the deck) so the
+  // server and client agree — no hydration mismatch.
+  const [carousel, setCarousel] = React.useState(false);
+  React.useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1024px)");
+    const apply = () => setCarousel(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
   const N = FEATURED.length;
   React.useEffect(() => {
+    if (carousel) return; // desktop-only scroll deck — no scroll listener on mobile/tablet
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
     let raf = 0;
     const update = () => {
@@ -364,7 +404,30 @@ export function Featured() {
     window.addEventListener("resize", onScroll);
     update();
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [N]);
+  }, [N, carousel]);
+
+  // ---- mobile / tablet: native swipe carousel (scroll-snap, no scroll JS) ----
+  if (carousel) {
+    return (
+      <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
+        <div style={{ position: "relative", overflow: "hidden", padding: "78px 0 60px", background: "var(--page-bg)" }}>
+          {/* same background system as desktop, just non-sticky */}
+          <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.5 }}>
+            <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={0.45} rotationSpeed={0.3} glowAmount={0.002} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.5} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
+          </div>
+          <ProductsBackdrop />
+          <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
+            <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
+            <div className={s.pcarousel}>
+              {FEATURED.map((p) => <ProductCard key={p.id} p={p} />)}
+            </div>
+            <div className={s.pcardHint} aria-hidden="true"><Icon name="arrow-left" size={13} /> swipe to explore <Icon name="arrow-right" size={13} /></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>

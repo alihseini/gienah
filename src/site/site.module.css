@@ -101,6 +101,18 @@
 .parallax {
   will-change: transform;
 }
+/* hero decorative background wrapper — fades the starfield/constellation out of
+   the top navbar zone so nothing glows behind the floating nav (navbar height +
+   breathing room). Layering only; does not touch the layers' own animations. */
+.heroBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, transparent 56px, #000 112px);
+  mask-image: linear-gradient(to bottom, transparent 0, transparent 56px, #000 112px);
+}
 
 .marquee {
   display: inline-flex;
@@ -876,6 +888,77 @@
   .fabItem {
     width: 100%;
     justify-content: flex-start;
+  }
+}
+
+/* ===== mobile / tablet products swipe carousel (desktop uses the sticky deck) ===== */
+.pcarousel {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-inline: 7%;
+  padding: 10px 2px 12px;
+  margin-top: 12px;
+  scrollbar-width: none;
+}
+.pcarousel::-webkit-scrollbar {
+  display: none;
+}
+.pcard {
+  flex: 0 0 86%;
+  max-width: 440px;
+  scroll-snap-align: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 20px 24px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.022));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 24px 60px -34px rgba(0, 0, 0, 0.85);
+}
+.pcardText {
+  width: 100%;
+}
+/* shrink the product device inside carousel cards so the text leads (tablet) */
+.pcard .device {
+  width: 168px;
+  height: 342px;
+}
+.pcard .device::after {
+  width: 76px;
+}
+.pcardHint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+/* mobile: smaller product image so it never dominates the card (ratio kept) */
+@media (max-width: 640px) {
+  .pcard .device {
+    width: 132px;
+    height: 270px;
+  }
+  .pcard .device::after {
+    width: 60px;
+  }
+  .pcard {
+    gap: 14px;
+    padding: 20px 18px 22px;
   }
 }
 
