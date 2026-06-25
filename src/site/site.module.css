@@ -830,16 +830,52 @@
 .svcPanel {
   grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
 }
+/* the featured product deck (fixed-height stage the absolute product slides fill) */
+.featDeck {
+  height: min(560px, 62vh);
+}
 @media (max-width: 920px) {
   .navDesktop {
     display: none !important;
   }
+  /* product slide stacks text-first (always visible) above the device, which can
+     crop at the bottom rather than hiding the product text */
   .featrow {
-    flex-direction: column !important;
+    flex-direction: column-reverse !important;
+    gap: 18px !important;
+  }
+  .featDeck {
+    height: min(660px, 84vh);
+  }
+  .device {
+    width: 208px;
+    height: 424px;
   }
   .respGrid2,
   .svcPanel {
     grid-template-columns: 1fr !important;
+  }
+}
+/* mobile / small-tablet: the floating menu stacks vertically — the horizontal
+   pill doesn't fit and would clip its items */
+@media (max-width: 860px) {
+  .fabOpen .fabPanel {
+    width: min(248px, calc(100vw - 24px)) !important;
+    height: auto !important;
+    border-radius: 18px !important;
+  }
+  .fabPanelInner {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    height: auto;
+    gap: 4px;
+    padding: 10px;
+    white-space: normal;
+  }
+  .fabItem {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
 

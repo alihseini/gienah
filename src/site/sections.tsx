@@ -380,7 +380,7 @@ export function Featured() {
           <ProductsBackdrop />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
-            <div style={{ position: "relative", height: "min(560px, 62vh)", marginTop: 6 }}>
+            <div className={s.featDeck} style={{ position: "relative", marginTop: 6 }}>
               {FEATURED.map((p, i) => <ProductSlide key={p.id} p={p} d={i - active} />)}
             </div>
             <div style={{ display: "flex", justifyContent: "center", gap: 9, marginTop: 14 }}>
