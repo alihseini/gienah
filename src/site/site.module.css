@@ -926,6 +926,36 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
     0 24px 60px -34px rgba(0, 0, 0, 0.85);
 }
+
+/* ===== coverflow: the centered (active) card leads, neighbours recede =====
+   Only applied once JS marks the rail [data-enhanced], so no-JS shows full cards.
+   Transform/opacity only → GPU-cheap, smooth on touch. */
+.pcarousel[data-enhanced] > .pcard,
+.pcarousel[data-enhanced] > .scard {
+  transform: scale(0.9);
+  opacity: 0.5;
+  filter: saturate(0.85);
+  transition:
+    transform 0.5s var(--ease-out),
+    opacity 0.5s var(--ease-out),
+    filter 0.5s var(--ease-out),
+    box-shadow 0.5s var(--ease-out);
+  will-change: transform, opacity;
+}
+.pcarousel[data-enhanced] > .pcard[data-active],
+.pcarousel[data-enhanced] > .scard[data-active] {
+  transform: scale(1);
+  opacity: 1;
+  filter: none;
+}
+/* active product card gets a soft brand halo so it reads as the hero of the deck */
+.pcarousel[data-enhanced] > .pcard[data-active] {
+  border-color: rgba(88, 171, 206, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 30px 70px -34px rgba(0, 0, 0, 0.9),
+    0 0 46px -14px rgba(42, 146, 204, 0.5);
+}
 .pcardText {
   width: 100%;
 }
@@ -946,7 +976,26 @@
   text-transform: uppercase;
   color: var(--text-tertiary);
 }
-/* services swipe carousel — each cell holds a full ServicePanel at natural height */
+/* the arrows nudge outward to advertise the swipe gesture */
+.pcardHintLive svg {
+  animation: hintArrow 1.9s var(--ease-in-out) infinite;
+}
+.pcardHintLive svg:first-of-type {
+  animation-name: hintArrowL;
+}
+.pcardHintLive svg:last-of-type {
+  animation-name: hintArrowR;
+}
+@keyframes hintArrowL {
+  0%, 100% { transform: translateX(0); opacity: 0.45; }
+  50% { transform: translateX(-3px); opacity: 1; }
+}
+@keyframes hintArrowR {
+  0%, 100% { transform: translateX(0); opacity: 0.45; }
+  50% { transform: translateX(3px); opacity: 1; }
+}
+/* services swipe carousel — cells stretch to a shared height so every card in
+   the deck is the same size regardless of how much copy it holds */
 .scarousel {
   align-items: stretch;
   scroll-padding-inline: 6%;
@@ -958,13 +1007,12 @@
   scroll-snap-align: center;
   box-sizing: border-box;
   display: flex;
+  align-items: stretch;
 }
+/* the panel chain (svcSlide → svcPanel both height:100% inline) now fills the
+   stretched cell, so shorter cards grow to match the tallest one */
 .scard > * {
   width: 100%;
-  height: auto !important;
-}
-.scard .svcPanel {
-  height: auto !important;
 }
 /* mobile: smaller product image so it never dominates the card (ratio kept) */
 @media (max-width: 640px) {
@@ -993,6 +1041,17 @@
   }
   .marquee,
   .blob {
+    animation: none !important;
+  }
+  /* coverflow + swipe hint are calmed: full, equal cards, no nudging arrows */
+  .pcarousel[data-enhanced] > .pcard,
+  .pcarousel[data-enhanced] > .scard {
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  .pcardHintLive svg {
     animation: none !important;
   }
   .site :global([data-parallax]) {

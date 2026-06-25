@@ -206,6 +206,31 @@ function ServiceSlide({ s: svc, d }: { s: Service; d: number }) {
   );
 }
 
+/* Mobile/tablet services carousel — equal-height cards, scroll-snap, coverflow
+   active state + staggered entrance. Own component so the hooks stay mobile-only. */
+function ServicesCarousel({ header }: { header: React.ReactNode }) {
+  const railRef = React.useRef<HTMLDivElement>(null);
+  const active = useActiveCard(railRef, SERVICES.length);
+  return (
+    <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2, padding: "96px 0 84px" }}>
+      <Aurora />
+      <Meteors />
+      <GienahLight pos="top" tone="blue" size="md" flare={false} />
+      <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
+        {header}
+        <FadeIn y={22} amount={0.18}>
+          <div className={[s.pcarousel, s.scarousel].join(" ")} ref={railRef}>
+            {SERVICES.map((svc, i) => (
+              <div className={s.scard} key={svc.title} data-active={i === active ? "" : undefined}><ServicePanel s={svc} /></div>
+            ))}
+          </div>
+          <div className={[s.pcardHint, s.pcardHintLive].join(" ")} aria-hidden="true"><Icon name="arrow-left" size={13} /> swipe through services <Icon name="arrow-right" size={13} /></div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
 export function Services() {
   const trackRef = React.useRef<HTMLDivElement>(null);
   const idxRef = React.useRef(0);
@@ -255,22 +280,7 @@ export function Services() {
 
   // ---- mobile / tablet: native swipe carousel through the service cards ----
   if (carousel) {
-    return (
-      <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2, padding: "96px 0 84px" }}>
-        <Aurora />
-        <Meteors />
-        <GienahLight pos="top" tone="blue" size="md" flare={false} />
-        <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
-          {Header}
-          <div className={[s.pcarousel, s.scarousel].join(" ")}>
-            {SERVICES.map((svc) => (
-              <div className={s.scard} key={svc.title}><ServicePanel s={svc} /></div>
-            ))}
-          </div>
-          <div className={s.pcardHint} aria-hidden="true"><Icon name="arrow-left" size={13} /> swipe through services <Icon name="arrow-right" size={13} /></div>
-        </div>
-      </section>
-    );
+    return <ServicesCarousel header={Header} />;
   }
 
   if (reduce) {
@@ -374,11 +384,42 @@ function ProductSlide({ p, d }: { p: Product; d: number }) {
   );
 }
 
+/* Tracks which carousel cell is centered in the scroller, so the active card can
+   be emphasised (coverflow) while neighbours recede. rAF-throttled, passive. The
+   carousel gets data-enhanced so the dim/scale styling only applies once JS runs
+   (no-JS / SSR shows every card at full prominence). */
+function useActiveCard(ref: React.RefObject<HTMLDivElement | null>, count: number) {
+  const [active, setActive] = React.useState(0);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.dataset.enhanced = "";
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const center = el.scrollLeft + el.clientWidth / 2;
+      const cards = Array.from(el.children) as HTMLElement[];
+      let best = 0, bestD = Infinity;
+      cards.forEach((c, i) => {
+        const cc = c.offsetLeft + c.offsetWidth / 2;
+        const d = Math.abs(cc - center);
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      setActive(best);
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    update();
+    return () => { el.removeEventListener("scroll", onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, [ref, count]);
+  return active;
+}
+
 /* Mobile/tablet product card — full, readable content in a swipe-carousel cell
    (no absolute positioning, natural height; reuses the same product data). */
-function ProductCard({ p }: { p: Product }) {
+function ProductCard({ p, active }: { p: Product; active?: boolean }) {
   return (
-    <div className={s.pcard}>
+    <div className={s.pcard} data-active={active ? "" : undefined}>
       <PhoneFrame p={p} />
       <div className={s.pcardText}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
@@ -395,6 +436,34 @@ function ProductCard({ p }: { p: Product }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/* Mobile/tablet products carousel — scroll-snap + a coverflow active state and a
+   staggered entrance. Split into its own component so the hooks only run on the
+   mobile branch. */
+function FeaturedCarousel() {
+  const railRef = React.useRef<HTMLDivElement>(null);
+  const active = useActiveCard(railRef, FEATURED.length);
+  return (
+    <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
+      <div style={{ position: "relative", overflow: "hidden", padding: "78px 0 60px", background: "var(--page-bg)" }}>
+        {/* same background system as desktop, just non-sticky */}
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.5 }}>
+          <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={0.45} rotationSpeed={0.3} glowAmount={0.002} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.5} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
+        </div>
+        <ProductsBackdrop />
+        <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
+          <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
+          <FadeIn y={22} amount={0.18}>
+            <div className={s.pcarousel} ref={railRef}>
+              {FEATURED.map((p, i) => <ProductCard key={p.id} p={p} active={i === active} />)}
+            </div>
+            <div className={[s.pcardHint, s.pcardHintLive].join(" ")} aria-hidden="true"><Icon name="arrow-left" size={13} /> swipe to explore <Icon name="arrow-right" size={13} /></div>
+          </FadeIn>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -436,26 +505,9 @@ export function Featured() {
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
   }, [N, carousel]);
 
-  // ---- mobile / tablet: native swipe carousel (scroll-snap, no scroll JS) ----
+  // ---- mobile / tablet: native swipe carousel (scroll-snap + coverflow) ----
   if (carousel) {
-    return (
-      <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
-        <div style={{ position: "relative", overflow: "hidden", padding: "78px 0 60px", background: "var(--page-bg)" }}>
-          {/* same background system as desktop, just non-sticky */}
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.5 }}>
-            <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={0.45} rotationSpeed={0.3} glowAmount={0.002} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.5} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
-          </div>
-          <ProductsBackdrop />
-          <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
-            <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
-            <div className={s.pcarousel}>
-              {FEATURED.map((p) => <ProductCard key={p.id} p={p} />)}
-            </div>
-            <div className={s.pcardHint} aria-hidden="true"><Icon name="arrow-left" size={13} /> swipe to explore <Icon name="arrow-right" size={13} /></div>
-          </div>
-        </div>
-      </section>
-    );
+    return <FeaturedCarousel />;
   }
 
   return (
