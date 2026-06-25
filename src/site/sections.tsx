@@ -132,7 +132,7 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
           backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
           border: "1px solid rgba(255,255,255,0.09)",
           boxShadow: "0 40px 90px -40px rgba(2,10,22,0.9), 0 1px 0 rgba(255,255,255,0.06) inset",
-          display: "grid", gridTemplateColumns: "minmax(0, 0.92fr) minmax(0, 1.08fr)", gap: "clamp(28px, 4vw, 64px)", alignItems: "center",
+          display: "grid", gap: "clamp(28px, 4vw, 64px)", alignItems: "center",
         }}
       >
         <span className={s.svcRing} aria-hidden="true" style={{ opacity: dim ? 0.35 : 1 }}><i /></span>
@@ -151,7 +151,7 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
         </div>
         <div style={{ position: "relative", zIndex: 1 }}>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-text-dim)", marginBottom: 16 }}>Capabilities</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 22px" }}>
+          <div className={s.respGrid2} style={{ gap: "12px 22px" }}>
             {svc.caps.map((c) => (
               <div key={c} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: "clamp(13.5px, 1.05vw, 15px)", color: "rgba(232,234,238,0.92)", lineHeight: 1.4 }}>
                 <span style={{ color: accent, marginTop: 2, flex: "none" }}><Icon name="check" size={15} /></span>{c}
@@ -666,7 +666,7 @@ export function About() {
       <ScrollParallax max={52}><BackgroundBeams /></ScrollParallax>
       {/* soft diagonal Gienah glow (calm wash, no flare) */}
       <GienahLight pos="diagonal" tone="blue" size="md" flare={false} />
-      <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
+      <div className={[s.wrap, s.layer, s.respGrid2].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
         <div>
           <Reveal><div className={s.eyebrow}>#ABOUT_US</div></Reveal>
           <HeadingReveal as="h2" style={{ fontSize: "clamp(30px,4vw,44px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.1 }} segments={[{ text: "A studio built to take products" }, { text: "all the way.", accent: true }]} />
@@ -741,7 +741,7 @@ export function Contact() {
           the form/CTA (not behind the text), with a subtle settled twinkle */}
       <GienahLight pos="bottom" tone="mixed" size="lg" flare={false} twinkle strong />
       <div ref={ref} className={s.wrap} style={{ maxWidth: 1000, position: "relative", zIndex: 1, transformOrigin: "center center", willChange: "transform" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(32px,6vw,72px)", alignItems: "start" }}>
+        <div className={s.respGrid2} style={{ gap: "clamp(32px,6vw,72px)", alignItems: "start" }}>
           <div>
             <Reveal><div className={s.eyebrow}>#CONTACT_US</div></Reveal>
             <HeadingReveal as="h2" style={{ fontSize: "clamp(32px,4.4vw,52px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.05 }} segments={[{ text: "Hey." }, { br: true }, { text: "Let's talk.", accent: true }]} />

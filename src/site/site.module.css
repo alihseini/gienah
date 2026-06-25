@@ -822,12 +822,24 @@
   border-radius: 0 0 40% 40% / 0 0 70% 70%;
 }
 
+/* responsive: 2-col content grids collapse to a single column on tablet/mobile */
+.respGrid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.svcPanel {
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+}
 @media (max-width: 920px) {
   .navDesktop {
     display: none !important;
   }
   .featrow {
     flex-direction: column !important;
+  }
+  .respGrid2,
+  .svcPanel {
+    grid-template-columns: 1fr !important;
   }
 }
 

@@ -17,6 +17,7 @@
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   position: relative;
+  overflow-x: clip;
 }
 /* ONE unified cosmic surface spanning the whole page body (behind all content).
    Sections are separated by spacing, glass cards, glow and soft dividers — never

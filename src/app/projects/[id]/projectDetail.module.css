@@ -22,6 +22,7 @@
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   position: relative;
+  overflow-x: clip;
 }
 .page[data-tone="gold"] {
   --proj-accent: #f4c65f;
