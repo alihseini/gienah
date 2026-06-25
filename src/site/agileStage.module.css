@@ -130,15 +130,47 @@
   0%, 100% { transform: rotate(-32deg) translateX(-7%); opacity: 0.5; }
   50% { transform: rotate(-32deg) translateX(7%); opacity: 1; }
 }
+/* desktop: the mobile rail is hidden (the measured S-curve SVG is used instead) */
+.rail { display: none; }
+
 @media (max-width: 860px) {
-  .timeline { gap: 28px; }
+  .timeline { gap: 30px; padding-left: 34px; }
   .slot { width: 100%; align-self: stretch; }
   .right, .left { transform: translateY(60px); }
   .panel { grid-template-columns: 1fr; }
   .illus { display: none; }
-  .connector { display: none; }
-  /* stacked single-column layout: the curved node-to-node path no longer applies */
+  /* the measured node-to-node S-curve doesn't apply to a single stacked column;
+     a simple vertical rail + per-card nodes replaces it on touch */
   .connSvg { display: none; }
+  /* vertical rail track down the left of the stacked timeline */
+  .rail {
+    display: block;
+    position: absolute;
+    left: 11px;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    border-radius: 2px;
+    background: rgba(190, 220, 240, 0.18);
+    overflow: hidden;
+    z-index: 0;
+  }
+  /* the glowing fill is "drawn" from the top with scroll progress (--p) */
+  .railFill {
+    position: absolute;
+    inset: 0;
+    transform-origin: top;
+    transform: scaleY(var(--p, 0));
+    background: linear-gradient(180deg, #58ABCE 0%, #2A92CC 42%, #F4C65F 78%, #E2AA3B 100%);
+    box-shadow: 0 0 8px rgba(88, 171, 206, 0.6);
+    transition: transform 0.12s linear;
+  }
+  /* nodes sit on the rail at the top of each card and light up when revealed */
+  .connector { display: block; top: 30px; margin-top: 0; }
+  .right .connector, .left .connector {
+    left: -28px;
+    right: auto;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .slot { opacity: 1 !important; transform: none !important; transition: none; }

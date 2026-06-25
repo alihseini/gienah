@@ -393,6 +393,11 @@
   }
 }
 
+/* per-row thumbnail — desktop hides it (the live preview pane does that job) */
+.rowThumb {
+  display: none;
+}
+
 /* ---------- mobile ---------- */
 @media (max-width: 920px) {
   .explorer {
@@ -400,26 +405,44 @@
     gap: 28px;
   }
   .row {
-    padding: 18px 16px;
+    padding: 16px 14px;
+    gap: 14px;
   }
   .num {
     width: 34px;
   }
+  /* the hover-driven live preview is replaced by self-contained tappable rows */
   .previewWrap {
-    width: 100%;
+    display: none;
   }
-  .preview {
-    aspect-ratio: 16 / 12;
+  /* each row carries its own thumbnail so it reads without any hover/preview */
+  .rowThumb {
+    display: block;
+    width: 56px;
+    height: 44px;
+    flex: none;
+    border-radius: 10px;
+    background-size: cover;
+    background-position: center;
+    background-color: rgba(88, 171, 206, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
   }
-  /* hover shine has no place on touch — keep it calm */
+  /* hover shine / dim has no place on touch — keep it calm */
   .row::after {
     display: none;
   }
   .rowActive::after {
     display: block;
   }
+  .list:hover .row:not(:hover):not(.rowActive) {
+    opacity: 1;
+  }
   .row:hover .title {
     transform: none;
+  }
+  .title {
+    white-space: normal;
   }
 }
 

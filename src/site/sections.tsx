@@ -216,9 +216,19 @@ export function Services() {
   // (hydration mismatch / React #418).
   const [reduce, setReduce] = React.useState(false);
   React.useEffect(() => { setReduce(reduceMotion()); }, []);
+  // mobile/tablet (<=1024) renders a native swipe carousel; desktop keeps the
+  // scroll-stepped deck. Detected after mount so SSR + first paint agree.
+  const [carousel, setCarousel] = React.useState(false);
+  React.useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1024px)");
+    const apply = () => setCarousel(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
   const N = SERVICES.length;
   React.useEffect(() => {
-    if (reduce) return;
+    if (reduce || carousel) return;
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
     let raf = 0;
     const update = () => {
@@ -237,11 +247,31 @@ export function Services() {
     window.addEventListener("resize", onScroll);
     update();
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [reduce, N]);
+  }, [reduce, N, carousel]);
 
   const Header = (
     <SectionHead tag="#Services" light title="Everything from idea to launch" sub="Four disciplines, one team — so your product stays coherent from the first conversation to its first users." />
   );
+
+  // ---- mobile / tablet: native swipe carousel through the service cards ----
+  if (carousel) {
+    return (
+      <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2, padding: "96px 0 84px" }}>
+        <Aurora />
+        <Meteors />
+        <GienahLight pos="top" tone="blue" size="md" flare={false} />
+        <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
+          {Header}
+          <div className={[s.pcarousel, s.scarousel].join(" ")}>
+            {SERVICES.map((svc) => (
+              <div className={s.scard} key={svc.title}><ServicePanel s={svc} /></div>
+            ))}
+          </div>
+          <div className={s.pcardHint} aria-hidden="true"><Icon name="arrow-left" size={13} /> swipe through services <Icon name="arrow-right" size={13} /></div>
+        </div>
+      </section>
+    );
+  }
 
   if (reduce) {
     return (
@@ -294,7 +324,7 @@ function PhoneFrame({ p }: { p: Product }) {
   const shot = p.shots[0];
   return (
     <div className={s.device}>
-      <div className={s.deviceScreen} style={{ background: bg, padding: shot ? 0 : 24 }}>
+      <div className={s.deviceScreen} style={{ background: bg, padding: shot ? 0 : undefined }}>
         {shot ? (
           <img src={shot} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         ) : (
@@ -525,6 +555,16 @@ function MorePreview({ p }: { p: Product }) {
 export function MoreProducts() {
   const [active, setActive] = React.useState(MORE[0].id);
   const cur = MORE.find((p) => p.id === active) || MORE[0];
+  // on touch (<=920) the hover-preview pane is dropped in favour of self-contained
+  // tappable rows (each carries its own thumbnail) — detected after mount.
+  const [touch, setTouch] = React.useState(false);
+  React.useEffect(() => {
+    const mq = window.matchMedia("(max-width: 920px)");
+    const apply = () => setTouch(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
   return (
     <section className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
       {/* layer 0: dark base (section bg) → topology network field */}
@@ -538,7 +578,7 @@ export function MoreProducts() {
       {/* layer 2: content */}
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 2 }}>
         <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
-        <Reveal delay={60}><TypingAnimation as="p" text="Hover a project to preview it — click to open the case study." style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 8px" }} /></Reveal>
+        <Reveal delay={60}><TypingAnimation as="p" text={touch ? "Tap a project to open its case study." : "Hover a project to preview it — click to open the case study."} style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 8px" }} /></Reveal>
         <div className={m.explorer}>
           <div className={m.list} onMouseLeave={() => setActive(MORE[0].id)}>
             {MORE.map((p, i) => (
@@ -551,6 +591,11 @@ export function MoreProducts() {
                 onFocus={() => setActive(p.id)}
                 onTouchStart={() => setActive(p.id)}
               >
+                <span
+                  className={m.rowThumb}
+                  aria-hidden="true"
+                  style={(p.banner || p.shots[0]) ? { backgroundImage: `url(${p.banner || p.shots[0]})` } : undefined}
+                />
                 <div className={m.rowLeft}>
                   <span className={m.num}>#{p.id}</span>
                   <span className={m.title}>{p.title}</span>
@@ -691,6 +736,9 @@ export function Agile() {
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
         <div className={ag.timeline} ref={timelineRef}>
+          {/* mobile-only vertical rail: a single drawn line down the left, filled
+              with the same --p scroll progress that draws the desktop curve */}
+          <span className={ag.rail} aria-hidden="true"><span className={ag.railFill} /></span>
           {conn && (
             <svg className={ag.connSvg} width={conn.w} height={conn.h} viewBox={`0 0 ${conn.w} ${conn.h}`} fill="none" aria-hidden="true">
               <defs>

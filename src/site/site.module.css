@@ -420,12 +420,15 @@
 
 /* ===== devices (product phone frames) ===== */
 .device {
+  /* every internal dimension is derived from --dw so the phone scales without
+     deforming — change only --dw and the radius / padding / notch stay in ratio */
+  --dw: 270px;
   position: relative;
-  width: 270px;
-  height: 552px;
-  border-radius: 40px;
+  width: var(--dw);
+  height: calc(var(--dw) * 2.044);
+  border-radius: calc(var(--dw) * 0.148);
   background: #14171c;
-  padding: 11px;
+  padding: calc(var(--dw) * 0.041);
   box-shadow: var(--shadow-xl);
   flex: none;
   /* product visual floats a little more + breathes in scale, so it feels alive */
@@ -447,19 +450,19 @@
 .device::after {
   content: "";
   position: absolute;
-  top: 20px;
+  top: calc(var(--dw) * 0.074);
   left: 50%;
   transform: translateX(-50%);
-  width: 118px;
-  height: 26px;
+  width: calc(var(--dw) * 0.437);
+  height: calc(var(--dw) * 0.096);
   background: #14171c;
-  border-radius: 0 0 16px 16px;
+  border-radius: 0 0 calc(var(--dw) * 0.059) calc(var(--dw) * 0.059);
   z-index: 2;
 }
 .deviceScreen {
   width: 100%;
   height: 100%;
-  border-radius: 30px;
+  border-radius: calc(var(--dw) * 0.111);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -467,7 +470,7 @@
   justify-content: center;
   gap: 14px;
   text-align: center;
-  padding: 24px;
+  padding: calc(var(--dw) * 0.089);
 }
 .deviceScreen img {
   object-fit: cover;
@@ -860,8 +863,7 @@
     height: min(660px, 84vh);
   }
   .device {
-    width: 208px;
-    height: 424px;
+    --dw: 208px;
   }
   .respGrid2,
   .svcPanel {
@@ -927,13 +929,10 @@
 .pcardText {
   width: 100%;
 }
-/* shrink the product device inside carousel cards so the text leads (tablet) */
+/* shrink the product device inside carousel cards so the text leads (tablet) —
+   only --dw changes; the notch/radius/padding stay proportional */
 .pcard .device {
-  width: 168px;
-  height: 342px;
-}
-.pcard .device::after {
-  width: 76px;
+  --dw: 168px;
 }
 .pcardHint {
   display: flex;
@@ -947,14 +946,30 @@
   text-transform: uppercase;
   color: var(--text-tertiary);
 }
+/* services swipe carousel — each cell holds a full ServicePanel at natural height */
+.scarousel {
+  align-items: stretch;
+  scroll-padding-inline: 6%;
+  margin-top: 18px;
+}
+.scard {
+  flex: 0 0 90%;
+  max-width: 560px;
+  scroll-snap-align: center;
+  box-sizing: border-box;
+  display: flex;
+}
+.scard > * {
+  width: 100%;
+  height: auto !important;
+}
+.scard .svcPanel {
+  height: auto !important;
+}
 /* mobile: smaller product image so it never dominates the card (ratio kept) */
 @media (max-width: 640px) {
   .pcard .device {
-    width: 132px;
-    height: 270px;
-  }
-  .pcard .device::after {
-    width: 60px;
+    --dw: 132px;
   }
   .pcard {
     gap: 14px;
