@@ -1,7 +1,7 @@
 [
-  { "icon": "compass", "name": "Strategy", "items": ["Initial Conversation", "Requirement Analysis", "Define Scope"] },
+  { "icon": "compass", "name": "Strategy", "items": ["Initial Conversation", "Requirement Analysis", "Define Scope", "Timeline & Roadmap", "Success Metrics"] },
   { "icon": "pen-tool", "name": "Design", "items": ["User Flows", "Wireframes", "Brand Integration", "Mockups", "Prototypes"] },
   { "icon": "code-xml", "name": "Development", "items": ["Architecture", "Coding", "DB Design", "API", "Weekly Sprints"] },
   { "icon": "flask-conical", "name": "Testing", "items": ["Regression Testing", "Load Testing", "Device Testing", "Usability Testing", "Reporting"] },
-  { "icon": "rocket", "name": "Deployment", "items": ["Deployment Plan", "Release to Production"] }
+  { "icon": "rocket", "name": "Deployment", "items": ["Deployment Plan", "Release to Production", "Monitoring & Alerts", "Analytics Setup", "Docs & Handover"] }
 ]
