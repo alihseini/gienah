@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { useInView } from "motion/react";
+import { StarField } from "./StarField";
 import s from "./productsBackdrop.module.css";
 
 /* Products — Cosmic Glass / Aurora backdrop (Step 1).
@@ -16,8 +17,7 @@ export function ProductsBackdrop() {
     <div ref={ref} aria-hidden="true" className={s.backdrop} {...(lit ? { "data-lit": "" } : {})}>
       <div className={s.aurora} />
       <div className={s.glass} />
-      <div className={s.stars} />
-      <div className={s.starsWarm} />
+      <StarField className={s.prodStars} density={5200} maxCount={340} shadow={false} constellations={false} shooting={false} />
       <div className={s.rim} />
       <div className={s.vignette} />
     </div>

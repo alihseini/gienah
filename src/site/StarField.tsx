@@ -23,7 +23,29 @@ const CONSTELLATIONS: [number, number][][] = [
   [[0.4, 0.9], [0.5, 0.84], [0.6, 0.9]],
 ];
 
-export function StarField() {
+export function StarField({
+  density = 4200,
+  maxCount = 460,
+  reducedMax = 150,
+  goldRatio = 0.24,
+  constellations: useConstellations = true,
+  shooting = true,
+  shadow = true,
+  className,
+  style,
+}: {
+  /** px² of area per star — SMALLER = denser. Hero baseline 4200. */
+  density?: number;
+  maxCount?: number;
+  reducedMax?: number;
+  goldRatio?: number;
+  constellations?: boolean;
+  shooting?: boolean;
+  /** per-star shadowBlur glow — turn OFF for dense fields to stay cheap. */
+  shadow?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+} = {}) {
   const ref = React.useRef<HTMLCanvasElement>(null);
   React.useEffect(() => {
     const canvas = ref.current;
@@ -42,10 +64,10 @@ export function StarField() {
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       // noticeably denser than before — clearly "star-driven", still controlled
-      const count = Math.round(Math.min((w * h) / 4200, reduce ? 150 : 460));
+      const count = Math.round(Math.min((w * h) / density, reduce ? reducedMax : maxCount));
       stars = Array.from({ length: count }, () => {
         const layer = Math.random() < 0.5 ? 0 : Math.random() < 0.55 ? 1 : 2; // 0 far … 2 near
-        const gold = Math.random() < 0.24;
+        const gold = Math.random() < goldRatio;
         const big = Math.random() < 0.09;
         return {
           x: Math.random(), y: Math.random(),
@@ -82,7 +104,7 @@ export function StarField() {
       // secondary constellation accents (very faint, edge-tucked)
       ctx.lineWidth = 1;
       const pulse = (reduce ? 0.1 : 0.06 + 0.04 * (0.5 + 0.5 * Math.sin(t * 0.5))) * intro;
-      for (const nodes of CONSTELLATIONS) {
+      if (useConstellations) for (const nodes of CONSTELLATIONS) {
         ctx.beginPath();
         nodes.forEach(([nx, ny], i) => {
           const px = nx * w + dx[1], py = ny * h + dy[1];
@@ -113,13 +135,13 @@ export function StarField() {
         }
         ctx.globalAlpha = alpha;
         ctx.fillStyle = `rgb(${st.col})`;
-        ctx.shadowColor = `rgb(${st.col})`; ctx.shadowBlur = st.r * 4;
+        if (shadow) { ctx.shadowColor = `rgb(${st.col})`; ctx.shadowBlur = st.r * 4; }
         ctx.beginPath(); ctx.arc(px, py, st.r, 0, 6.283); ctx.fill();
       }
       ctx.shadowBlur = 0; ctx.globalAlpha = 1;
 
       // a single, very rare and subtle shooting star
-      if (!reduce && intro > 0.99) {
+      if (shooting && !reduce && intro > 0.99) {
         if (now > nextShoot && shooters.length < 1) {
           const ang = rand(Math.PI * 0.12, Math.PI * 0.26);
           const sp = rand(0.36, 0.55);
@@ -155,7 +177,8 @@ export function StarField() {
     const onResize = () => build();
     window.addEventListener("resize", onResize);
     return () => { cancelAnimationFrame(raf); io.disconnect(); window.removeEventListener("resize", onResize); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <canvas ref={ref} aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }} />;
+  return <canvas ref={ref} aria-hidden="true" className={className} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0, ...style }} />;
 }

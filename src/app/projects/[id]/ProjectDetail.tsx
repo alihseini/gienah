@@ -3,6 +3,7 @@ import React from "react";
 import { Button, Badge, Icon } from "@/components";
 import { ScrollProgress, siteStyles } from "@/site/helpers";
 import { HeadingReveal } from "@/site/HeadingReveal";
+import { StarField } from "@/site/StarField";
 import { Stagger, StaggerItem, FadeIn, Lift, Press } from "@/site/motion";
 import { motion, useReducedMotion } from "motion/react";
 import productsData from "@/data/products.json";
@@ -96,7 +97,8 @@ export function ProjectDetail({ id }: { id: number }) {
 
   return (
     <div className={d.page} data-tone={p.tone}>
-      <div className={d.canvas} aria-hidden="true"><div className={d.canvasStars} /><div className={d.canvasStars2} /></div>
+      <div className={d.canvas} aria-hidden="true" />
+      <StarField className={d.starField} style={{ position: "fixed", zIndex: 0 }} density={5000} maxCount={420} shadow={false} constellations={false} />
       <ScrollProgress />
       <div style={{ height: 3, background: "var(--brand-gradient)" }} />
       <header className={d.header}>

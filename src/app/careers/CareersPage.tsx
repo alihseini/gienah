@@ -3,6 +3,7 @@ import React from "react";
 import { Button, Icon } from "@/components";
 import { ScrollProgress, siteStyles } from "@/site/helpers";
 import { HeadingReveal } from "@/site/HeadingReveal";
+import { StarField } from "@/site/StarField";
 import { Stagger, FadeIn, Lift, Press } from "@/site/motion";
 import site from "@/data/site.json";
 import c from "./careers.module.css";
@@ -28,7 +29,8 @@ const HOW = [
 export function CareersPage() {
   return (
     <div className={c.page}>
-      <div className={c.canvas} aria-hidden="true"><div className={c.canvasStars} /><div className={c.canvasStars2} /></div>
+      <div className={c.canvas} aria-hidden="true" />
+      <StarField className={c.starField} style={{ position: "fixed", zIndex: 0 }} density={5000} maxCount={420} shadow={false} constellations={false} />
       <ScrollProgress />
       <div style={{ height: 3, background: "var(--brand-gradient)" }} />
       <header className={c.header}>
