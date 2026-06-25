@@ -43,6 +43,8 @@ gienah/src/
     ParticleField          # Contact particle halo
     HeadingReveal          # word-by-word title reveal
     TypingAnimation        # section-description typing effect
+    motion.tsx             # Motion (framer-motion) primitives: Stagger/StaggerItem/FadeIn/Lift/Press
+    GienahLight + gienahLight.module.css   # per-section "Gienah light signature" (star core+halo+cross-flare)
     site.module.css        # the big marketing CSS module
   data/                    # EDITABLE JSON content (see below)
   styles/tokens/           # colors/type/spacing/elevation/motion/fonts
@@ -56,7 +58,9 @@ gienah/src/
 - **CSS Modules everywhere.** Tokens + fonts + a few global `@keyframes` are global (in `globals.css`); everything else is a `*.module.css`.
   - **Pitfall:** an `@keyframes` defined in `globals.css` but referenced from a module gets its animation-name scoped/renamed and silently won't run. Define keyframes **inside the same module** that uses them (this caused the "static marquee" bug — see `logoTicker.module.css`).
   - Selectors must be "pure" (contain a local class). Attribute-only selectors are wrapped in `:global(...)` and scoped under `.site` (see `site.module.css`).
-- **No Tailwind, no framer-motion.** Aceternity/Magic UI effects were ported natively with CSS keyframes + IntersectionObserver/rAF. Don't add those deps.
+- **No Tailwind.** Aceternity/Magic UI background effects are still ported natively (CSS keyframes + IntersectionObserver/rAF) — don't add Tailwind.
+- **Motion (`motion` pkg, the framer-motion rebrand) IS now a dep — but only for the *interaction layer*.** Use it (via `src/site/motion.tsx`: `Stagger`/`StaggerItem`/`FadeIn`/`Lift`/`Press` and `GienahLight`) for viewport reveals, staggered entrances, hover/tap, nav/menu, and the per-section "Gienah light signature" activation (`useInView`). **Do NOT** use Motion for the scroll-coupled systems (parallax / sticky decks / `useLayerChoreography`) — those stay hand-rolled rAF, and Three.js/WebGL + CSS-module backgrounds/glows/starfields stay as-is.
+- **Reduced-motion + SSR hydration (important):** any component whose *rendered markup* depends on `prefers-reduced-motion` must NOT read it synchronously in render/`useState` — the server can't read the media query, so the reduced client hydrates a different tree (React #418). Detect it AFTER mount (`const [reduce,setReduce]=useState(false); useEffect(()=>setReduce(reduceMotion()),[])`) — this is what `Services` does. For Motion components, keep the animation *targets* and gesture-prop *shape* identical regardless of reduced motion (only change the transition to `{duration:0}` and neutralise hover/tap values); toggling `whileTap` on/off flips Motion's `tabindex` and also mismatches.
 - **Brand colors only:** azure `#2A92CC` / `#58ABCE`, gold `#F4C65F` / `#E2AA3B`.
 - **Hydration:** components that use `Math.random()` for decoration (Sparks, Meteors) are **client-gated** (render after mount) to avoid SSR mismatch. Keep that pattern for any new random visuals.
 - **Sticky sections:** Services, Products, and Agile-ish use internal `position: sticky` scroll stages. **Do not wrap them in a moving `transform`** — it breaks sticky pinning. (This is why the "layered section transitions" experiment was reverted.)

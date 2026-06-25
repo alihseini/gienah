@@ -15,6 +15,8 @@ import { Aurora } from "./Aurora";
 import { Meteors } from "./Meteors";
 import { HeadingReveal } from "./HeadingReveal";
 import { TypingAnimation } from "./TypingAnimation";
+import { Stagger, StaggerItem, FadeIn, Lift, Press } from "./motion";
+import { GienahLight } from "./GienahLight";
 import m from "./moreExplorer.module.css";
 import ag from "./agileStage.module.css";
 import productsData from "@/data/products.json";
@@ -74,36 +76,37 @@ export function Hero() {
           <LogoConstellation />
         </div>
       </ScrollParallax>
+      {/* Gienah light signature: the strongest star-core + cross-flare on top of
+          the constellation — cinematic, with a subtle settled twinkle */}
+      <GienahLight pos="center" tone="mixed" size="lg" flare twinkle strong />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-        <Reveal>
+        <FadeIn y={12}>
           <div style={{ display: "inline-flex", marginBottom: 26 }}>
             <Badge variant="outline" className={s.darkBadgeOutline} leadingIcon={<Icon name="sparkles" size={13} />}>{site.hero.badge}</Badge>
           </div>
-        </Reveal>
+        </FadeIn>
         <HeadingReveal
           as="h1"
           style={{ fontSize: "clamp(40px, 7vw, 82px)", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-0.04em", margin: "0 auto", maxWidth: 980, color: "#fff" }}
           segments={[{ text: site.hero.titleLead }, { text: site.hero.titleAccent, accent: true }]}
         />
-        <Reveal delay={140}>
+        <FadeIn y={12} delay={0.12}>
           <TypingAnimation as="p" text={site.hero.sub} style={{ fontSize: 20, lineHeight: 1.6, color: "var(--text-secondary)", maxWidth: 600, margin: "26px auto 0" }} />
-        </Reveal>
-        <Reveal delay={210}>
+        </FadeIn>
+        <FadeIn y={14} delay={0.18}>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 34, flexWrap: "wrap" }}>
-            <Button size="lg" variant="primary" className={s.btnGlow} onClick={() => go("contact")}>Start a project</Button>
-            <Button size="lg" variant="secondary" trailingIcon={<Icon name="arrow-down" size={16} />} onClick={() => go("products")}>See our work</Button>
+            <Press><Button size="lg" variant="primary" className={s.btnGlow} onClick={() => go("contact")}>Start a project</Button></Press>
+            <Press><Button size="lg" variant="secondary" trailingIcon={<Icon name="arrow-down" size={16} />} onClick={() => go("products")}>See our work</Button></Press>
           </div>
-        </Reveal>
-        <div style={{ display: "flex", justifyContent: "center", gap: "clamp(28px,6vw,72px)", marginTop: 64, flexWrap: "wrap" }}>
-          {site.hero.stats.map(([n, l], i) => (
-            <Reveal key={l} delay={300 + i * 90} variant="scale">
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 36, fontWeight: 700, letterSpacing: "-0.03em" }}><CountUp value={n} /></div>
-                <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 2 }}>{l}</div>
-              </div>
-            </Reveal>
+        </FadeIn>
+        <Stagger style={{ display: "flex", justifyContent: "center", gap: "clamp(28px,6vw,72px)", marginTop: 64, flexWrap: "wrap" }} gap={0.1} delayChildren={0.28} amount={0.4}>
+          {site.hero.stats.map(([n, l]) => (
+            <StaggerItem key={l} y={14} style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 36, fontWeight: 700, letterSpacing: "-0.03em" }}><CountUp value={n} /></div>
+              <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 2 }}>{l}</div>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );
@@ -201,7 +204,12 @@ export function Services() {
   const trackRef = React.useRef<HTMLDivElement>(null);
   const idxRef = React.useRef(0);
   const [active, setActive] = React.useState(0);
-  const [reduce] = React.useState(reduceMotion);
+  // reduced-motion is detected AFTER mount so the server and the first client
+  // render agree (both render the sticky version) — reading it synchronously in
+  // useState made the reduced client hydrate a different tree than the SSR'd one
+  // (hydration mismatch / React #418).
+  const [reduce, setReduce] = React.useState(false);
+  React.useEffect(() => { setReduce(reduceMotion()); }, []);
   const N = SERVICES.length;
   React.useEffect(() => {
     if (reduce) return;
@@ -234,6 +242,7 @@ export function Services() {
       <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
         <Aurora />
         <Meteors />
+        <GienahLight pos="top" tone="blue" size="md" flare />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
           {Header}
           <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
@@ -250,6 +259,8 @@ export function Services() {
         <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "100px 0 52px", boxSizing: "border-box", overflow: "hidden", background: "radial-gradient(70% 60% at 80% 12%, rgba(88,171,206,0.22), rgba(244,198,95,0.11) 36%, transparent 64%), radial-gradient(60% 64% at 12% 90%, rgba(42,146,204,0.16), transparent 62%), var(--page-bg)" }}>
           <Aurora />
           <Meteors />
+          {/* Gienah star accent above the title + a soft halo wash over the deck */}
+          <GienahLight pos="top" tone="blue" size="md" flare />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             {Header}
             <div style={{ position: "relative", height: "clamp(420px, 56vh, 520px)", marginTop: 8 }}>
@@ -359,6 +370,9 @@ export function Featured() {
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
             <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={1} rotationSpeed={0.3} glowAmount={0.002} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.5} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
           </div>
+          {/* product rim-light: a Gienah halo hugs the centre stage where the
+              device sits (flare off so it doesn't pull focus from the product) */}
+          <GienahLight pos="rim" tone="mixed" size="md" flare={false} />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
             <div style={{ position: "relative", height: "min(560px, 62vh)", marginTop: 6 }}>
@@ -451,6 +465,8 @@ export function MoreProducts() {
       <div className={m.mask} />
       {/* background blobs drift slower than the content for soft parallax depth */}
       <ScrollParallax max={62} style={{ opacity: 0.28, zIndex: 0 }}><AnimatedBG variant="blobs" /></ScrollParallax>
+      {/* soft Gienah glow washing in from the left (no flare — a calm wash) */}
+      <GienahLight pos="left" tone="blue" size="md" flare={false} />
       {/* layer 2: content */}
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 2 }}>
         <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
@@ -601,6 +617,9 @@ export function Agile() {
           connected to the Hero but simpler. Both sit behind the content (z-index 1). */}
       <ScrollParallax max={48}><StarField /></ScrollParallax>
       <ScrollParallax max={56}><div className={ag.beam} aria-hidden="true" /></ScrollParallax>
+      {/* subtle Gienah star above the title — the connector/line system below is
+          untouched */}
+      <GienahLight pos="top" tone="mixed" size="md" flare />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
         <div className={ag.timeline} ref={timelineRef}>
@@ -640,6 +659,8 @@ export function About() {
   return (
     <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
       <ScrollParallax max={52}><BackgroundBeams /></ScrollParallax>
+      {/* soft diagonal Gienah glow (calm wash, no flare) */}
+      <GienahLight pos="diagonal" tone="blue" size="md" flare={false} />
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
         <div>
           <Reveal><div className={s.eyebrow}>#ABOUT_US</div></Reveal>
@@ -653,17 +674,17 @@ export function About() {
           })}
           <Reveal delay={250}><div style={{ marginTop: 26 }}><Button variant="primary" className={s.btnGlow} onClick={() => go("contact")}>Start a project</Button></div></Reveal>
         </div>
-        <Reveal delay={120}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            {site.about.stats.map(([ic, t, d], i) => (
-              <Card key={t} padding={20} className={s.glassCard} data-parallax={String(18 + (i % 2) * 14)} style={{ marginTop: i % 2 ? 24 : 0 }}>
+        <Stagger style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} gap={0.1} amount={0.3}>
+          {site.about.stats.map(([ic, t, d], i) => (
+            <Lift asItem key={t} y={20} style={{ marginTop: i % 2 ? 24 : 0 }}>
+              <Card padding={20} className={[s.glassCard, s.cardHoverGlow].join(" ")}>
                 <span style={{ color: "var(--accent-600)" }}><Icon name={ic} size={22} /></span>
                 <div style={{ fontSize: 17, fontWeight: 600, marginTop: 12 }}>{t}</div>
                 <div style={{ fontSize: 13.5, color: "var(--text-tertiary)", marginTop: 4, lineHeight: 1.5 }}>{d}</div>
               </Card>
-            ))}
-          </div>
-        </Reveal>
+            </Lift>
+          ))}
+        </Stagger>
       </div>
     </section>
   );
@@ -711,6 +732,9 @@ export function Contact() {
         <AnimatedBG variant="glow" />
       </div>
       <ParticleField progressRef={progRef} />
+      {/* final Gienah signature: the strongest star-core + flare, centred on the
+          form/CTA, with a subtle settled twinkle */}
+      <GienahLight pos="center" tone="mixed" size="lg" flare twinkle strong />
       <div ref={ref} className={s.wrap} style={{ maxWidth: 1000, position: "relative", zIndex: 1, transformOrigin: "center center", willChange: "transform" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(32px,6vw,72px)", alignItems: "start" }}>
           <div>
@@ -718,13 +742,15 @@ export function Contact() {
             <HeadingReveal as="h2" style={{ fontSize: "clamp(32px,4.4vw,52px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.05 }} segments={[{ text: "Hey." }, { br: true }, { text: "Let's talk.", accent: true }]} />
             <Reveal delay={130}><TypingAnimation as="p" text="Tell us about your idea, your timeline, or just say hi. We reply to every message." style={{ fontSize: 17, lineHeight: 1.65, color: "var(--text-secondary)", marginTop: 18, maxWidth: 380 }} /></Reveal>
             <Reveal delay={190}>
-              <a href={`mailto:${site.email}`} style={{ display: "inline-flex", alignItems: "center", gap: 10, marginTop: 24, fontSize: 18, fontWeight: 600, color: "var(--text-accent)" }}>
-                <Icon name="mail" size={20} /> {site.email}
-              </a>
+              <Press style={{ marginTop: 24 }}>
+                <a href={`mailto:${site.email}`} style={{ display: "inline-flex", alignItems: "center", gap: 10, fontSize: 18, fontWeight: 600, color: "var(--text-accent)" }}>
+                  <Icon name="mail" size={20} /> {site.email}
+                </a>
+              </Press>
             </Reveal>
           </div>
           <Reveal delay={120}>
-            <Card padding={26} className={s.glassCard} style={{ boxShadow: "var(--shadow-lg)" }}>
+            <Card padding={26} className={[s.glassCard, s.cardHoverGlow].join(" ")} style={{ boxShadow: "var(--shadow-lg)" }}>
               {sent ? (
                 <div style={{ textAlign: "center", padding: "30px 10px" }}>
                   <span style={{ color: "var(--green-600)" }}><Icon name="circle-check" size={40} /></span>
@@ -736,7 +762,7 @@ export function Contact() {
                   <input className={s.field} placeholder="Name" required />
                   <input className={s.field} type="email" placeholder="Email" required />
                   <textarea className={s.field} placeholder="Tell us about your project" rows={4} style={{ resize: "vertical" }} required />
-                  <Button variant="primary" className={s.btnGlow} size="lg" block type="submit">Send message</Button>
+                  <Press style={{ width: "100%" }}><Button variant="primary" className={s.btnGlow} size="lg" block type="submit">Send message</Button></Press>
                 </form>
               )}
             </Card>

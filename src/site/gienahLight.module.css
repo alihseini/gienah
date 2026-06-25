@@ -1,0 +1,263 @@
+/* ---------------------------------------------------------------------------
+ * Gienah Light Signature
+ *
+ * A local, star-identity light source placed behind a section's content. It is
+ * quiet before the section enters the viewport and, once it does (data-lit
+ * toggled by GienahLight.tsx via Motion's useInView — IntersectionObserver, no
+ * scroll listeners), it activates: a blue-white star CORE scales/fades in, a
+ * cyan/blue HALO washes the section, a cross LENS-FLARE draws once, and a soft
+ * BLOOM settles into a calm premium glow. Optionally a very subtle twinkle.
+ *
+ * Everything is additive (mix-blend-mode: screen) — it only ADDS light, never
+ * darkens content. Only opacity + transform animate. Blur is STATIC (rasterised
+ * once, never animated). Keyframes live in this module (project rule).
+ * ------------------------------------------------------------------------- */
+
+.sig {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: var(--min);
+  transition: opacity 1.1s var(--ease-out);
+
+  /* focal point + sizing (overridden by position / size presets) */
+  --x: 50%;
+  --y: 40%;
+  --core: 120px;
+  --halo: 760px;
+  --min: 0.32;
+
+  /* tone — blue-white star by default */
+  --c-core: rgba(234, 246, 255, 0.95);
+  --c-core2: rgba(168, 216, 247, 0.85);
+  --c-halo1: rgba(88, 171, 206, 0.42);
+  --c-halo2: rgba(42, 146, 204, 0.16);
+  --c-flare: rgba(196, 230, 255, 0.85);
+  --c-gold: rgba(244, 198, 95, 0); /* warm accent off unless toned */
+}
+.sig[data-lit] {
+  opacity: 1;
+}
+
+/* ---- tone variants ---- */
+.toneMixed {
+  --c-gold: rgba(244, 198, 95, 0.14);
+}
+.toneGold {
+  --c-core2: rgba(247, 223, 156, 0.85);
+  --c-halo1: rgba(244, 198, 95, 0.4);
+  --c-halo2: rgba(226, 170, 59, 0.16);
+  --c-flare: rgba(250, 226, 168, 0.85);
+  --c-gold: rgba(244, 198, 95, 0.18);
+}
+
+/* ---- size variants ---- */
+.sm {
+  --core: 92px;
+  --halo: 560px;
+}
+.lg {
+  --core: 168px;
+  --halo: 960px;
+}
+.strong {
+  --min: 0.42;
+}
+
+/* ---- position presets (where the star sits) ---- */
+.posCenter {
+  --x: 50%;
+  --y: 40%;
+}
+.posTop {
+  --x: 50%;
+  --y: -2%;
+}
+.posRim {
+  --x: 50%;
+  --y: 50%;
+}
+.posLeft {
+  --x: -2%;
+  --y: 42%;
+}
+.posDiagonal {
+  --x: 84%;
+  --y: 4%;
+}
+.posBottom {
+  --x: 50%;
+  --y: 106%;
+}
+
+/* ---- halo: the soft cyan wash that locally brightens the section ---- */
+.halo {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--halo);
+  height: var(--halo);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--c-halo1), var(--c-halo2) 40%, transparent 68%),
+    radial-gradient(circle, var(--c-gold), transparent 58%);
+  filter: blur(22px);
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  transition: opacity 1.1s var(--ease-out);
+  will-change: opacity;
+}
+.sig[data-lit] .halo {
+  opacity: 1;
+}
+
+/* ---- focal point wrapper (core / bloom / flare are centred on it) ---- */
+.star {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 0;
+  height: 0;
+}
+
+/* soft bloom right around the core */
+.bloom {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--core) * 2.5);
+  height: calc(var(--core) * 2.5);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--c-core2), transparent 64%);
+  filter: blur(16px);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 1s var(--ease-out);
+}
+.sig[data-lit] .bloom {
+  opacity: 0.8;
+}
+
+/* the blue-white star core */
+.core {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--core);
+  height: var(--core);
+  transform: translate(-50%, -50%) scale(0.65);
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0%, var(--c-core) 16%, var(--c-core2) 44%, transparent 70%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition:
+    opacity 0.9s var(--ease-out),
+    transform 0.9s var(--ease-out);
+}
+.sig[data-lit] .core {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* cross lens-flare — horizontal (::before) + vertical (::after) streaks */
+.flare::before,
+.flare::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  mix-blend-mode: screen;
+  opacity: 0;
+}
+.flare::before {
+  width: calc(var(--core) * 4.2);
+  height: 2px;
+  transform: translate(-50%, -50%) scaleX(0.15);
+  background: linear-gradient(90deg, transparent, var(--c-flare) 44%, #fff 50%, var(--c-flare) 56%, transparent);
+}
+.flare::after {
+  width: 2px;
+  height: calc(var(--core) * 3.2);
+  transform: translate(-50%, -50%) scaleY(0.15);
+  background: linear-gradient(0deg, transparent, var(--c-flare) 44%, #fff 50%, var(--c-flare) 56%, transparent);
+}
+.sig[data-lit] .flare::before {
+  animation: gnFlareH 1.4s var(--ease-out) 0.16s both;
+}
+.sig[data-lit] .flare::after {
+  animation: gnFlareV 1.4s var(--ease-out) 0.16s both;
+}
+@keyframes gnFlareH {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scaleX(0);
+  }
+  42% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.45;
+    transform: translate(-50%, -50%) scaleX(1);
+  }
+}
+@keyframes gnFlareV {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scaleY(0);
+  }
+  42% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.45;
+    transform: translate(-50%, -50%) scaleY(1);
+  }
+}
+
+/* optional, very subtle twinkle after the signature settles (Hero / Contact) */
+.twinkleOn[data-lit] .bloom {
+  animation: gnTwinkle 5.5s var(--ease-in-out) 1.4s infinite;
+}
+@keyframes gnTwinkle {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+/* reduced motion: no draw, no twinkle — the signature simply rests, lit & calm */
+@media (prefers-reduced-motion: reduce) {
+  .sig,
+  .halo,
+  .bloom,
+  .core {
+    transition: none;
+  }
+  .sig {
+    opacity: 1;
+  }
+  .core {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .bloom {
+    opacity: 0.8;
+    animation: none !important;
+  }
+  .halo {
+    opacity: 1;
+  }
+  .flare::before,
+  .flare::after {
+    animation: none !important;
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}

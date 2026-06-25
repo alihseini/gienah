@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components";
 import { go, siteStyles as s } from "./helpers";
@@ -7,8 +8,11 @@ import site from "@/data/site.json";
 
 const NAV = site.nav as [string, string][];
 
+const ITEM_SPRING = { type: "spring", stiffness: 360, damping: 30, mass: 0.7 } as const;
+
 export function Nav() {
   const router = useRouter();
+  const reduce = useReducedMotion();
   const [phase, setPhase] = React.useState<"closed" | "seed" | "open">("closed");
   const innerRef = React.useRef<HTMLDivElement>(null);
   const rootRef = React.useRef<HTMLDivElement>(null);
@@ -73,31 +77,26 @@ export function Nav() {
       <div className={s.fabPanel} style={panelStyle}>
         <div className={s.fabPanelInner} ref={innerRef}>
           {NAV.map(([label, id], i) => (
-            <div
+            <motion.div
               key={id}
               className={s.fabItem}
               onClick={() => pick(id)}
-              style={{
-                opacity: isOpen ? 1 : 0,
-                transform: isOpen ? "translateY(0)" : "translateY(9px)",
-                transitionDelay: isOpen ? `${180 + i * 55}ms` : "0ms",
-              }}
+              initial={false}
+              animate={{ opacity: isOpen ? 1 : 0, y: isOpen ? 0 : 9 }}
+              transition={reduce ? { duration: 0 } : { ...ITEM_SPRING, delay: isOpen ? 0.16 + i * 0.05 : 0 }}
+              whileTap={{ scale: reduce ? 1 : 0.95 }}
             >
               {label}
-            </div>
+            </motion.div>
           ))}
-          <div
-            style={{
-              display: "inline-flex",
-              paddingLeft: 6,
-              opacity: isOpen ? 1 : 0,
-              transform: isOpen ? "translateY(0)" : "translateY(9px)",
-              transition: "opacity .5s var(--ease-out), transform .5s var(--ease-out)",
-              transitionDelay: isOpen ? `${180 + NAV.length * 55}ms` : "0ms",
-            }}
+          <motion.div
+            style={{ display: "inline-flex", paddingLeft: 6 }}
+            initial={false}
+            animate={{ opacity: isOpen ? 1 : 0, y: isOpen ? 0 : 9 }}
+            transition={reduce ? { duration: 0 } : { ...ITEM_SPRING, delay: isOpen ? 0.16 + NAV.length * 0.05 : 0 }}
           >
             <Button size="sm" variant="primary" onClick={() => pick("contact")}>Start a project</Button>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
