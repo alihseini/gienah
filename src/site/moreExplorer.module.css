@@ -432,9 +432,6 @@
   .row::after {
     display: none;
   }
-  .rowActive::after {
-    display: block;
-  }
   .list:hover .row:not(:hover):not(.rowActive) {
     opacity: 1;
   }
@@ -443,6 +440,28 @@
   }
   .title {
     white-space: normal;
+  }
+  /* no "selected" row on touch — every row reads identically (the default active
+     row would otherwise look permanently hovered/highlighted) */
+  .rowActive {
+    background: none;
+    box-shadow: none;
+  }
+  .rowActive::before {
+    opacity: 0;
+  }
+  .rowActive::after {
+    display: none;
+  }
+  .rowActive .title {
+    color: var(--text-secondary);
+    transform: none;
+  }
+  .rowActive .num {
+    color: var(--text-tertiary);
+  }
+  .rowActive .arrow {
+    color: var(--gray-300);
   }
 }
 

@@ -963,6 +963,9 @@
    only --dw changes; the notch/radius/padding stay proportional */
 .pcard .device {
   --dw: 168px;
+  /* no float inside the card — the ±22px lift would push the phone over the
+     card's top edge; the coverflow scale already gives the card life */
+  animation: none;
 }
 .pcardHint {
   display: flex;
