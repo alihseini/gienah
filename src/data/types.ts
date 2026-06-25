@@ -14,6 +14,10 @@ export type Product = {
   shots: string[];
   blurb: string;
   desc: string[];
+  /** Optional case-study extras. When absent, the detail page derives sensible
+   *  fallbacks from category/tech/desc so every project renders fully. */
+  highlights?: { icon: string; title: string; desc: string }[];
+  delivered?: string[];
 };
 
 export type Service = {
