@@ -1,0 +1,111 @@
+/* ---------------------------------------------------------------------------
+ * Products — Cosmic Glass / Aurora backdrop (Step 1)
+ *
+ * A restrained, product-focused cosmic background for the Products section only.
+ * It layers transparently OVER the section's dark base and the (dimmed) Three.js
+ * LightPillar, so the product visuals stay dominant:
+ *   - soft aurora/nebula lobes kept to the CORNERS (never behind the central
+ *     product/text), in blue / cyan / teal with a faint gold hint
+ *   - a very soft glassy radial depth glow
+ *   - faint, sparse, deterministic distant stars (no JS, no random)
+ *   - a restrained off-centre rim-light toward the product visual (left)
+ *   - a cinematic vignette that keeps the edges dark
+ *
+ * Only opacity transitions on viewport activation (data-lit, set by
+ * ProductsBackdrop.tsx via useInView). Blur is STATIC (rasterised once, never
+ * animated). All additive light uses screen blend — it never darkens content
+ * except the intentional edge vignette.
+ * ------------------------------------------------------------------------- */
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  /* transparent: the section's var(--page-bg) base + LightPillar show through */
+}
+
+/* aurora lobes — pushed to the corners, away from the central product + text */
+.aurora {
+  position: absolute;
+  inset: -12%;
+  opacity: 0.5;
+  mix-blend-mode: screen;
+  filter: blur(46px); /* static */
+  background:
+    radial-gradient(40% 46% at 90% 6%, rgba(70, 165, 200, 0.34), transparent 62%),
+    radial-gradient(44% 50% at 4% 98%, rgba(38, 120, 168, 0.3), transparent 64%),
+    radial-gradient(34% 38% at 98% 96%, rgba(244, 198, 95, 0.07), transparent 60%);
+  transition: opacity 1.2s var(--ease-out);
+  will-change: opacity;
+}
+.backdrop[data-lit] .aurora {
+  opacity: 0.92;
+}
+
+/* soft glassy radial depth — very low, gives the section a glass sheen */
+.glass {
+  position: absolute;
+  inset: 0;
+  opacity: 0.6;
+  mix-blend-mode: screen;
+  background: radial-gradient(58% 70% at 50% 38%, rgba(88, 171, 206, 0.05), transparent 70%);
+  transition: opacity 1.2s var(--ease-out);
+}
+.backdrop[data-lit] .glass {
+  opacity: 1;
+}
+
+/* faint distant stars — deterministic, sparse, very low opacity */
+.stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0.45;
+  background-repeat: no-repeat;
+  background-image:
+    radial-gradient(1px 1px at 11% 18%, rgba(255, 255, 255, 0.6), transparent 60%),
+    radial-gradient(1px 1px at 83% 12%, rgba(205, 232, 255, 0.55), transparent 60%),
+    radial-gradient(1.2px 1.2px at 67% 27%, rgba(255, 255, 255, 0.4), transparent 60%),
+    radial-gradient(1px 1px at 26% 73%, rgba(220, 240, 255, 0.45), transparent 60%),
+    radial-gradient(1px 1px at 92% 64%, rgba(255, 255, 255, 0.4), transparent 60%),
+    radial-gradient(1.2px 1.2px at 47% 88%, rgba(200, 228, 255, 0.4), transparent 60%),
+    radial-gradient(1px 1px at 7% 52%, rgba(255, 255, 255, 0.35), transparent 60%);
+}
+
+/* restrained off-centre rim-light toward the product visual (sits left of centre,
+   away from the text on the right) — a soft halo, not a bright star */
+.rim {
+  position: absolute;
+  top: 50%;
+  left: 31%;
+  width: 540px;
+  height: 540px;
+  max-width: 60vw;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(120, 196, 232, 0.16), transparent 66%);
+  filter: blur(34px); /* static */
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease-out);
+  will-change: opacity;
+}
+.backdrop[data-lit] .rim {
+  opacity: 1;
+}
+
+/* cinematic vignette — keeps the edges dark so the section reads as a showcase */
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 96% at 50% 48%, transparent 50%, rgba(4, 9, 18, 0.55) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora,
+  .glass,
+  .rim {
+    transition: none;
+  }
+}

@@ -17,6 +17,7 @@ import { HeadingReveal } from "./HeadingReveal";
 import { TypingAnimation } from "./TypingAnimation";
 import { Stagger, StaggerItem, FadeIn, Lift, Press } from "./motion";
 import { GienahLight } from "./GienahLight";
+import { ProductsBackdrop } from "./ProductsBackdrop";
 import m from "./moreExplorer.module.css";
 import ag from "./agileStage.module.css";
 import productsData from "@/data/products.json";
@@ -366,13 +367,16 @@ export function Featured() {
   return (
     <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
-        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "radial-gradient(70% 60% at 80% 12%, rgba(88,171,206,0.22), rgba(244,198,95,0.11) 36%, transparent 64%), radial-gradient(60% 64% at 12% 90%, rgba(42,146,204,0.16), transparent 62%), var(--page-bg)" }}>
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-            <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={1} rotationSpeed={0.3} glowAmount={0.002} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.5} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
+        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
+          {/* Three.js LightPillar kept, but dimmed to a subtle distant accent so
+              the new cosmic-glass backdrop and the products stay dominant */}
+          <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.5 }}>
+            <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={0.45} rotationSpeed={0.3} glowAmount={0.002} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.5} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
           </div>
-          {/* product rim-light: a Gienah halo hugs the centre stage where the
-              device sits (flare off so it doesn't pull focus from the product) */}
-          <GienahLight pos="rim" tone="mixed" size="md" flare={false} />
+          {/* restrained Cosmic Glass / Aurora backdrop — corner aurora, faint
+              stars, off-centre rim-light, cinematic vignette (no star behind the
+              product/text) */}
+          <ProductsBackdrop />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
             <div style={{ position: "relative", height: "min(560px, 62vh)", marginTop: 6 }}>
