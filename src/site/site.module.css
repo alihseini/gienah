@@ -863,46 +863,31 @@
 .stageSvc {
   padding: 100px 0 52px;
 }
+/* the Services deck never shrinks below the panel's content height (~440px) or
+   the capabilities/tags clip — on windows too short to fit that, the section
+   switches to the swipe carousel (JS: max-height 700px) instead of clipping. */
 .svcDeck {
   position: relative;
   margin-top: 8px;
-  height: clamp(380px, 56vh, 520px);
+  height: clamp(440px, 58vh, 520px);
 }
 @media (max-height: 860px) {
   .stage {
-    padding-top: 60px;
-    padding-bottom: 30px;
+    padding-top: 52px;
+    padding-bottom: 26px;
   }
   .stageSvc {
-    padding: 60px 0 30px;
+    padding: 48px 0 24px;
   }
   .featDeck {
     height: min(520px, 56vh);
   }
   .svcDeck {
-    height: clamp(320px, 52vh, 460px);
+    height: clamp(440px, 56vh, 500px);
   }
   /* keep the phone inside the (now shorter) deck — 26vh ≈ 53vh tall < 56vh */
   .device {
     --dw: min(240px, 26vh);
-  }
-}
-@media (max-height: 700px) {
-  .stage {
-    padding-top: 34px;
-    padding-bottom: 18px;
-  }
-  .stageSvc {
-    padding: 36px 0 18px;
-  }
-  .featDeck {
-    height: min(460px, 52vh);
-  }
-  .svcDeck {
-    height: clamp(264px, 48vh, 420px);
-  }
-  .device {
-    --dw: min(208px, 23vh);
   }
 }
 @media (max-width: 920px) {

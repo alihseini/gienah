@@ -245,7 +245,10 @@ export function Services() {
   // scroll-stepped deck. Detected after mount so SSR + first paint agree.
   const [carousel, setCarousel] = React.useState(false);
   React.useEffect(() => {
-    const mq = window.matchMedia("(max-width: 1024px)");
+    // also fall back to the swipe carousel on short windows — the 100vh scroll
+    // deck can't fit the card content + header + dots when the viewport is short,
+    // so the natural-height carousel (which just scrolls) is used instead.
+    const mq = window.matchMedia("(max-width: 1024px), (max-height: 700px)");
     const apply = () => setCarousel(mq.matches);
     apply();
     mq.addEventListener("change", apply);
@@ -476,7 +479,10 @@ export function Featured() {
   // server and client agree — no hydration mismatch.
   const [carousel, setCarousel] = React.useState(false);
   React.useEffect(() => {
-    const mq = window.matchMedia("(max-width: 1024px)");
+    // also fall back to the swipe carousel on short windows — the 100vh scroll
+    // deck can't fit the card content + header + dots when the viewport is short,
+    // so the natural-height carousel (which just scrolls) is used instead.
+    const mq = window.matchMedia("(max-width: 1024px), (max-height: 700px)");
     const apply = () => setCarousel(mq.matches);
     apply();
     mq.addEventListener("change", apply);
