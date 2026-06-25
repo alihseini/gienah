@@ -25,9 +25,9 @@
   /* focal point + sizing (overridden by position / size presets) */
   --x: 50%;
   --y: 40%;
-  --core: 120px;
-  --halo: 760px;
-  --min: 0.32;
+  --core: 92px;
+  --halo: 620px;
+  --min: 0.2;
 
   /* tone — blue-white star by default */
   --c-core: rgba(234, 246, 255, 0.95);
@@ -37,8 +37,9 @@
   --c-flare: rgba(196, 230, 255, 0.85);
   --c-gold: rgba(244, 198, 95, 0); /* warm accent off unless toned */
 }
+/* lit but subtle — the signature is an accent, content always wins */
 .sig[data-lit] {
-  opacity: 1;
+  opacity: 0.62;
 }
 
 /* ---- tone variants ---- */
@@ -55,15 +56,19 @@
 
 /* ---- size variants ---- */
 .sm {
-  --core: 92px;
-  --halo: 560px;
+  --core: 70px;
+  --halo: 460px;
 }
 .lg {
-  --core: 168px;
-  --halo: 960px;
+  --core: 120px;
+  --halo: 700px;
 }
+/* strongest (Contact) — still premium, a touch brighter than the rest */
 .strong {
-  --min: 0.42;
+  --min: 0.3;
+}
+.strong[data-lit] {
+  opacity: 0.78;
 }
 
 /* ---- position presets (where the star sits) ---- */
@@ -90,6 +95,11 @@
 .posBottom {
   --x: 50%;
   --y: 106%;
+}
+/* off-centre safe corner (Hero) — a star tucked away from the headline/CTA */
+.posCorner {
+  --x: 14%;
+  --y: 70%;
 }
 
 /* ---- halo: the soft cyan wash that locally brightens the section ---- */
@@ -139,7 +149,7 @@
   transition: opacity 1s var(--ease-out);
 }
 .sig[data-lit] .bloom {
-  opacity: 0.8;
+  opacity: 0.5;
 }
 
 /* the blue-white star core */
@@ -174,16 +184,16 @@
   opacity: 0;
 }
 .flare::before {
-  width: calc(var(--core) * 4.2);
+  width: calc(var(--core) * 2.6);
   height: 2px;
   transform: translate(-50%, -50%) scaleX(0.15);
-  background: linear-gradient(90deg, transparent, var(--c-flare) 44%, #fff 50%, var(--c-flare) 56%, transparent);
+  background: linear-gradient(90deg, transparent, var(--c-flare) 46%, rgba(255, 255, 255, 0.7) 50%, var(--c-flare) 54%, transparent);
 }
 .flare::after {
   width: 2px;
-  height: calc(var(--core) * 3.2);
+  height: calc(var(--core) * 2);
   transform: translate(-50%, -50%) scaleY(0.15);
-  background: linear-gradient(0deg, transparent, var(--c-flare) 44%, #fff 50%, var(--c-flare) 56%, transparent);
+  background: linear-gradient(0deg, transparent, var(--c-flare) 46%, rgba(255, 255, 255, 0.7) 50%, var(--c-flare) 54%, transparent);
 }
 .sig[data-lit] .flare::before {
   animation: gnFlareH 1.4s var(--ease-out) 0.16s both;
@@ -200,7 +210,7 @@
     opacity: 1;
   }
   100% {
-    opacity: 0.45;
+    opacity: 0.28;
     transform: translate(-50%, -50%) scaleX(1);
   }
 }
@@ -213,7 +223,7 @@
     opacity: 1;
   }
   100% {
-    opacity: 0.45;
+    opacity: 0.28;
     transform: translate(-50%, -50%) scaleY(1);
   }
 }
@@ -241,14 +251,14 @@
     transition: none;
   }
   .sig {
-    opacity: 1;
+    opacity: 0.6;
   }
   .core {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
   .bloom {
-    opacity: 0.8;
+    opacity: 0.5;
     animation: none !important;
   }
   .halo {
@@ -257,7 +267,7 @@
   .flare::before,
   .flare::after {
     animation: none !important;
-    opacity: 0.4;
+    opacity: 0.26;
     transform: translate(-50%, -50%) scale(1);
   }
 }

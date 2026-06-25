@@ -14,7 +14,7 @@ import s from "./gienahLight.module.css";
  * Place it as the first child of a position:relative section, before the content
  * layer (which should sit at a higher z-index). */
 
-type Pos = "center" | "top" | "rim" | "left" | "diagonal" | "bottom";
+type Pos = "center" | "top" | "rim" | "left" | "diagonal" | "bottom" | "corner";
 type Tone = "blue" | "gold" | "mixed";
 type Size = "sm" | "md" | "lg";
 
@@ -25,6 +25,7 @@ const POS: Record<Pos, string> = {
   left: s.posLeft,
   diagonal: s.posDiagonal,
   bottom: s.posBottom,
+  corner: s.posCorner,
 };
 const TONE: Record<Tone, string> = { blue: "", gold: s.toneGold, mixed: s.toneMixed };
 const SIZE: Record<Size, string> = { sm: s.sm, md: "", lg: s.lg };

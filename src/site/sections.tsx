@@ -77,9 +77,10 @@ export function Hero() {
           <LogoConstellation />
         </div>
       </ScrollParallax>
-      {/* Gienah light signature: the strongest star-core + cross-flare on top of
-          the constellation — cinematic, with a subtle settled twinkle */}
-      <GienahLight pos="center" tone="mixed" size="lg" flare twinkle strong />
+      {/* Gienah light signature: a subtle off-centre star tucked into a safe
+          corner — never behind the headline/CTA; the hero star field stays the
+          main identity */}
+      <GienahLight pos="corner" tone="mixed" size="md" flare twinkle />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
         <FadeIn y={12}>
           <div style={{ display: "inline-flex", marginBottom: 26 }}>
@@ -243,7 +244,7 @@ export function Services() {
       <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
         <Aurora />
         <Meteors />
-        <GienahLight pos="top" tone="blue" size="md" flare />
+        <GienahLight pos="top" tone="blue" size="md" flare={false} />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
           {Header}
           <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
@@ -261,7 +262,7 @@ export function Services() {
           <Aurora />
           <Meteors />
           {/* Gienah star accent above the title + a soft halo wash over the deck */}
-          <GienahLight pos="top" tone="blue" size="md" flare />
+          <GienahLight pos="top" tone="blue" size="md" flare={false} />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             {Header}
             <div style={{ position: "relative", height: "clamp(420px, 56vh, 520px)", marginTop: 8 }}>
@@ -623,7 +624,7 @@ export function Agile() {
       <ScrollParallax max={56}><div className={ag.beam} aria-hidden="true" /></ScrollParallax>
       {/* subtle Gienah star above the title — the connector/line system below is
           untouched */}
-      <GienahLight pos="top" tone="mixed" size="md" flare />
+      <GienahLight pos="top" tone="mixed" size="md" flare={false} />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
         <div className={ag.timeline} ref={timelineRef}>
@@ -736,9 +737,9 @@ export function Contact() {
         <AnimatedBG variant="glow" />
       </div>
       <ParticleField progressRef={progRef} />
-      {/* final Gienah signature: the strongest star-core + flare, centred on the
-          form/CTA, with a subtle settled twinkle */}
-      <GienahLight pos="center" tone="mixed" size="lg" flare twinkle strong />
+      {/* final Gienah signature: the strongest, premium glow rising from BELOW
+          the form/CTA (not behind the text), with a subtle settled twinkle */}
+      <GienahLight pos="bottom" tone="mixed" size="lg" flare={false} twinkle strong />
       <div ref={ref} className={s.wrap} style={{ maxWidth: 1000, position: "relative", zIndex: 1, transformOrigin: "center center", willChange: "transform" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(32px,6vw,72px)", alignItems: "start" }}>
           <div>
