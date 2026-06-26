@@ -421,8 +421,12 @@
 /* ===== devices (product phone frames) ===== */
 .device {
   /* every internal dimension is derived from --dw so the phone scales without
-     deforming — change only --dw and the radius / padding / notch stay in ratio */
-  --dw: 270px;
+     deforming — change only --dw and the radius / padding / notch stay in ratio.
+     Desktop deck: width is clamped so it stays 270px on tall windows (unchanged
+     local look) but caps at 30vh on short windows, so the phone height (≈61vh)
+     can never exceed the 62vh deck and clip at the bottom. Carousel phones set a
+     fixed --dw via higher specificity, so they're unaffected. */
+  --dw: clamp(210px, 30vh, 270px);
   position: relative;
   width: var(--dw);
   height: calc(var(--dw) * 2.044);
