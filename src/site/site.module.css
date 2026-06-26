@@ -853,6 +853,35 @@
 .featDeck {
   height: min(560px, 62vh);
 }
+/* Services scroll-deck stage. On tall windows (>820px) these match the original
+   inline values exactly, so the desktop look is unchanged. On short windows the
+   padding and deck height shrink so the column (title + card + dots) fits inside
+   the 100vh frame and the dot indicators don't bleed under the next section. The
+   deck never drops below the card's content height (~403px) so nothing clips. */
+.svcStage {
+  padding: 100px 0 52px;
+}
+.svcDeck {
+  position: relative;
+  margin-top: 8px;
+  height: clamp(420px, 56vh, 520px);
+}
+@media (max-height: 820px) {
+  .svcStage {
+    padding: 64px 0 24px;
+  }
+  .svcDeck {
+    height: clamp(408px, 54vh, 470px);
+  }
+}
+@media (max-height: 720px) {
+  .svcStage {
+    padding: 44px 0 16px;
+  }
+  .svcDeck {
+    height: 408px;
+  }
+}
 @media (max-width: 920px) {
   .navDesktop {
     display: none !important;
