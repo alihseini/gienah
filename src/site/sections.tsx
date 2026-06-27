@@ -14,6 +14,8 @@ import { HeadingReveal } from "./HeadingReveal";
 import { TypingAnimation } from "./TypingAnimation";
 import { Stagger, StaggerItem, FadeIn, Lift, Press } from "./motion";
 import { GienahLight } from "./GienahLight";
+import { TitleNodes } from "./TitleNodes";
+import c from "./constellationJourney.module.css";
 import { SectionStars } from "./SectionStars";
 import m from "./moreExplorer.module.css";
 import ag from "./agileStage.module.css";
@@ -75,6 +77,8 @@ export function Hero() {
             main identity */}
         <GienahLight pos="corner" tone="mixed" size="md" flare twinkle />
       </div>
+      {/* the constellation journey begins from this Hero star */}
+      <span data-node="hero:star" className={c.heroStar} aria-hidden="true" />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
         <FadeIn y={12}>
           <div style={{ display: "inline-flex", marginBottom: 26 }}>
@@ -264,7 +268,7 @@ export function Services() {
   }, [reduce, N, carousel]);
 
   const Header = (
-    <SectionHead tag="#Services" light title="Everything from idea to launch" sub="Four disciplines, one team — so your product stays coherent from the first conversation to its first users." />
+    <SectionHead nodeId="services" tag="#Services" light title="Everything from idea to launch" sub="Four disciplines, one team — so your product stays coherent from the first conversation to its first users." />
   );
 
   // ---- mobile / tablet: native swipe carousel through the service cards ----
@@ -438,7 +442,7 @@ function FeaturedCarousel() {
             LightPillar was removed — its volumetric glow hazed the section) */}
         <SectionStars />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
-          <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
+          <SectionHead nodeId="products" tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
           <FadeIn y={22} amount={0.18}>
             <div className={s.pcarousel} ref={railRef}>
               {FEATURED.map((p, i) => <ProductCard key={p.id} p={p} active={i === active} />)}
@@ -502,7 +506,7 @@ export function Featured() {
               LightPillar was removed — its volumetric glow hazed the section) */}
           <SectionStars />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
-            <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
+            <SectionHead nodeId="products" tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
             <div className={s.featDeck} style={{ position: "relative", marginTop: 6 }}>
               {FEATURED.map((p, i) => <ProductSlide key={p.id} p={p} d={i - active} />)}
             </div>
@@ -603,7 +607,11 @@ export function MoreProducts() {
       <div className={m.topo}><TopologyField /></div>
       {/* layer 2: content */}
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 2 }}>
-        <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
+        <div style={{ textAlign: "center" }}>
+          <TitleNodes id="studio">
+            <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
+          </TitleNodes>
+        </div>
         <Reveal delay={60}><TypingAnimation as="p" text={touch ? "Tap a project to open its case study." : "Hover a project to preview it — click to open the case study."} style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 8px" }} /></Reveal>
         <div className={m.explorer}>
           <div className={m.list} onMouseLeave={() => setActive(MORE[0].id)}>
@@ -756,7 +764,7 @@ export function Agile() {
           connected to the Hero but simpler. Both sit behind the content (z-index 1). */}
       <ScrollParallax max={48}><StarField /></ScrollParallax>
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
-        <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
+        <SectionHead nodeId="agile" tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
         <div className={ag.timeline} ref={timelineRef}>
           {/* mobile-only vertical rail: a single drawn line down the left, filled
               with the same --p scroll progress that draws the desktop curve */}
@@ -874,7 +882,9 @@ export function Contact() {
         <div className={s.respGrid2} style={{ gap: "clamp(32px,6vw,72px)", alignItems: "start" }}>
           <div>
             <Reveal><div className={s.eyebrow}>#CONTACT_US</div></Reveal>
-            <HeadingReveal as="h2" style={{ fontSize: "clamp(32px,4.4vw,52px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.05 }} segments={[{ text: "Hey." }, { br: true }, { text: "Let's talk.", accent: true }]} />
+            <TitleNodes id="contact">
+              <HeadingReveal as="h2" style={{ fontSize: "clamp(32px,4.4vw,52px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.05 }} segments={[{ text: "Hey." }, { br: true }, { text: "Let's talk.", accent: true }]} />
+            </TitleNodes>
             <Reveal delay={130}><TypingAnimation as="p" text="Tell us about your idea, your timeline, or just say hi. We reply to every message." style={{ fontSize: 17, lineHeight: 1.65, color: "var(--text-secondary)", marginTop: 18, maxWidth: 380 }} /></Reveal>
             <Reveal delay={190}>
               <Press style={{ marginTop: 24 }}>
