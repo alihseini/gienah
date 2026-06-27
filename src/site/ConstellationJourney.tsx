@@ -28,17 +28,15 @@ type Pt = { x: number; y: number };
 type Seg = { p0: Pt; c1: Pt; c2: Pt; p3: Pt };
 
 /* The horizontal extreme (apex) an inter-section leg bows toward, by viewport
- * width. Larger screens swing strongest (apex just past the edge); mobile pushes
- * past the narrow edge so the line clearly exits and re-enters; tablet/desktop
- * stay clearly inside. Returned as an absolute x in layer space. */
-function apexXFor(side: "left" | "right", w: number) {
-  let f: number; // fraction of width; <0 or >1 = just off the matching edge
-  if (side === "left") {
-    f = w >= 1440 ? -0.03 : w >= 1024 ? 0.015 : w >= 768 ? 0.05 : -0.12;
-  } else {
-    f = w >= 1440 ? 1.03 : w >= 1024 ? 0.985 : w >= 768 ? 0.95 : 1.12;
-  }
-  return f * w;
+ * width. Larger screens swing strongest; the apex is always clamped to stay a
+ * comfortable margin INSIDE the viewport so no part of the leg is clipped and the
+ * line never appears to vanish between sections. `navg` is the average x of the
+ * leg's two endpoints; the bow reaches `reach·w` toward the nearer edge from it. */
+function legApexX(navg: number, side: "left" | "right", w: number) {
+  const reach = w >= 1440 ? 0.14 : w >= 1024 ? 0.11 : w >= 768 ? 0.08 : 0.05;
+  const raw = side === "left" ? navg - reach * w : navg + reach * w;
+  const margin = w >= 768 ? 26 : 12; // keep the whole curve on-screen
+  return Math.max(margin, Math.min(w - margin, raw));
 }
 
 // length of a cubic Bézier by light sampling (done once per measure, not per frame)
@@ -57,7 +55,6 @@ function cubicLen(s: Seg) {
 
 export function ConstellationJourney({ sections, onArrive }: { sections: Section[]; onArrive: (key: string) => void }) {
   const layerRef = React.useRef<HTMLDivElement>(null);
-  const pathRef = React.useRef<SVGPathElement>(null);
   const reduce = useReducedMotion();
 
   const [geo, setGeo] = React.useState<{ w: number; h: number; d: string; anchors: Anchor[]; fr: number[]; sp: number[] }>({
@@ -112,7 +109,7 @@ export function ConstellationJourney({ sections, onArrive }: { sections: Section
       } else {
         const navg = (a.x + b.x) / 2;
         const side: "left" | "right" = navg < w / 2 ? "left" : "right";
-        const apex = apexXFor(side, w);
+        const apex = legApexX(navg, side, w);
         // symmetric cubic: apex_x = 0.25*navg + 0.75*cx  →  cx places the bulge apex
         const cx = (apex - 0.25 * navg) / 0.75;
         const dy = b.y - a.y;
@@ -180,15 +177,6 @@ export function ConstellationJourney({ sections, onArrive }: { sections: Section
   const fr = geo.fr.length >= 2 ? geo.fr : [0, 1];
   const draw = useTransform(scrollYProgress, sp, fr);
 
-  // flowing light at the draw head (getPointAtLength is cheap; only re-runs when
-  // draw changes, i.e. while scrolling)
-  const lenRef = React.useRef(1);
-  React.useLayoutEffect(() => { if (pathRef.current) lenRef.current = pathRef.current.getTotalLength() || 1; }, [geo.d]);
-  const clamp = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
-  const lx = useTransform(draw, (v) => (pathRef.current ? pathRef.current.getPointAtLength(clamp(v) * lenRef.current).x : 0));
-  const ly = useTransform(draw, (v) => (pathRef.current ? pathRef.current.getPointAtLength(clamp(v) * lenRef.current).y : 0));
-  const lightOpacity = useTransform(draw, [0, 0.02, 0.985, 1], [0, 1, 1, 0]);
-
   // arrivals: light the entry node + star and fire onArrive once each
   const firedRef = React.useRef<Set<string>>(new Set());
   const enterCount = React.useMemo(() => geo.anchors.filter((a) => a.kind === "enter").length, [geo.anchors]);
@@ -224,12 +212,7 @@ export function ConstellationJourney({ sections, onArrive }: { sections: Section
           {reduce ? (
             <path className={c.draw} d={geo.d} stroke="url(#cjGrad)" pathLength={1} />
           ) : (
-            <>
-              <motion.path ref={pathRef} className={c.draw} d={geo.d} stroke="url(#cjGrad)" style={{ pathLength: draw }} />
-              <motion.g style={{ x: lx, y: ly, opacity: lightOpacity }}>
-                <circle className={c.light} r={3} cx={0} cy={0} />
-              </motion.g>
-            </>
+            <motion.path className={c.draw} d={geo.d} stroke="url(#cjGrad)" style={{ pathLength: draw }} />
           )}
         </svg>
       )}
