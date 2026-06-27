@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
-import { motion, useReducedMotion, type Variants, type Transition } from "motion/react";
+import { motion, useReducedMotion, useInView, type Variants, type Transition } from "motion/react";
+import { useJourneyReady } from "./JourneyGate";
 
 /* ----------------------------------------------------------------------------
  * Motion primitives — the *interaction* layer only.
@@ -60,13 +61,16 @@ export function Stagger({
   amount?: number;
 }) {
   const reduce = useReducedMotion();
+  const ref = React.useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once, amount });
+  const ready = useJourneyReady();
   return (
     <motion.div
+      ref={ref}
       className={className}
       style={style}
       initial="hidden"
-      whileInView="show"
-      viewport={{ once, amount }}
+      animate={inView && ready ? "show" : "hidden"}
       variants={{
         hidden: {},
         show: { transition: { staggerChildren: reduce ? 0 : gap, delayChildren: reduce ? 0 : delayChildren } },
@@ -123,13 +127,17 @@ export function FadeIn({
 }) {
   const reduce = useReducedMotion();
   const M = pick(as);
+  const ref = React.useRef<HTMLElement>(null);
+  const inView = useInView(ref, { once, amount });
+  const ready = useJourneyReady();
   return (
     <M
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ref={ref as any}
       className={className}
       style={style}
       initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once, amount }}
+      animate={inView && ready ? { opacity: 1, y: 0 } : { opacity: 0, y }}
       transition={enterTransition(reduce, delay)}
     >
       {children}
@@ -163,6 +171,9 @@ export function Lift({
   y?: number;
 }) {
   const reduce = useReducedMotion();
+  const ref = React.useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.3 });
+  const ready = useJourneyReady();
   // Keep the gesture props PRESENT regardless of reduced motion — only neutralise
   // their values (scale 1 / no lift). Toggling the props on/off changes whether
   // Motion adds tabindex to the element, which the server can't predict → a
@@ -173,6 +184,7 @@ export function Lift({
     whileTap: { scale: reduce ? 1 : tapScale, transition: TAP_SPRING },
   };
   if (asItem) {
+    // entrance driven by the parent <Stagger> variants (which is itself gated)
     return (
       <motion.div className={className} style={style} variants={itemVariants(y, reduce)} {...interaction}>
         {children}
@@ -181,11 +193,11 @@ export function Lift({
   }
   return (
     <motion.div
+      ref={ref}
       className={className}
       style={style}
       initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
+      animate={inView && ready ? { opacity: 1, y: 0 } : { opacity: 0, y }}
       transition={enterTransition(reduce)}
       {...interaction}
     >

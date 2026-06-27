@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import s from "./headingReveal.module.css";
+import { useJourneyReady } from "./JourneyGate";
 
 /* Word-by-word heading reveal: each word fades up sequentially when the heading
    enters the viewport (IntersectionObserver, runs once). Words flagged `accent`
@@ -23,6 +24,7 @@ export function HeadingReveal({
 }) {
   const ref = React.useRef<HTMLElement>(null);
   const [shown, setShown] = React.useState(false);
+  const ready = useJourneyReady();
 
   React.useEffect(() => {
     const el = ref.current;
@@ -31,6 +33,8 @@ export function HeadingReveal({
       setShown(true);
       return;
     }
+    // gated sections wait for the connector to arrive (ready) before revealing
+    if (!ready) return;
     const r = el.getBoundingClientRect();
     if (r.top < window.innerHeight * 0.92 && r.bottom > 0) {
       setShown(true);
@@ -47,7 +51,7 @@ export function HeadingReveal({
       setShown(true);
     }
     return () => { if (io) io.disconnect(); };
-  }, []);
+  }, [ready]);
 
   const tokens = React.useMemo(() => {
     const out: ({ type: "word"; w: string; accent: boolean } | { type: "br" })[] = [];

@@ -14,12 +14,23 @@
 /* Section-connector system — ONE global gap variable + one node-padding variable.
    Tune the whole constellation here; never hardcode per-section values. */
 :root {
-  --section-connector-gap: clamp(180px, 16vh, 260px);
-  --connector-node-padding: clamp(24px, 2.4vh, 40px);
+  /* large screens — the longest, most cinematic journey */
+  --section-connector-gap: clamp(360px, 34vh, 540px);
+  --connector-node-padding: clamp(30px, 3.2vh, 52px);
+}
+@media (max-width: 1439px) {
+  /* desktop — still generous + clearly visible */
+  :root { --section-connector-gap: clamp(320px, 31vh, 470px); }
+}
+@media (max-width: 1023px) {
+  /* tablet — reduced but the journey stays obvious */
+  :root { --section-connector-gap: clamp(260px, 27vh, 380px); }
 }
 @media (max-width: 767px) {
+  /* mobile — compact but still long enough to read as a real link */
   :root {
-    --section-connector-gap: clamp(140px, 14vh, 200px);
+    --section-connector-gap: clamp(200px, 24vh, 300px);
+    --connector-node-padding: clamp(24px, 2.6vh, 40px);
   }
 }
 
