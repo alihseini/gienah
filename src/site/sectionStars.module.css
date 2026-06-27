@@ -1,0 +1,7 @@
+/* Continuous section starfield. No vertical mask on purpose: the stars must run
+   to the top/bottom edges so they blend into the adjacent sections instead of
+   fading out and creating a soft boundary. Kept subtle so each section's own
+   animation stays dominant. */
+.stars {
+  opacity: 0.72;
+}

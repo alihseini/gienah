@@ -87,13 +87,6 @@
   opacity: 1;
 }
 
-/* cinematic vignette — keeps the edges dark so the section reads as a showcase */
-.vignette {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(120% 96% at 50% 48%, transparent 50%, rgba(4, 9, 18, 0.55) 100%);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .aurora,
   .glass,

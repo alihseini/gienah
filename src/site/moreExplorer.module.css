@@ -24,19 +24,15 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  /* darken the center reading area, vignette the edges for depth */
-  background:
-    radial-gradient(
-      62% 48% at 50% 46%,
-      rgba(7, 14, 28, 0.5) 0%,
-      rgba(7, 14, 28, 0.2) 50%,
-      rgba(7, 14, 28, 0) 82%
-    ),
-    radial-gradient(
-      140% 120% at 50% 50%,
-      rgba(5, 11, 22, 0) 60%,
-      rgba(5, 11, 22, 0.45) 100%
-    );
+  /* soft center wash only (keeps text readable over the topology field). The
+     edge/corner vignette was removed so the section no longer darkens toward its
+     boundaries and blends into the continuous cosmic field. */
+  background: radial-gradient(
+    62% 48% at 50% 46%,
+    rgba(7, 14, 28, 0.5) 0%,
+    rgba(7, 14, 28, 0.2) 50%,
+    rgba(7, 14, 28, 0) 82%
+  );
 }
 
 /* ---------- layout ---------- */

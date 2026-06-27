@@ -19,7 +19,6 @@ export function ProductsBackdrop() {
       <div className={s.glass} />
       <StarField className={s.prodStars} density={5200} maxCount={340} shadow={false} constellations={false} shooting={false} />
       <div className={s.rim} />
-      <div className={s.vignette} />
     </div>
   );
 }

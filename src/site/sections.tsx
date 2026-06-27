@@ -18,6 +18,7 @@ import { TypingAnimation } from "./TypingAnimation";
 import { Stagger, StaggerItem, FadeIn, Lift, Press } from "./motion";
 import { GienahLight } from "./GienahLight";
 import { ProductsBackdrop } from "./ProductsBackdrop";
+import { SectionStars } from "./SectionStars";
 import m from "./moreExplorer.module.css";
 import ag from "./agileStage.module.css";
 import productsData from "@/data/products.json";
@@ -213,6 +214,7 @@ function ServicesCarousel({ header }: { header: React.ReactNode }) {
   const active = useActiveCard(railRef, SERVICES.length);
   return (
     <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2, padding: "96px 0 84px" }}>
+      <SectionStars />
       <Aurora />
       <Meteors />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
@@ -285,6 +287,7 @@ export function Services() {
   if (reduce) {
     return (
       <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
+        <SectionStars />
         <Aurora />
         <Meteors />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
@@ -300,7 +303,8 @@ export function Services() {
   return (
     <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
-        <div className={s.svcStage} style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "radial-gradient(70% 60% at 80% 12%, rgba(88,171,206,0.22), rgba(244,198,95,0.11) 36%, transparent 64%), radial-gradient(60% 64% at 12% 90%, rgba(42,146,204,0.16), transparent 62%), var(--page-bg)" }}>
+        <div className={s.svcStage} style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
+          <SectionStars />
           <Aurora />
           <Meteors />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
@@ -615,7 +619,8 @@ export function MoreProducts() {
   }, []);
   return (
     <section className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
-      {/* layer 0: dark base (section bg) → topology network field */}
+      {/* layer 0: dark base (section bg) → continuous stars → topology network field */}
+      <SectionStars />
       <div className={m.topo}><TopologyField /></div>
       {/* layer 1: readability mask / vignette */}
       <div className={m.mask} />
@@ -817,6 +822,7 @@ export function Agile() {
 export function About() {
   return (
     <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
+      <SectionStars />
       <ScrollParallax max={52}><BackgroundBeams /></ScrollParallax>
       <div className={[s.wrap, s.layer, s.respGrid2].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
         <div>
@@ -885,6 +891,7 @@ export function Contact() {
     <section id="contact" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 7 }}>
       {/* overscan (inset:-90) so the scroll translate/scale can never expose a bare
           strip — the layer always covers the section; the section clips the excess. */}
+      <SectionStars />
       <div ref={bgRef} style={{ position: "absolute", inset: -90, willChange: "opacity, filter, transform", transition: "opacity .2s linear" }}>
         <AnimatedBG variant="glow" />
       </div>
@@ -931,7 +938,7 @@ export function Contact() {
 export function Footer() {
   const NAV = site.nav as [string, string][];
   return (
-    <footer style={{ position: "relative", zIndex: 9, borderTop: "1px solid var(--border-subtle)", background: "var(--bg-subtle)", padding: "48px 0 36px" }}>
+    <footer style={{ position: "relative", zIndex: 9, background: "transparent", padding: "56px 0 40px" }}>
       <div className={s.wrap} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <img src="/assets/logo-mark.png" alt="" style={{ height: 28, width: "auto" }} />
