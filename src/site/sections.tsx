@@ -215,7 +215,6 @@ function ServicesCarousel({ header }: { header: React.ReactNode }) {
     <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2, padding: "96px 0 84px" }}>
       <Aurora />
       <Meteors />
-      <GienahLight pos="top" tone="blue" size="md" flare={false} />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         {header}
         <FadeIn y={22} amount={0.18}>
@@ -288,7 +287,6 @@ export function Services() {
       <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
         <Aurora />
         <Meteors />
-        <GienahLight pos="top" tone="blue" size="md" flare={false} />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
           {Header}
           <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
@@ -305,8 +303,6 @@ export function Services() {
         <div className={s.svcStage} style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "radial-gradient(70% 60% at 80% 12%, rgba(88,171,206,0.22), rgba(244,198,95,0.11) 36%, transparent 64%), radial-gradient(60% 64% at 12% 90%, rgba(42,146,204,0.16), transparent 62%), var(--page-bg)" }}>
           <Aurora />
           <Meteors />
-          {/* Gienah star accent above the title + a soft halo wash over the deck */}
-          <GienahLight pos="top" tone="blue" size="md" flare={false} />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             {Header}
             <div className={s.svcDeck}>
@@ -625,8 +621,6 @@ export function MoreProducts() {
       <div className={m.mask} />
       {/* background blobs drift slower than the content for soft parallax depth */}
       <ScrollParallax max={62} style={{ opacity: 0.28, zIndex: 0 }}><AnimatedBG variant="blobs" /></ScrollParallax>
-      {/* soft Gienah glow washing in from the left (no flare — a calm wash) */}
-      <GienahLight pos="left" tone="blue" size="md" flare={false} />
       {/* layer 2: content */}
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 2 }}>
         <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
@@ -782,9 +776,6 @@ export function Agile() {
           connected to the Hero but simpler. Both sit behind the content (z-index 1). */}
       <ScrollParallax max={48}><StarField /></ScrollParallax>
       <ScrollParallax max={56}><div className={ag.beam} aria-hidden="true" /></ScrollParallax>
-      {/* subtle Gienah star above the title — the connector/line system below is
-          untouched */}
-      <GienahLight pos="top" tone="mixed" size="md" flare={false} />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
         <div className={ag.timeline} ref={timelineRef}>
@@ -827,8 +818,6 @@ export function About() {
   return (
     <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
       <ScrollParallax max={52}><BackgroundBeams /></ScrollParallax>
-      {/* soft diagonal Gienah glow (calm wash, no flare) */}
-      <GienahLight pos="diagonal" tone="blue" size="md" flare={false} />
       <div className={[s.wrap, s.layer, s.respGrid2].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
         <div>
           <Reveal><div className={s.eyebrow}>#ABOUT_US</div></Reveal>
@@ -900,9 +889,6 @@ export function Contact() {
         <AnimatedBG variant="glow" />
       </div>
       <ParticleField progressRef={progRef} />
-      {/* final Gienah signature: the strongest, premium glow rising from BELOW
-          the form/CTA (not behind the text), with a subtle settled twinkle */}
-      <GienahLight pos="bottom" tone="mixed" size="lg" flare={false} twinkle strong />
       <div ref={ref} className={s.wrap} style={{ maxWidth: 1000, position: "relative", zIndex: 1, transformOrigin: "center center", willChange: "transform" }}>
         <div className={s.respGrid2} style={{ gap: "clamp(32px,6vw,72px)", alignItems: "start" }}>
           <div>
