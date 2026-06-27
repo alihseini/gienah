@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
+import { motion, useScroll, useTransform, useReducedMotion, useMotionValueEvent } from "motion/react";
 import s from "./sectionConnector.module.css";
 
 /* SectionConnector — the section-to-section "constellation" link.
@@ -25,16 +25,17 @@ import s from "./sectionConnector.module.css";
 
 type Dir = "left" | "right";
 
-// offset as a fraction of the gap width (mobile → almost centred to avoid
-// awkward diagonals); node radius (px); bezier control reach (px) per breakpoint
+// offset as a fraction of the gap width (mobile → almost centred to avoid awkward
+// diagonals); node radius (px); bezier control reach as a fraction of the line
+// length (curve scales with the now-much-longer path), capped for sanity.
 function metricsFor(w: number) {
-  if (w >= 1440) return { offset: 0.09, r: 8, curve: 18 };
-  if (w >= 1024) return { offset: 0.07, r: 7, curve: 15 };
-  if (w >= 768) return { offset: 0.05, r: 6, curve: 12 };
-  return { offset: 0.015, r: 5, curve: 7 };
+  if (w >= 1440) return { offset: 0.09, r: 8, curveFrac: 0.2, curveMax: 120 };
+  if (w >= 1024) return { offset: 0.07, r: 7, curveFrac: 0.18, curveMax: 100 };
+  if (w >= 768) return { offset: 0.05, r: 6, curveFrac: 0.15, curveMax: 78 };
+  return { offset: 0.015, r: 5, curveFrac: 0.09, curveMax: 40 };
 }
 
-export const SectionConnector = React.memo(function SectionConnector({ dir = "right" }: { dir?: Dir }) {
+export const SectionConnector = React.memo(function SectionConnector({ dir = "right", onArrive }: { dir?: Dir; onArrive?: () => void }) {
   const ref = React.useRef<HTMLDivElement>(null);
   const pathRef = React.useRef<SVGPathElement>(null);
   const reduce = useReducedMotion();
@@ -70,12 +71,26 @@ export const SectionConnector = React.memo(function SectionConnector({ dir = "ri
   const topY = pad;
   const botY = h - pad;
   const span = Math.max(0, botY - topY);
-  // subtle organic S-curve (never straight)
-  const path = w && h ? `M ${cx} ${topY} C ${cx - m.curve} ${topY + span * 0.34}, ${cx + m.curve} ${botY - span * 0.34}, ${cx} ${botY}` : "";
+  // organic S-curve (never straight) — the control reach scales with the line so
+  // the longer path keeps an elegant, readable bow
+  const curve = Math.min(span * m.curveFrac, m.curveMax);
+  const path = w && h ? `M ${cx} ${topY} C ${cx - curve} ${topY + span * 0.34}, ${cx + curve} ${botY - span * 0.34}, ${cx} ${botY}` : "";
   const ready = w > 0 && h > 0;
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const draw = useTransform(scrollYProgress, [0.12, 0.78], [0, 1]);
+
+  // fire onArrive ONCE when the line reaches the destination node (no re-render:
+  // listens to the draw MotionValue, guarded by a ref). Also covers a deep-link /
+  // refresh that lands already past the connector (initial value check).
+  const arrivedRef = React.useRef(false);
+  const fire = React.useCallback(() => {
+    if (arrivedRef.current) return;
+    arrivedRef.current = true;
+    onArrive?.();
+  }, [onArrive]);
+  useMotionValueEvent(draw, "change", (v) => { if (v >= 0.9) fire(); });
+  React.useEffect(() => { if (draw.get() >= 0.9) fire(); }, [draw, fire]);
 
   // flowing light: position sampled along the path from the draw progress
   const lenRef = React.useRef(1);

@@ -3,6 +3,7 @@ import React from "react";
 import s from "./site.module.css";
 import { HeadingReveal } from "./HeadingReveal";
 import { TypingAnimation } from "./TypingAnimation";
+import { useJourneyReady } from "./JourneyGate";
 
 /* ---------------- brand colors + helpers ---------------- */
 export const C = { blue1: "#58ABCE", blue2: "#2A92CC", gold1: "#F4C65F", gold2: "#E2AA3B" };
@@ -48,9 +49,12 @@ export function Reveal({
   const ref = React.useRef<HTMLElement>(null);
   const [vis, setVis] = React.useState(false);
   const [settled, setSettled] = React.useState(false);
+  const ready = useJourneyReady();
   React.useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // gated sections wait for the connector to arrive before revealing
+    if (!ready) return;
     let done = false;
     let t: ReturnType<typeof setTimeout>;
     const show = () => {
@@ -74,7 +78,7 @@ export function Reveal({
       t = setTimeout(show, 1500);
     }
     return () => { if (io) io.disconnect(); clearTimeout(t); };
-  }, []);
+  }, [ready]);
   React.useEffect(() => {
     if (!vis) return;
     const id = setTimeout(() => setSettled(true), 1150 + delay);

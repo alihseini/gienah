@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import t from "./typing.module.css";
+import { useJourneyReady } from "./JourneyGate";
 
 /* ---------------- Magic UI–style Typing Animation ----------------
  * Reveals `text` character by character when the element scrolls into view.
@@ -44,6 +45,7 @@ export function TypingAnimation({
   const ref = React.useRef<HTMLElement>(null);
   const [count, setCount] = React.useState(0);
   const [started, setStarted] = React.useState(false);
+  const ready = useJourneyReady();
 
   React.useEffect(() => {
     const el = ref.current;
@@ -53,6 +55,8 @@ export function TypingAnimation({
       setCount(text.length);
       return;
     }
+    // gated sections wait for the connector to arrive before the text types in
+    if (!ready) return;
 
     let triggered = false;
     let raf = 0;
@@ -97,7 +101,7 @@ export function TypingAnimation({
       if (raf) cancelAnimationFrame(raf);
       clearTimeout(startTimer);
     };
-  }, [text, speed, startDelay]);
+  }, [text, speed, startDelay, ready]);
 
   const typing = count < text.length;
   // hidden = space is reserved but text not yet shown (before typing starts, or mid-type)
