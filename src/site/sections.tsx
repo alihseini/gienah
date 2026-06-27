@@ -4,7 +4,6 @@ import { Button, Badge, Card, Icon } from "@/components";
 import {
   Reveal, CountUp, SectionHead, ScrollParallax, siteStyles as s, go,
 } from "./helpers";
-import { LightPillar } from "./LightPillar";
 import { ParticleField } from "./ParticleField";
 import { TopologyField } from "./TopologyField";
 import { BackgroundBeams } from "./BackgroundBeams";
@@ -443,12 +442,9 @@ function FeaturedCarousel() {
   return (
     <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
       <div style={{ position: "relative", overflow: "hidden", padding: "78px 0 60px", background: "var(--page-bg)" }}>
-        {/* same clean base + continuous stars as every other section, plus the
-            Three.js LightPillar (the cosmic-glass backdrop stays removed) */}
+        {/* same clean base + continuous stars as every other section (the
+            LightPillar was removed — its volumetric glow hazed the section) */}
         <SectionStars />
-        <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.32 }}>
-          <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={0.26} rotationSpeed={0.3} glowAmount={0.0015} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.2} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
-        </div>
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
           <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
           <FadeIn y={22} amount={0.18}>
@@ -510,12 +506,9 @@ export function Featured() {
     <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
         <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
-          {/* same clean base + continuous stars as every other section, plus the
-              Three.js LightPillar (the cosmic-glass backdrop stays removed) */}
+          {/* same clean base + continuous stars as every other section (the
+              LightPillar was removed — its volumetric glow hazed the section) */}
           <SectionStars />
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.32 }}>
-            <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={0.26} rotationSpeed={0.3} glowAmount={0.0015} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.2} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
-          </div>
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
             <div className={s.featDeck} style={{ position: "relative", marginTop: 6 }}>
