@@ -8,7 +8,6 @@ import { ParticleField } from "./ParticleField";
 import { TopologyField } from "./TopologyField";
 import { BackgroundBeams } from "./BackgroundBeams";
 import { StarField } from "./StarField";
-import { LogoConstellation } from "./LogoConstellation";
 import { HeroAtmosphere } from "./HeroAtmosphere";
 import { Meteors } from "./Meteors";
 import { HeadingReveal } from "./HeadingReveal";
@@ -36,7 +35,6 @@ const reduceMotion = () =>
 /* ---------------- hero ---------------- */
 export function Hero() {
   const atmoRef = React.useRef<HTMLDivElement>(null);
-  const constRef = React.useRef<HTMLDivElement>(null);
 
   // very subtle pointer parallax on the background layers only (text stays still).
   // atmosphere drifts a little, the constellation a little more, for soft depth.
@@ -48,9 +46,8 @@ export function Hero() {
     const tick = () => {
       raf = 0;
       x += (tx - x) * 0.08; y += (ty - y) * 0.08;
-      const a = atmoRef.current, c = constRef.current;
+      const a = atmoRef.current;
       if (a) a.style.transform = `translate3d(${(-x * 10).toFixed(2)}px, ${(-y * 8).toFixed(2)}px, 0)`;
-      if (c) c.style.transform = `translate3d(${(-x * 22).toFixed(2)}px, ${(-y * 16).toFixed(2)}px, 0)`;
       if (Math.abs(tx - x) > 0.001 || Math.abs(ty - y) > 0.001) raf = requestAnimationFrame(tick);
     };
     const onMove = (e: MouseEvent) => {
@@ -73,11 +70,6 @@ export function Hero() {
       <div className={s.heroBg} aria-hidden="true">
         <ScrollParallax max={30}><HeroAtmosphere ref={atmoRef} /></ScrollParallax>
         <ScrollParallax max={48}><StarField /></ScrollParallax>
-        <ScrollParallax max={64}>
-          <div ref={constRef} style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none", willChange: "transform" }}>
-            <LogoConstellation />
-          </div>
-        </ScrollParallax>
         {/* Gienah light signature: a subtle off-centre star tucked into a safe
             corner — never behind the headline/CTA; the hero star field stays the
             main identity */}
