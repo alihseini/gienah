@@ -446,8 +446,8 @@ function FeaturedCarousel() {
         {/* same clean base + continuous stars as every other section, plus the
             Three.js LightPillar (the cosmic-glass backdrop stays removed) */}
         <SectionStars />
-        <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.5 }}>
-          <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={0.45} rotationSpeed={0.3} glowAmount={0.002} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.5} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.32 }}>
+          <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={0.26} rotationSpeed={0.3} glowAmount={0.0015} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.2} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
         </div>
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
           <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
@@ -513,8 +513,8 @@ export function Featured() {
           {/* same clean base + continuous stars as every other section, plus the
               Three.js LightPillar (the cosmic-glass backdrop stays removed) */}
           <SectionStars />
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.5 }}>
-            <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={0.45} rotationSpeed={0.3} glowAmount={0.002} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.5} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
+          <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.32 }}>
+            <LightPillar topColor="#2A92CC" bottomColor="#F4C65F" intensity={0.26} rotationSpeed={0.3} glowAmount={0.0015} pillarWidth={3} pillarHeight={0.4} noiseIntensity={0.2} pillarRotation={25} interactive={false} mixBlendMode="screen" quality="high" />
           </div>
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             <SectionHead tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
