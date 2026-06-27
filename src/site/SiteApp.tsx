@@ -5,6 +5,7 @@ import {
 } from "./helpers";
 import { Nav } from "./Nav";
 import { LogoTicker } from "./LogoTicker";
+import { SectionConnector } from "./SectionConnector";
 import { Hero, Services, Featured, MoreProducts, Agile, About, Contact, Footer } from "./sections";
 
 export function SiteApp() {
@@ -18,6 +19,8 @@ export function SiteApp() {
       <Nav />
       <Hero />
       <LogoTicker />
+      {/* prototype: first section-to-section connector (Hero → Services) */}
+      <SectionConnector />
       <Services />
       <Featured />
       <MoreProducts />
