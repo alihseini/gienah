@@ -29,12 +29,15 @@
   stroke-linecap: round;
   stroke-dasharray: 1.4 9;
 }
-/* glowing line drawn with scroll (pathLength via Framer Motion) — a touch bluer */
+/* glowing line drawn with scroll (pathLength via Framer Motion) — a touch bluer.
+   The stroke's dash animates every frame, so the glow is kept to a single
+   drop-shadow: a second shadow layer doubles the per-frame re-filter cost on a
+   ~15k-px path with no visible benefit. */
 .draw {
   fill: none;
   stroke-width: 2;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 5px rgba(96, 178, 230, 0.6)) drop-shadow(0 0 11px rgba(56, 140, 220, 0.4));
+  filter: drop-shadow(0 0 6px rgba(80, 165, 226, 0.55));
 }
 /* flowing light at the draw head */
 .light {
