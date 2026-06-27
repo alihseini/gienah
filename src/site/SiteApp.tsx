@@ -19,13 +19,20 @@ export function SiteApp() {
       <Nav />
       <Hero />
       <LogoTicker />
-      {/* prototype: first section-to-section connector (Hero → Services) */}
-      <SectionConnector />
+      {/* section-to-section constellation chain (Hero→Services→Products→Our Studio
+          →Agile→Contact). Direction alternates right/left/right… for the zig-zag.
+          About is not a star in the journey, so the Agile→Contact link sits in the
+          transition zone right before Contact. */}
+      <SectionConnector dir="right" />
       <Services />
+      <SectionConnector dir="left" />
       <Featured />
+      <SectionConnector dir="right" />
       <MoreProducts />
+      <SectionConnector dir="left" />
       <Agile />
       <About />
+      <SectionConnector dir="right" />
       <Contact />
       <Footer />
     </div>

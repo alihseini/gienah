@@ -11,6 +11,18 @@
 @import url("../styles/tokens/elevation.css");
 @import url("../styles/tokens/motion.css");
 
+/* Section-connector system — ONE global gap variable + one node-padding variable.
+   Tune the whole constellation here; never hardcode per-section values. */
+:root {
+  --section-connector-gap: clamp(180px, 16vh, 260px);
+  --connector-node-padding: clamp(24px, 2.4vh, 40px);
+}
+@media (max-width: 767px) {
+  :root {
+    --section-connector-gap: clamp(140px, 14vh, 200px);
+  }
+}
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {

@@ -1,18 +1,19 @@
 /* SectionConnector — identical transition zone between two sections.
-   Reuses the Agile connector visual language (node glow/pulse, dotted base track,
-   glowing brand-gradient drawn path). The gap height is fixed so every connector
-   is exactly the same height; the nodes sit at an equal padding from each edge. */
+   Height + node padding come from the global variables (globals.css) so the whole
+   system is tuned in one place. The padding is declared on the gap purely so the
+   component can read its resolved px value; the SVG fills the gap via inset:0. */
 .gap {
   position: relative;
   width: 100%;
-  height: 200px; /* equal connector gap for every section pair */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: var(--section-connector-gap);
+  padding: var(--connector-node-padding) 0;
+  box-sizing: border-box;
   pointer-events: none;
   z-index: 1;
 }
 .svg {
+  position: absolute;
+  inset: 0;
   overflow: visible;
   display: block;
 }
@@ -20,7 +21,7 @@
 /* faint dotted track along the full curve (same as Agile .connBase) */
 .base {
   fill: none;
-  stroke: rgba(190, 220, 240, 0.22);
+  stroke: rgba(190, 220, 240, 0.2);
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-dasharray: 1.5 9;
@@ -28,9 +29,9 @@
 /* glowing path drawn with scroll progress (pathLength via Framer Motion) */
 .draw {
   fill: none;
-  stroke-width: 2.5;
+  stroke-width: 2.25;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 5px rgba(88, 171, 206, 0.55)) drop-shadow(0 0 10px rgba(42, 146, 204, 0.35));
+  filter: drop-shadow(0 0 5px rgba(88, 171, 206, 0.5)) drop-shadow(0 0 10px rgba(42, 146, 204, 0.32));
 }
 
 /* flowing light travelling along the line */
@@ -52,17 +53,25 @@
 }
 /* halo that brightens on the incoming node as the line reaches it */
 .tipHalo {
-  fill: rgba(246, 226, 168, 0.55);
+  fill: rgba(246, 226, 168, 0.5);
   filter: drop-shadow(0 0 14px rgba(244, 198, 95, 0.95));
 }
 
 @keyframes scPulseBlue {
-  0%, 100% { filter: drop-shadow(0 0 8px rgba(88, 171, 206, 0.6)); }
-  50% { filter: drop-shadow(0 0 14px rgba(88, 171, 206, 0.95)); }
+  0%, 100% { filter: drop-shadow(0 0 7px rgba(88, 171, 206, 0.55)); }
+  50% { filter: drop-shadow(0 0 13px rgba(88, 171, 206, 0.95)); }
 }
 @keyframes scPulseGold {
-  0%, 100% { filter: drop-shadow(0 0 8px rgba(244, 198, 95, 0.6)); }
-  50% { filter: drop-shadow(0 0 14px rgba(244, 198, 95, 0.95)); }
+  0%, 100% { filter: drop-shadow(0 0 7px rgba(244, 198, 95, 0.55)); }
+  50% { filter: drop-shadow(0 0 13px rgba(244, 198, 95, 0.95)); }
+}
+
+/* tablet + mobile: softer bloom per the responsive rules (thinner, calmer) */
+@media (max-width: 1023px) {
+  .draw { stroke-width: 2; filter: drop-shadow(0 0 4px rgba(88, 171, 206, 0.45)); }
+}
+@media (max-width: 767px) {
+  .draw { stroke-width: 1.8; filter: drop-shadow(0 0 3px rgba(88, 171, 206, 0.4)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
