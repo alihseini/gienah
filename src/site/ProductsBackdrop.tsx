@@ -15,10 +15,10 @@ export function ProductsBackdrop() {
   const lit = useInView(ref, { once: true, amount: 0.25, margin: "0px 0px -10% 0px" });
   return (
     <div ref={ref} aria-hidden="true" className={s.backdrop} {...(lit ? { "data-lit": "" } : {})}>
-      <div className={s.aurora} />
-      <div className={s.glass} />
+      {/* aurora / glass / rim washes removed — Products now sits on the same clean
+          base + stars as every other section (the Three.js LightPillar stays as
+          the section's signature light). */}
       <StarField className={s.prodStars} density={5200} maxCount={340} shadow={false} constellations={false} shooting={false} />
-      <div className={s.rim} />
     </div>
   );
 }

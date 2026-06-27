@@ -2,7 +2,7 @@
 import React from "react";
 import { Button, Badge, Card, Icon } from "@/components";
 import {
-  Reveal, CountUp, SectionHead, AnimatedBG, ScrollParallax, siteStyles as s, go,
+  Reveal, CountUp, SectionHead, ScrollParallax, siteStyles as s, go,
 } from "./helpers";
 import { LightPillar } from "./LightPillar";
 import { ParticleField } from "./ParticleField";
@@ -11,7 +11,6 @@ import { BackgroundBeams } from "./BackgroundBeams";
 import { StarField } from "./StarField";
 import { LogoConstellation } from "./LogoConstellation";
 import { HeroAtmosphere } from "./HeroAtmosphere";
-import { Aurora } from "./Aurora";
 import { Meteors } from "./Meteors";
 import { HeadingReveal } from "./HeadingReveal";
 import { TypingAnimation } from "./TypingAnimation";
@@ -215,7 +214,6 @@ function ServicesCarousel({ header }: { header: React.ReactNode }) {
   return (
     <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2, padding: "96px 0 84px" }}>
       <SectionStars />
-      <Aurora />
       <Meteors />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         {header}
@@ -288,7 +286,6 @@ export function Services() {
     return (
       <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
         <SectionStars />
-        <Aurora />
         <Meteors />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
           {Header}
@@ -305,7 +302,6 @@ export function Services() {
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
         <div className={s.svcStage} style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
           <SectionStars />
-          <Aurora />
           <Meteors />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             {Header}
@@ -619,13 +615,10 @@ export function MoreProducts() {
   }, []);
   return (
     <section className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
-      {/* layer 0: dark base (section bg) → continuous stars → topology network field */}
+      {/* base color → continuous stars → topology network animation (no mask /
+          blob fog washes — keeps the same clean cosmic base as every section) */}
       <SectionStars />
       <div className={m.topo}><TopologyField /></div>
-      {/* layer 1: readability mask / vignette */}
-      <div className={m.mask} />
-      {/* background blobs drift slower than the content for soft parallax depth */}
-      <ScrollParallax max={62} style={{ opacity: 0.28, zIndex: 0 }}><AnimatedBG variant="blobs" /></ScrollParallax>
       {/* layer 2: content */}
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 2 }}>
         <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
@@ -780,7 +773,6 @@ export function Agile() {
           constellation, no fog/topology/meteors/aurora) — keeps Agile visually
           connected to the Hero but simpler. Both sit behind the content (z-index 1). */}
       <ScrollParallax max={48}><StarField /></ScrollParallax>
-      <ScrollParallax max={56}><div className={ag.beam} aria-hidden="true" /></ScrollParallax>
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         <SectionHead tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
         <div className={ag.timeline} ref={timelineRef}>
@@ -892,9 +884,9 @@ export function Contact() {
       {/* overscan (inset:-90) so the scroll translate/scale can never expose a bare
           strip — the layer always covers the section; the section clips the excess. */}
       <SectionStars />
-      <div ref={bgRef} style={{ position: "absolute", inset: -90, willChange: "opacity, filter, transform", transition: "opacity .2s linear" }}>
-        <AnimatedBG variant="glow" />
-      </div>
+      {/* AnimatedBG glow wash removed — keep the same clean base + stars; the
+          ParticleField is the section's particle signature */}
+      <div ref={bgRef} style={{ position: "absolute", inset: -90, willChange: "opacity, filter, transform", transition: "opacity .2s linear" }} />
       <ParticleField progressRef={progRef} />
       <div ref={ref} className={s.wrap} style={{ maxWidth: 1000, position: "relative", zIndex: 1, transformOrigin: "center center", willChange: "transform" }}>
         <div className={s.respGrid2} style={{ gap: "clamp(32px,6vw,72px)", alignItems: "start" }}>

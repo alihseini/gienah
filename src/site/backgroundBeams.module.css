@@ -5,7 +5,7 @@
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(120% 80% at 50% 0%, rgba(42, 146, 204, 0.1), transparent 60%);
+  /* gradient wash removed — only the falling beams animate over the clean base */
 }
 .beam {
   position: absolute;

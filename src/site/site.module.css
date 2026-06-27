@@ -214,40 +214,9 @@
    black. Sits at z-index 0, behind every section's own content & decorations
    (which are z-index 1+), so it never changes their existing backgrounds/animation.
    Oversized + blurred for a dreamy falloff; the section's overflow clips the excess. */
-.panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      70% 60% at 80% 12%,
-      rgba(88, 171, 206, 0.22),
-      rgba(244, 198, 95, 0.11) 36%,
-      transparent 64%
-    ),
-    radial-gradient(
-      60% 64% at 12% 90%,
-      rgba(42, 146, 204, 0.16),
-      transparent 62%
-    );
-  animation: panelAtmoDrift 34s var(--ease-in-out) infinite;
-}
-@keyframes panelAtmoDrift {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(-1.5%, 1.5%, 0) scale(1.05);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .panel::before {
-    animation: none;
-  }
-}
+/* The shared per-section aurora wash was removed — it painted the same blue→gold
+   glow patch into every section, which read as repeated background patches/seams.
+   Sections now sit on the single base color + the continuous star layer only. */
 .overlap {
   margin-top: 0;
 }
