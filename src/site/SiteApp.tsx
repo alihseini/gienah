@@ -9,15 +9,20 @@ import { ConstellationJourney } from "./ConstellationJourney";
 import { JourneyGate } from "./JourneyGate";
 import { Hero, Services, Featured, MoreProducts, Agile, About, Contact, Footer } from "./sections";
 
-// one continuous zig-zag through the page: Hero → Services(L) → Products(R) →
-// Studio(L) → Agile(R) → Contact(L). `enter` is the side the line lands on; it
-// exits the opposite side and crosses to the next section's entry side.
-const SECTIONS: { key: string; enter: "l" | "r" }[] = [
-  { key: "services", enter: "l" },
-  { key: "products", enter: "r" },
-  { key: "studio", enter: "l" },
-  { key: "agile", enter: "r" },
-  { key: "contact", enter: "l" },
+// One continuous zig-zag through the page. Each section explicitly declares the
+// side the line ENTERS (lands on the title node) and the side it EXITS — a strict
+// alternating pattern so the journey reads as one unbroken line:
+//   Hero → Services(in R, out L) → Products(in L, out R) → Studio(in R, out L)
+//        → Agile(in L, out R) → Contact(in R).
+// The exit of one section sits on the same edge as the entry of the next, so each
+// inter-section leg hugs a single side and the chain never crosses ambiguously.
+type Side = "l" | "r";
+const SECTIONS: { key: string; enter: Side; exit: Side }[] = [
+  { key: "services", enter: "r", exit: "l" },
+  { key: "products", enter: "l", exit: "r" },
+  { key: "studio", enter: "r", exit: "l" },
+  { key: "agile", enter: "l", exit: "r" },
+  { key: "contact", enter: "r", exit: "l" }, // last section: exit leg is unused
 ];
 
 export function SiteApp() {
