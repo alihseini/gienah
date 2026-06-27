@@ -39,11 +39,6 @@
   stroke-linecap: round;
   filter: drop-shadow(0 0 6px rgba(80, 165, 226, 0.55));
 }
-/* flowing light at the draw head */
-.light {
-  fill: #eaf6ff;
-  filter: drop-shadow(0 0 6px rgba(120, 200, 240, 0.95)) drop-shadow(0 0 12px rgba(88, 171, 206, 0.7));
-}
 
 /* ===== title nodes (live in the title, flanking it) ===== */
 .titleWrap {
