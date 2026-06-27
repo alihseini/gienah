@@ -33,7 +33,7 @@ const SPOKES = `M ${CENTER.x} ${CENTER.y} L ${V[0].x} ${V[0].y} M ${CENTER.x} ${
 // star points in reveal order — guiding star first, then around the ring, then
 // the center and two faint inner facet accents.
 const POINTS: { x: number; y: number; guide?: boolean; col: string; r: number }[] = [
-  { ...V[0], guide: true, col: GOLD, r: 4 },
+  { ...V[0], col: GOLD, r: 2.7 },
   { ...V[1], col: BLUE, r: 2.7 },
   { ...V[2], col: GOLD, r: 2.7 },
   { ...V[3], col: BLUE, r: 2.7 },
@@ -57,7 +57,6 @@ export const LogoConstellation = React.forwardRef<HTMLDivElement>(function LogoC
           </defs>
           <path className={c.line} d={OUTLINE} pathLength={1} stroke="url(#gienahLine)" style={{ ["--ld" as string]: "1.6s" } as React.CSSProperties} />
           <path className={[c.line, c.spokes].join(" ")} d={SPOKES} pathLength={1} stroke={GOLD} style={{ ["--ld" as string]: "2.5s" } as React.CSSProperties} />
-          <circle className={c.halo} cx={V[0].x} cy={V[0].y} r={17} />
           {POINTS.map((p, i) => (
             <circle
               key={i}
