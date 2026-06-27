@@ -53,8 +53,8 @@
 /* the Hero anchor star the journey begins from */
 .heroStar {
   position: absolute;
-  top: 34%;
-  right: 15%;
+  top: 30%;
+  right: 40%;
   width: 22px;
   height: 22px;
   pointer-events: none;
@@ -79,7 +79,34 @@
   animation: jStarTwinkle 4s var(--ease-in-out) infinite;
 }
 @media (max-width: 767px) {
-  .heroStar { top: 30%; right: 10%; width: 18px; height: 18px; }
+  .heroStar { top: 26%; right: 34%; width: 18px; height: 18px; }
+}
+
+/* Agile lower-left hand-off node: where the global line resumes after Agile's
+   own internal line has run. Sits in the lower-left of the Agile section. */
+.exitNode {
+  position: absolute;
+  left: 7%;
+  bottom: clamp(90px, 13vh, 168px);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #bcdcf2;
+  box-shadow: 0 0 0 1px rgba(120, 190, 235, 0.4), 0 0 12px 3px rgba(96, 178, 230, 0.45);
+  opacity: 0.5;
+  transform: scale(0.82);
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out), box-shadow 0.5s var(--ease-out);
+}
+.exitNode[data-active] {
+  opacity: 1;
+  transform: scale(1);
+  box-shadow: 0 0 0 1px rgba(150, 210, 245, 0.7), 0 0 16px 5px rgba(96, 178, 230, 0.8);
+  animation: jNodePulse 3.2s var(--ease-in-out) infinite;
+}
+@media (max-width: 767px) {
+  .exitNode { left: 5%; width: 11px; height: 11px; bottom: clamp(70px, 10vh, 120px); }
 }
 .node {
   position: absolute;
@@ -144,15 +171,15 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle, rgba(232, 245, 255, 0.95) 0%, rgba(120, 190, 235, 0.5) 28%, transparent 62%);
+    radial-gradient(circle, rgba(214, 238, 255, 0.96) 0%, rgba(86, 168, 230, 0.62) 26%, transparent 60%);
   border-radius: 50%;
 }
-/* cross lens-flare rays — bluer */
+/* cross lens-flare rays — distinctly blue */
 .star::after {
   background:
-    linear-gradient(90deg, transparent 44%, rgba(150, 205, 245, 0.9) 50%, transparent 56%),
-    linear-gradient(0deg, transparent 44%, rgba(150, 205, 245, 0.9) 50%, transparent 56%);
-  filter: drop-shadow(0 0 5px rgba(96, 178, 230, 0.85));
+    linear-gradient(90deg, transparent 44%, rgba(120, 190, 240, 0.92) 50%, transparent 56%),
+    linear-gradient(0deg, transparent 44%, rgba(120, 190, 240, 0.92) 50%, transparent 56%);
+  filter: drop-shadow(0 0 6px rgba(72, 158, 226, 0.9));
   transform: scale(2.1);
 }
 .star[data-active]::before { animation: jStarTwinkle 3.6s var(--ease-in-out) infinite; }

@@ -12,17 +12,23 @@ import { Hero, Services, Featured, MoreProducts, Agile, About, Contact, Footer }
 // One continuous zig-zag through the page. Each section explicitly declares the
 // side the line ENTERS (lands on the title node) and the side it EXITS — a strict
 // alternating pattern so the journey reads as one unbroken line:
-//   Hero → Services(in R, out L) → Products(in L, out R) → Studio(in R, out L)
-//        → Agile(in L, out R) → Contact(in R).
+//   Hero → Services(in L, out R) → Products(in R, out L) → Studio(in L, out R)
+//        → Agile(in R, out L) → Contact(in L).
 // The exit of one section sits on the same edge as the entry of the next, so each
 // inter-section leg hugs a single side and the chain never crosses ambiguously.
+//
+// Agile is special: it has its own internal line animation, so the global line
+// enters its title node (R) and then GAPS (no draw) — the global path resumes
+// from a lower-left anchor BELOW Agile (agile:exitlow) only once you've scrolled
+// past Agile's content, i.e. after its internal line has run, then continues to
+// Contact. (See the reference: "Agile connects to its own line first".)
 type Side = "l" | "r";
-const SECTIONS: { key: string; enter: Side; exit: Side }[] = [
-  { key: "services", enter: "r", exit: "l" },
-  { key: "products", enter: "l", exit: "r" },
-  { key: "studio", enter: "r", exit: "l" },
-  { key: "agile", enter: "l", exit: "r" },
-  { key: "contact", enter: "r", exit: "l" }, // last section: exit leg is unused
+const SECTIONS: { key: string; enter: Side; exit: Side; exitNode?: string; gap?: boolean }[] = [
+  { key: "services", enter: "l", exit: "r" },
+  { key: "products", enter: "r", exit: "l" },
+  { key: "studio", enter: "l", exit: "r" },
+  { key: "agile", enter: "r", exit: "l", exitNode: "agile:exitlow", gap: true },
+  { key: "contact", enter: "l", exit: "r" }, // last section: exit leg is unused
 ];
 
 export function SiteApp() {

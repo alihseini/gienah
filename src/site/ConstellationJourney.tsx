@@ -21,9 +21,15 @@ import c from "./constellationJourney.module.css";
  * directly on the DOM, no re-render) and call onArrive(key) once. */
 
 type Side = "l" | "r";
-type Section = { key: string; enter: Side; exit: Side };
+type Section = { key: string; enter: Side; exit: Side; exitNode?: string; gap?: boolean };
 
-type Anchor = { x: number; y: number; key: string; kind: "hero" | "enter" | "exit"; nodeSel?: string };
+type Anchor = {
+  x: number; y: number; key: string;
+  kind: "hero" | "enter" | "exit";
+  nodeSel?: string;
+  gap?: boolean;        // the enter→this-exit leg is a hand-off gap (not drawn)
+  yAnchored?: boolean;  // its scroll trigger comes from its own Y (not interpolated)
+};
 type Pt = { x: number; y: number };
 type Seg = { p0: Pt; c1: Pt; c2: Pt; p3: Pt };
 
@@ -33,9 +39,19 @@ type Seg = { p0: Pt; c1: Pt; c2: Pt; p3: Pt };
  * line never appears to vanish between sections. `navg` is the average x of the
  * leg's two endpoints; the bow reaches `reach·w` toward the nearer edge from it. */
 function legApexX(navg: number, side: "left" | "right", w: number) {
-  const reach = w >= 1440 ? 0.14 : w >= 1024 ? 0.11 : w >= 768 ? 0.08 : 0.05;
+  if (w < 768) {
+    // mobile: let the line swing well past the edge so it exits one side and
+    // re-enters lower — a path that feels bigger than the screen. The page's
+    // overflow clips it, so it never adds a horizontal scrollbar.
+    const reach = 0.55 * w;
+    const off = 0.2 * w; // how far past the edge the apex may sit
+    const raw = side === "left" ? navg - reach : navg + reach;
+    return side === "left" ? Math.max(-off, raw) : Math.min(w + off, raw);
+  }
+  // tablet / desktop / large: broad, elegant, and always fully on-screen
+  const reach = w >= 1440 ? 0.16 : w >= 1024 ? 0.12 : 0.09;
   const raw = side === "left" ? navg - reach * w : navg + reach * w;
-  const margin = w >= 768 ? 26 : 12; // keep the whole curve on-screen
+  const margin = 26; // keep the whole curve on-screen
   return Math.max(margin, Math.min(w - margin, raw));
 }
 
@@ -80,30 +96,42 @@ export function ConstellationJourney({ sections, onArrive }: { sections: Section
     if (!hero) return;
 
     // ordered anchor list: hero, then for each section its entry then exit node
-    // (the last section has no outgoing leg → no exit anchor).
+    // (the last section has no outgoing leg → no exit anchor). A section may name a
+    // custom exit anchor (e.g. Agile's lower-left hand-off node) and flag the
+    // enter→exit leg as a `gap` that the section fills with its own animation.
     const anchors: Anchor[] = [{ ...hero, key: "hero", kind: "hero" }];
     sections.forEach((sec, si) => {
       const enterPt = ptOf(`[data-node="${sec.key}:${sec.enter}"]`);
       if (!enterPt) return;
       anchors.push({ ...enterPt, key: sec.key, kind: "enter", nodeSel: `[data-node="${sec.key}:${sec.enter}"]` });
       if (si < sections.length - 1) {
-        const exitPt = ptOf(`[data-node="${sec.key}:${sec.exit}"]`);
-        if (exitPt) anchors.push({ ...exitPt, key: sec.key, kind: "exit" });
+        const exitSel = sec.exitNode ? `[data-node="${sec.exitNode}"]` : `[data-node="${sec.key}:${sec.exit}"]`;
+        const exitPt = ptOf(exitSel);
+        // a gap-exit sits at its own (lower) Y, so its scroll trigger must come
+        // from that Y — the global line then pauses at the title while the section
+        // plays its own line, and resumes once you scroll down to the gap-exit.
+        if (exitPt) anchors.push({ ...exitPt, key: sec.key, kind: "exit", gap: !!sec.gap, yAnchored: !!sec.gap, nodeSel: sec.gap ? exitSel : undefined });
       }
     });
     if (anchors.length < 2) return;
 
-    // build the path + keep each segment's control points so we can measure real
-    // length. over-title legs (enter→exit, same key) bow up over the title; every
-    // other leg hugs the nearer screen edge.
+    // build the path + keep each segment's real length so draw + arrivals align.
+    // over-title legs (enter→exit, same key) bow up over the title; gap legs are a
+    // moveto (no draw, zero length); every other leg hugs the nearer screen edge.
     const arcUp = w >= 768 ? 42 : 30;
-    const segs: Seg[] = [];
     let d = `M ${anchors[0].x.toFixed(1)} ${anchors[0].y.toFixed(1)}`;
+    const cum = [0];
     for (let i = 1; i < anchors.length; i++) {
       const a = anchors[i - 1], b = anchors[i];
-      const overTitle = a.kind === "enter" && b.kind === "exit" && a.key === b.key;
+      const sameTitle = a.kind === "enter" && b.kind === "exit" && a.key === b.key;
+      if (sameTitle && b.gap) {
+        // hand-off gap: lift the pen to the section's lower exit, draw nothing
+        d += ` M ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+        cum.push(cum[i - 1] + 0.001);
+        continue;
+      }
       let c1: Pt, c2: Pt;
-      if (overTitle) {
+      if (sameTitle) {
         c1 = { x: a.x, y: a.y - arcUp };
         c2 = { x: b.x, y: b.y - arcUp };
       } else {
@@ -116,25 +144,22 @@ export function ConstellationJourney({ sections, onArrive }: { sections: Section
         c1 = { x: cx, y: a.y + dy * 0.35 };
         c2 = { x: cx, y: b.y - dy * 0.35 };
       }
-      segs.push({ p0: { x: a.x, y: a.y }, c1, c2, p3: { x: b.x, y: b.y } });
+      cum.push(cum[i - 1] + cubicLen({ p0: { x: a.x, y: a.y }, c1, c2, p3: { x: b.x, y: b.y } }) + 0.001);
       d += ` C ${c1.x.toFixed(1)} ${c1.y.toFixed(1)}, ${c2.x.toFixed(1)} ${c2.y.toFixed(1)}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
     }
 
-    // real per-anchor cumulative length → fractions (draw, light + arrivals align)
-    const cum = [0];
-    for (let i = 0; i < segs.length; i++) cum.push(cum[i] + cubicLen(segs[i]) + 0.001);
     const total = cum[cum.length - 1] || 1;
     const fr = cum.map((v) => v / total);
 
     // scroll-progress trigger per anchor: a node is "reached" as its section nears
-    // the upper-middle of the viewport. Y-anchored points (hero + each entry) come
-    // from layout; exit anchors are interpolated in length-space between their
-    // surrounding entries so the over-title arc + outgoing leg draw at a steady
-    // pace (no snapping). Forced strictly increasing.
+    // the upper-middle of the viewport. Y-anchored points (hero, each entry, and
+    // any gap-exit) come from layout; ordinary beside-title exits are interpolated
+    // in length-space between their neighbours so the over-title arc + outgoing leg
+    // draw at a steady pace (no snapping). Forced strictly increasing.
     const vh = window.innerHeight || 1;
     const docScroll = Math.max(1, (document.documentElement.scrollHeight || h) - vh);
     const spBase: (number | null)[] = anchors.map((an) => {
-      if (an.kind === "exit") return null;
+      if (an.kind === "exit" && !an.yAnchored) return null;
       return Math.max(0, Math.min(1, (an.y + layerTop - vh * 0.62) / docScroll));
     });
     let prev = -1;
@@ -177,21 +202,34 @@ export function ConstellationJourney({ sections, onArrive }: { sections: Section
   const fr = geo.fr.length >= 2 ? geo.fr : [0, 1];
   const draw = useTransform(scrollYProgress, sp, fr);
 
-  // arrivals: light the entry node + star and fire onArrive once each
+  // arrivals: when the drawn head reaches an entry node, light it + its star and
+  // fire onArrive (reveal) once; when it reaches a gap hand-off node (Agile's
+  // lower-left), just light that node. Keyed by anchor index so the Agile title
+  // and its gap node are tracked independently. data-active is toggled straight on
+  // the DOM — no re-render.
   const firedRef = React.useRef<Set<string>>(new Set());
-  const enterCount = React.useMemo(() => geo.anchors.filter((a) => a.kind === "enter").length, [geo.anchors]);
+  const activatable = React.useMemo(
+    () => geo.anchors.filter((a) => a.kind === "enter" || (a.kind === "exit" && a.gap && a.nodeSel)).length,
+    [geo.anchors],
+  );
   const checkArrivals = React.useCallback((v: number) => {
-    if (firedRef.current.size >= enterCount && enterCount > 0) return; // all done — idle
+    if (firedRef.current.size >= activatable && activatable > 0) return; // all lit — idle
     geo.anchors.forEach((an, i) => {
-      if (an.kind !== "enter" || firedRef.current.has(an.key)) return;
+      const isEnter = an.kind === "enter";
+      const isGapExit = an.kind === "exit" && an.gap && !!an.nodeSel;
+      if (!isEnter && !isGapExit) return;
+      const key = String(i);
+      if (firedRef.current.has(key)) return;
       if (v >= geo.fr[i] - 0.001) {
-        firedRef.current.add(an.key);
+        firedRef.current.add(key);
         if (an.nodeSel) document.querySelector(an.nodeSel)?.setAttribute("data-active", "");
-        document.querySelector(`[data-star="${an.key}"]`)?.setAttribute("data-active", "");
-        onArrive(an.key);
+        if (isEnter) {
+          document.querySelector(`[data-star="${an.key}"]`)?.setAttribute("data-active", "");
+          onArrive(an.key);
+        }
       }
     });
-  }, [geo.anchors, geo.fr, enterCount, onArrive]);
+  }, [geo.anchors, geo.fr, activatable, onArrive]);
   useMotionValueEvent(draw, "change", checkArrivals);
   React.useEffect(() => { checkArrivals(draw.get()); }, [checkArrivals, draw]);
 
