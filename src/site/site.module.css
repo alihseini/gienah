@@ -32,8 +32,13 @@
   color: var(--text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  /* positioned so the page-wide ConstellationJourney overlay (position:absolute,
+     100%×100%) anchors to the whole document rather than the viewport. */
+  position: relative;
   /* clip (not hidden) so it never becomes a scroll container that would break
-     the sticky Services/Products tracks; prevents any horizontal overflow. */
+     the sticky Services/Products tracks; prevents any horizontal overflow — the
+     constellation line may bow past the viewport edge but is clipped here, never
+     adding a horizontal scrollbar. */
   overflow-x: clip;
 }
 .lucide {
