@@ -16,7 +16,7 @@
   font-size: var(--_fs);
   font-weight: var(--weight-medium);
   line-height: 1;
-  border-radius: var(--radius-md);
+  border-radius: 50px;
   border: 1px solid transparent;
   cursor: pointer;
   white-space: nowrap;
@@ -46,9 +46,9 @@
 }
 .btnSm {
   --_h: 32px;
-  --_px: 11px;
+  --_px: 14px;
   --_fs: 13px;
-  border-radius: var(--radius-sm);
+  border-radius: 50px;
 }
 .btnLg {
   --_h: 44px;
@@ -83,12 +83,16 @@
   background: var(--gray-100);
 }
 .btnGhost {
+  /* outlined, theme-aware so it's clearly visible on the dark site (the old
+     gray-700 text was invisible on dark backgrounds) */
   background: transparent;
-  color: var(--gray-700);
+  color: var(--text-secondary);
+  border-color: var(--border-default);
 }
 .btnGhost:hover {
-  background: var(--gray-100);
-  color: var(--gray-900);
+  color: var(--text-primary);
+  border-color: rgba(88, 171, 206, 0.55);
+  background: rgba(88, 171, 206, 0.1);
 }
 .btnSoft {
   background: var(--accent-50);
