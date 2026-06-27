@@ -796,6 +796,10 @@ export function Agile() {
           })}
         </div>
       </div>
+      {/* lower-left hand-off node: the global constellation line pauses at the
+          Agile title node while Agile's own internal line runs, then resumes from
+          here toward Contact (see ConstellationJourney's gap handling). */}
+      <span data-node="agile:exitlow" className={c.exitNode} aria-hidden="true" />
     </section>
   );
 }
