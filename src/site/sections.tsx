@@ -694,13 +694,16 @@ export function About() {
     <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
       <SectionStars />
       <ScrollParallax max={52}><BackgroundBeams /></ScrollParallax>
-      {/* the journey passes down the left lane through About (no stop), so it
-          continues unbroken from Agile to Contact without crossing About's content */}
-      <SectionConnector sectionKey="about" role="pass" enter="l" />
+      {/* About is a real stop on the journey: the line comes down the left lane,
+          lands on the About node, then continues down the same lane to Contact —
+          so it never crosses About's two-column content */}
+      <SectionConnector sectionKey="about" enter="l" exit="l" />
       <div className={[s.wrap, s.layer, s.respGrid2].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
         <div>
           <Reveal><div className={s.eyebrow}>#ABOUT_US</div></Reveal>
-          <HeadingReveal as="h2" style={{ fontSize: "clamp(30px,4vw,44px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.1 }} segments={[{ text: "A studio built to take products" }, { text: "all the way.", accent: true }]} />
+          <TitleNodes id="about">
+            <HeadingReveal as="h2" style={{ fontSize: "clamp(30px,4vw,44px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.1 }} segments={[{ text: "A studio built to take products" }, { text: "all the way.", accent: true }]} />
+          </TitleNodes>
           {site.about.paragraphs.map((para, i) => {
             // cascade: each paragraph begins typing once the previous one finishes
             const startDelay = 130 + site.about.paragraphs.slice(0, i).reduce((sum, p) => sum + p.length * 22 + 280, 0);
