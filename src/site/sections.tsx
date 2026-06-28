@@ -273,7 +273,7 @@ export function Services() {
   return (
     <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
-        <div className={s.svcStage} style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
+        <div className={s.svcStage} style={{ position: "sticky", top: 0, display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
           <SectionStars />
           <Meteors />
           {/* connector lives inside the pinned stage so it never drifts from the
@@ -451,7 +451,7 @@ export function Featured() {
   return (
     <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
-        <div className={s.featStage} style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
+        <div className={s.featStage} style={{ position: "sticky", top: 0, display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
           {/* same clean base + continuous stars as every other section (the
               LightPillar was removed — its volumetric glow hazed the section) */}
           <SectionStars />
@@ -687,6 +687,17 @@ export function Agile() {
         d += ` C ${a.x.toFixed(1)} ${my.toFixed(1)} ${b.x.toFixed(1)} ${my.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
       }
       setConn({ d, w, h });
+      // mobile vertical rail: clamp it to span exactly first-node → last-node (it
+      // otherwise ran the full timeline height, poking above the first node and past
+      // the last). Offset-based so the cards' reveal transforms don't skew it.
+      const dotCenter = (slot: HTMLElement) => {
+        const c = slot.firstElementChild as HTMLElement | null; // the .connector dot
+        return slot.offsetTop + (c ? c.offsetTop + c.offsetHeight / 2 : 0);
+      };
+      const railTop = dotCenter(slots[0]);
+      const railBottom = h - dotCenter(slots[slots.length - 1]);
+      root.style.setProperty("--rail-top", `${railTop.toFixed(1)}px`);
+      root.style.setProperty("--rail-bottom", `${railBottom.toFixed(1)}px`);
     };
     build();
     const ro = new ResizeObserver(build);
