@@ -41,6 +41,24 @@ type Props = {
 
 type Pt = { x: number; y: number };
 type Seg = { p0: Pt; c1: Pt; c2: Pt; p3: Pt };
+// (local y, drawn length-fraction) keypoints. The line is drawn up to the fraction
+// whose path point sits at the scroll reference line, so the head's vertical
+// position tracks the scroll exactly: it reaches each node as you scroll to it and
+// PARKS across a gap (Agile's internal line) instead of jumping ahead.
+type Key = { y: number; fr: number };
+
+function interpKeys(keys: Key[], y: number): number {
+  if (!keys.length) return 0;
+  if (y <= keys[0].y) return keys[0].fr;
+  for (let i = 1; i < keys.length; i++) {
+    if (y <= keys[i].y) {
+      const a = keys[i - 1], b = keys[i];
+      const t = (y - a.y) / ((b.y - a.y) || 1);
+      return a.fr + (b.fr - a.fr) * t;
+    }
+  }
+  return keys[keys.length - 1].fr;
+}
 
 // where a vertical lane sits, by side + viewport width. Desktop/tablet hug the
 // empty margin (on-screen); mobile pushes past the edge so the line exits/re-enters.
@@ -71,7 +89,7 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
   // nodeY = the entry node's local y (for arrival timing), maxY = the path's
   // lowest point (for draw progress). Both decouple arrival/draw from the section's
   // total height, which is huge for the sticky decks.
-  const [geo, setGeo] = React.useState<{ w: number; h: number; d: string; nodeY: number | null; maxY: number }>({ w: 0, h: 0, d: "", nodeY: null, maxY: 1 });
+  const [geo, setGeo] = React.useState<{ w: number; h: number; d: string; nodeY: number | null; keys: Key[] }>({ w: 0, h: 0, d: "", nodeY: null, keys: [] });
   const firedRef = React.useRef(false);
 
   const measure = React.useCallback(() => {
@@ -126,14 +144,15 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
             const end = { x: ex, y: h };
             push(low, { x: low.x, y: low.y + (end.y - low.y) * 0.4 }, { x: ex, y: end.y - (end.y - low.y) * 0.4 }, end);
           }
-        } else if (exit) {
-          const ex = node(exit);
+        } else if (exit && en) {
           const exX = laneX(exit, w);
-          if (ex && en) {
-            // over the title to the exit node, then down to the bottom edge lane
-            push(en, { x: en.x, y: en.y - arc }, { x: ex.x, y: ex.y - arc }, ex);
+          const exNode = enter === exit ? en : node(exit);
+          if (exNode) {
+            // a different exit side bows over the title to the other node first; the
+            // same side (About) just continues straight down from the same node.
+            if (exNode !== en) push(en, { x: en.x, y: en.y - arc }, { x: exNode.x, y: exNode.y - arc }, exNode);
             const end = { x: exX, y: h };
-            push(ex, { x: ex.x, y: ex.y + (end.y - ex.y) * 0.4 }, { x: exX, y: end.y - (end.y - ex.y) * 0.4 }, end);
+            push(exNode, { x: exNode.x, y: exNode.y + (end.y - exNode.y) * 0.4 }, { x: exX, y: end.y - (end.y - exNode.y) * 0.4 }, end);
           }
         }
       }
@@ -141,17 +160,30 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
 
     if (!segs.length) return;
 
-    // build d (insert a moveto before the gap-resume segment)
+    // build d (insert a moveto before the gap-resume segment) + the Y→fraction
+    // keypoints that drive the scroll draw.
+    const gapIndex = dGap ? segs.length - 1 : -1;
+    const lens = segs.map(cubicLen);
+    const total = lens.reduce((a, b) => a + b, 0) || 1;
     let d = `M ${segs[0].p0.x.toFixed(1)} ${segs[0].p0.y.toFixed(1)}`;
-    let gapIndex = -1;
-    let maxY = 1;
-    if (dGap) gapIndex = segs.length - 1; // the last segment is the resume leg
+    const keys: Key[] = [{ y: segs[0].p0.y, fr: 0 }];
+    let cum = 0;
+    let yprev = segs[0].p0.y;
     segs.forEach((g, i) => {
-      if (i === gapIndex) d += ` M ${g.p0.x.toFixed(1)} ${g.p0.y.toFixed(1)}`;
+      if (i === gapIndex) {
+        d += ` M ${g.p0.x.toFixed(1)} ${g.p0.y.toFixed(1)}`;
+        // park: from the previous node down to the gap-resume node, fraction holds
+        // (the section's own internal line owns this stretch)
+        keys.push({ y: Math.max(yprev + 1, g.p0.y), fr: cum / total });
+        yprev = Math.max(yprev + 1, g.p0.y);
+      }
       d += ` C ${g.c1.x.toFixed(1)} ${g.c1.y.toFixed(1)}, ${g.c2.x.toFixed(1)} ${g.c2.y.toFixed(1)}, ${g.p3.x.toFixed(1)} ${g.p3.y.toFixed(1)}`;
-      maxY = Math.max(maxY, g.p0.y, g.p3.y);
+      cum += lens[i];
+      const y = Math.max(yprev + 1, g.p3.y); // force monotonic (over-title ends ≈ same y)
+      keys.push({ y, fr: cum / total });
+      yprev = y;
     });
-    setGeo({ w, h, d, nodeY, maxY });
+    setGeo({ w, h, d, nodeY, keys });
   }, [sectionKey, role, enter, exit, gap]);
 
   React.useLayoutEffect(() => {
@@ -181,17 +213,17 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
     const svg = svgRef.current;
     if (!svg) return;
     let raf = 0;
-    const clamp = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
     const REF = 0.62; // viewport reference line the line "draws to"
     const update = () => {
       raf = 0;
       const r = svg.getBoundingClientRect();
       const vh = window.innerHeight || 1;
-      // draw proportional to how far the reference line has descended through the
-      // path's vertical extent (independent of the section's huge total height).
-      draw.set(clamp((vh * REF - r.top) / geo.maxY));
+      // draw up to the path point sitting at the reference line — the head's
+      // VERTICAL position tracks the scroll, so it lands on each node exactly when
+      // you reach it, parks across the gap, and never overshoots or pre-draws.
+      draw.set(interpKeys(geo.keys, vh * REF - r.top));
       // arrival fires on the ENTRY NODE's own screen position — robust for the tall
-      // sticky decks where the title is pinned, decoupled from path length.
+      // sticky decks where the title is pinned.
       if (geo.nodeY != null && r.top + geo.nodeY <= vh * REF) fire();
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
@@ -199,7 +231,7 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
     window.addEventListener("resize", onScroll);
     update();
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [reduce, draw, geo.maxY, geo.nodeY, fire]);
+  }, [reduce, draw, geo.keys, geo.nodeY, fire]);
 
   return (
     <svg
