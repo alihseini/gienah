@@ -718,7 +718,7 @@
   transition: transform 0.4s var(--ease-out);
 }
 .fabOpen .fabGlyph {
-  transform: rotate(135deg);
+  transform: rotate(90deg);
 }
 .fabBar {
   position: absolute;
@@ -736,12 +736,14 @@
 .fabBarB {
   transform: translateY(3.5px);
 }
+/* open → both bars cross into a balanced X (container is at 90°, so ±45° here
+   lands the two bars on the diagonals). Neither bar is hidden. */
 .fabOpen .fabBarT {
-  transform: rotate(90deg);
+  transform: rotate(45deg);
 }
 .fabOpen .fabBarB {
-  transform: rotate(0deg);
-  opacity: 0;
+  transform: rotate(-45deg);
+  opacity: 1;
 }
 .fabPanel {
   margin-top: 13px;

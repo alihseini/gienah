@@ -214,9 +214,21 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
         <>
           <defs>
             <linearGradient id={`cjg-${sectionKey}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#7cc3ee" />
-              <stop offset="0.5" stopColor="#3f9bdc" />
-              <stop offset="1" stopColor="#5ab0d0" />
+              {role === "start" ? (
+                <>
+                  {/* originates from the bright hero star: subtle/faded at the star,
+                      brightening as it moves away (matches the star's blue-white glow) */}
+                  <stop offset="0" stopColor="#eaf6ff" stopOpacity="0" />
+                  <stop offset="0.45" stopColor="#9ad2f0" stopOpacity="0.85" />
+                  <stop offset="1" stopColor="#5ab0d0" />
+                </>
+              ) : (
+                <>
+                  <stop offset="0" stopColor="#7cc3ee" />
+                  <stop offset="0.5" stopColor="#3f9bdc" />
+                  <stop offset="1" stopColor="#5ab0d0" />
+                </>
+              )}
             </linearGradient>
           </defs>
           {reduce ? (

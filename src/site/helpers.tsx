@@ -525,7 +525,7 @@ export function AnimatedBG({ variant = "mesh", dark = false }: { variant?: "mesh
   return null;
 }
 
-export function SectionHead({ tag, title, sub, light, nodeId }: { tag: string; title: string; sub?: string; light?: boolean; nodeId?: string }) {
+export function SectionHead({ tag, title, sub, light, nodeId, nodeSides = true }: { tag: string; title: string; sub?: string; light?: boolean; nodeId?: string; nodeSides?: boolean }) {
   const heading = (
     <HeadingReveal as="h2" segments={[{ text: title }]} style={{ fontSize: "clamp(30px, 4.4vw, 46px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.08, color: light ? "#fff" : "var(--text-primary)" }} />
   );
@@ -534,7 +534,7 @@ export function SectionHead({ tag, title, sub, light, nodeId }: { tag: string; t
       <Reveal>
         <div className={s.eyebrow} style={light ? { color: "var(--accent-300)" } : undefined}>{tag}</div>
       </Reveal>
-      {nodeId ? <TitleNodes id={nodeId}>{heading}</TitleNodes> : heading}
+      {nodeId ? <TitleNodes id={nodeId} sideNodes={nodeSides}>{heading}</TitleNodes> : heading}
       {sub && (
         <Reveal delay={140}>
           <TypingAnimation as="p" text={sub} style={{ fontSize: 18, lineHeight: 1.6, color: light ? "var(--ink-text-dim)" : "var(--text-secondary)", margin: "16px auto 0", maxWidth: 560 }} />
