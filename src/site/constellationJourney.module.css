@@ -39,13 +39,14 @@
 /* the Hero anchor star the journey begins from */
 .heroStar {
   position: absolute;
-  top: 26%;
-  right: 16%;
+  top: 23%;
+  left: 13%;
   width: 22px;
   height: 22px;
   pointer-events: none;
   /* above the hero background AND the connector layer so the journey clearly
-     starts from this star (sits in the empty upper-right, never over the headline) */
+     starts from this star. Sits in the empty upper-left so the first leg can run
+     straight down the left lane to Services (no diagonal across the headline). */
   z-index: 3;
 }
 .heroStar::before {
@@ -67,7 +68,7 @@
   animation: jStarTwinkle 4s var(--ease-in-out) infinite;
 }
 @media (max-width: 767px) {
-  .heroStar { top: 26%; right: 34%; width: 18px; height: 18px; }
+  .heroStar { top: 22%; left: 10%; width: 18px; height: 18px; }
 }
 
 /* Agile lower-left hand-off node: where the global line resumes after Agile's
