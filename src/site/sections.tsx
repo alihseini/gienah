@@ -646,7 +646,9 @@ export function Agile() {
           node toward Contact */}
       <SectionConnector sectionKey="agile" enter="r" exit="l" gap />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
-        <SectionHead nodeId="agile" tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
+        {/* no side nodes on the Agile title — the global line hands off directly to
+            the first Agile card's node (and out of the last card's node) instead */}
+        <SectionHead nodeId="agile" nodeSides={false} tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
         <div className={ag.timeline} ref={timelineRef}>
           {/* mobile-only vertical rail: a single drawn line down the left, filled
               with the same --p scroll progress that draws the desktop curve */}
@@ -669,19 +671,19 @@ export function Agile() {
           )}
           {AGILE.map((st, i) => {
             const right = i % 2 === 0; // 01 right, 02 left, 03 right, …
+            // the global journey hands off into the Agile timeline: it lands on the
+            // FIRST card's node, then (after the internal line) resumes from the LAST
+            // card's node toward Contact.
+            const nodeAttr = i === 0 ? "agile:r" : i === AGILE.length - 1 ? "agile:exitlow" : undefined;
             return (
               <div key={st.name} data-slot className={[ag.slot, right ? ag.right : ag.left].join(" ")}>
-                <span className={ag.connector} aria-hidden="true" />
+                <span className={ag.connector} data-node={nodeAttr} aria-hidden="true" />
                 <AgilePanel st={st} i={i} />
               </div>
             );
           })}
         </div>
       </div>
-      {/* lower-left hand-off node: the global constellation line pauses at the
-          Agile title node while Agile's own internal line runs, then resumes from
-          here toward Contact (see ConstellationJourney's gap handling). */}
-      <span data-node="agile:exitlow" className={c.exitNode} aria-hidden="true" />
     </section>
   );
 }

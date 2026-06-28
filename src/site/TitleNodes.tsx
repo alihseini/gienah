@@ -8,14 +8,18 @@ import c from "./constellationJourney.module.css";
    toggles data-active on the entry node + star when the line arrives. Purely
    decorative — pointer-events are off and it never changes the title's own layout
    (inline-block wrapper around the existing heading). */
-export function TitleNodes({ id, children }: { id: string; children: React.ReactNode }) {
+export function TitleNodes({ id, children, sideNodes = true }: { id: string; children: React.ReactNode; sideNodes?: boolean }) {
   return (
     <div className={c.titleWrap} data-title={id}>
       <span className={c.star} data-star={id} aria-hidden="true" />
-      <span className={[c.dash, c.dashL].join(" ")} aria-hidden="true" />
-      <span className={[c.dash, c.dashR].join(" ")} aria-hidden="true" />
-      <span className={[c.node, c.nodeL].join(" ")} data-node={`${id}:l`} aria-hidden="true" />
-      <span className={[c.node, c.nodeR].join(" ")} data-node={`${id}:r`} aria-hidden="true" />
+      {sideNodes && (
+        <>
+          <span className={[c.dash, c.dashL].join(" ")} aria-hidden="true" />
+          <span className={[c.dash, c.dashR].join(" ")} aria-hidden="true" />
+          <span className={[c.node, c.nodeL].join(" ")} data-node={`${id}:l`} aria-hidden="true" />
+          <span className={[c.node, c.nodeR].join(" ")} data-node={`${id}:r`} aria-hidden="true" />
+        </>
+      )}
       {children}
     </div>
   );

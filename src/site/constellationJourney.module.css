@@ -36,39 +36,17 @@
 .star {
   pointer-events: none;
 }
-/* the Hero anchor star the journey begins from */
+/* The journey's start anchor. It is INVISIBLE — just a measuring point placed on
+   top of the existing bright GienahLight hero star (pos="corner" → left:14% top:70%)
+   so the line appears to originate from that real star rather than an extra one. */
 .heroStar {
   position: absolute;
-  top: 23%;
-  left: 13%;
-  width: 22px;
-  height: 22px;
+  top: 70%;
+  left: 14%;
+  width: 2px;
+  height: 2px;
   pointer-events: none;
-  /* above the hero background AND the connector layer so the journey clearly
-     starts from this star. Sits in the empty upper-left so the first leg can run
-     straight down the left lane to Services (no diagonal across the headline). */
-  z-index: 3;
-}
-.heroStar::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(236, 247, 255, 0.98) 0%, rgba(130, 195, 240, 0.55) 30%, transparent 64%);
-  box-shadow: 0 0 18px 6px rgba(96, 178, 230, 0.55);
-}
-.heroStar::after {
-  content: "";
-  position: absolute;
-  inset: -6px;
-  background:
-    linear-gradient(90deg, transparent 46%, rgba(160, 210, 248, 0.9) 50%, transparent 54%),
-    linear-gradient(0deg, transparent 46%, rgba(160, 210, 248, 0.9) 50%, transparent 54%);
-  filter: drop-shadow(0 0 6px rgba(96, 178, 230, 0.9));
-  animation: jStarTwinkle 4s var(--ease-in-out) infinite;
-}
-@media (max-width: 767px) {
-  .heroStar { top: 22%; left: 10%; width: 18px; height: 18px; }
+  z-index: 0;
 }
 
 /* Agile lower-left hand-off node: where the global line resumes after Agile's
