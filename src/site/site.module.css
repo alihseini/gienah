@@ -1008,25 +1008,25 @@
      the deck height (the card sets these inline, hence the override) */
   .svcPanel {
     padding: 22px !important;
-    gap: 18px !important;
+    gap: 13px !important;
   }
   /* the card title/description are oversized for a phone column; compact them (and
      clamp the longest descriptions) so every service card fits the deck cleanly */
   .svcPanel h3 {
-    font-size: 33px !important;
-    margin-bottom: 12px !important;
+    font-size: 32px !important;
+    margin-bottom: 10px !important;
   }
   .svcPanel p {
-    font-size: 15px !important;
-    margin-bottom: 14px !important;
+    font-size: 14.5px !important;
+    margin-bottom: 12px !important;
     display: -webkit-box;
-    -webkit-line-clamp: 4;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  /* tighten the capabilities list rows so the longest card (5 items) fits */
+  /* tighten the capabilities list rows so the longest cards (up to 7 items) fit */
   .svcPanel .respGrid2 {
-    gap: 9px 18px !important;
+    gap: 6px 18px !important;
   }
 }
 /* shorter phones (SE / most Android): the stacked title + phone + info + dots is

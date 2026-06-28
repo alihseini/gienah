@@ -126,7 +126,13 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
 
     const segs: Seg[] = [];
     const push = (a: Pt, c1: Pt, c2: Pt, b: Pt) => segs.push({ p0: a, c1, c2, p3: b });
-    const arc = w >= 768 ? 42 : 28; // over-title bow height
+    // On phones the side lanes sit off-screen, so a diagonal approach to a node
+    // cuts across the title/cards. Instead route an L: drop straight down the
+    // (hidden) lane to the node's level, then a short horizontal stub into the node
+    // (and the reverse on exit) — the on-screen part is only the stub, in the empty
+    // margin beside the title, never over the text.
+    const mob = w < 768;
+    const arc = w >= 768 ? 42 : 54; // over-title bow (taller on phones to clear a 2-line title)
     let dGap = false; // a moveto was inserted (Agile gap) → record where to break length accounting
     let nodeY: number | null = null; // entry-node local y (arrival timing)
 
@@ -147,30 +153,35 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
       const en = enter ? node(enter) : null;
       if (enter && !en) return; // entry node not measurable yet
       if (en) {
-        const lx = laneX(enter as Side, w);
+        // phones: enter from whichever edge the node actually sits nearest (on mobile
+        // a card node can be on the opposite side from the desktop journey lane).
+        const lx = mob ? laneX(en.x < w / 2 ? "l" : "r", w) : laneX(enter as Side, w);
         const top = { x: lx, y: 0 };
-        push(top, { x: lx, y: en.y * 0.45 }, { x: en.x, y: en.y * 0.7 }, en);
+        if (mob) push(top, { x: lx, y: en.y * 0.55 }, { x: lx, y: en.y }, en); // down lane, then stub in
+        else push(top, { x: lx, y: en.y * 0.45 }, { x: en.x, y: en.y * 0.7 }, en);
         nodeY = en.y;
       }
       if (role !== "end") {
         if (gap) {
           // Agile: pen lifts off the title; resume from the lower handoff node
           const low = local(`[data-node="${sectionKey}:exitlow"]`);
-          const ex = laneX(exit ?? "l", w);
+          const ex = mob && low ? laneX(low.x < w / 2 ? "l" : "r", w) : laneX(exit ?? "l", w);
           if (low) {
             dGap = true;
             const end = { x: ex, y: h };
-            push(low, { x: low.x, y: low.y + (end.y - low.y) * 0.4 }, { x: ex, y: end.y - (end.y - low.y) * 0.4 }, end);
+            if (mob) push(low, { x: ex, y: low.y }, { x: ex, y: low.y + (end.y - low.y) * 0.5 }, end); // stub out, then down lane
+            else push(low, { x: low.x, y: low.y + (end.y - low.y) * 0.4 }, { x: ex, y: end.y - (end.y - low.y) * 0.4 }, end);
           }
         } else if (exit && en) {
-          const exX = laneX(exit, w);
           const exNode = enter === exit ? en : node(exit);
+          const exX = mob && exNode ? laneX(exNode.x < w / 2 ? "l" : "r", w) : laneX(exit, w);
           if (exNode) {
             // a different exit side bows over the title to the other node first; the
             // same side (About) just continues straight down from the same node.
             if (exNode !== en) push(en, { x: en.x, y: en.y - arc }, { x: exNode.x, y: exNode.y - arc }, exNode);
             const end = { x: exX, y: h };
-            push(exNode, { x: exNode.x, y: exNode.y + (end.y - exNode.y) * 0.4 }, { x: exX, y: end.y - (end.y - exNode.y) * 0.4 }, end);
+            if (mob) push(exNode, { x: exX, y: exNode.y }, { x: exX, y: exNode.y + (end.y - exNode.y) * 0.5 }, end); // stub out, then down lane
+            else push(exNode, { x: exNode.x, y: exNode.y + (end.y - exNode.y) * 0.4 }, { x: exX, y: end.y - (end.y - exNode.y) * 0.4 }, end);
           }
         }
       }

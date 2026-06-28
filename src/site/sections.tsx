@@ -165,7 +165,7 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
 }
 
 /* stepped sticky stage — previous cards recede into a visible stacked deck behind the active one */
-function ServiceSlide({ s: svc, d }: { s: Service; d: number }) {
+function ServiceSlide({ s: svc, d, mobile }: { s: Service; d: number; mobile?: boolean }) {
   const cur = d === 0;
   const past = d < 0;
   const depth = Math.min(-d, 3);
@@ -174,9 +174,12 @@ function ServiceSlide({ s: svc, d }: { s: Service; d: number }) {
     transform = "translate3d(0,0,0) scale(1)";
     opacity = 1; filter = "none"; zIndex = 30;
   } else if (past) {
-    // recede travel is capped (≈42px max) so the top of a deep card never crosses
-    // the ~64px gap up into the section description above the deck
-    transform = `translate3d(0, ${(-depth * 14).toFixed(1)}px, 0) scale(${(1 - depth * 0.05).toFixed(3)})`;
+    // On desktop the receded cards rise into a visible stacked deck. On mobile that
+    // upward travel pokes the deck out the TOP of its (taller) card, over the section
+    // subtitle — so phones recede with scale + fade only (origin top keeps the card's
+    // top edge pinned, so it never crosses up into the title).
+    const lift = mobile ? 0 : -depth * 14;
+    transform = `translate3d(0, ${lift.toFixed(1)}px, 0) scale(${(1 - depth * 0.05).toFixed(3)})`;
     opacity = Math.max(0.28, 1 - depth * 0.26).toFixed(3);
     filter = `brightness(${Math.max(0.55, 1 - depth * 0.16).toFixed(2)})`;
     zIndex = 30 - depth;
@@ -212,6 +215,16 @@ export function Services() {
   // (hydration mismatch / React #418).
   const [reduce, setReduce] = React.useState(false);
   React.useEffect(() => { setReduce(reduceMotion()); }, []);
+  // phones recede the deck without the upward lift (see ServiceSlide) — detected
+  // after mount so SSR and the first client render agree.
+  const [mobile, setMobile] = React.useState(false);
+  React.useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const apply = () => setMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
   // Every breakpoint uses the same scroll-stepped deck as desktop (no swipe
   // carousel on mobile/tablet). Reduced-motion still falls back to a plain stack.
   const N = SERVICES.length;
@@ -269,7 +282,7 @@ export function Services() {
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             {Header}
             <div className={s.svcDeck}>
-              {SERVICES.map((svc, i) => <ServiceSlide key={svc.title} s={svc} d={i - active} />)}
+              {SERVICES.map((svc, i) => <ServiceSlide key={svc.title} s={svc} d={i - active} mobile={mobile} />)}
             </div>
             <div style={{ display: "flex", justifyContent: "center", gap: 9, marginTop: 22 }}>
               {SERVICES.map((svc, i) => (
