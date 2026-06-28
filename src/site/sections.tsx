@@ -343,12 +343,76 @@ function ProductSlide({ p, d }: { p: Product; d: number }) {
   );
 }
 
+/* Mobile products deck. The phone frame stays put; the product SCREENS are stacked
+   inside it and translated by (i-active)*100%, so the active screen sits centred
+   while the others wait off each edge — the phone's own overflow:hidden clips them,
+   making the screen look like it slides out one edge of the phone and the next
+   slides in from the opposite edge. The text block below cross-fades in step. */
+function FeaturedMobileDeck({ active }: { active: number }) {
+  return (
+    <div className={s.mpDeck}>
+      <div className={s.mpPhoneWrap}>
+        <div className={[s.device, s.mpPhone].join(" ")}>
+          <div className={s.deviceScreen} style={{ padding: 0, background: "#0b1422" }}>
+            {FEATURED.map((p, i) => {
+              const shot = p.shots[0];
+              const fg = p.tone === "gold" ? "var(--gold-800)" : "var(--accent-800)";
+              const bg = p.tone === "gold"
+                ? "linear-gradient(160deg, #fdf6e6, #f4d485 55%, #e2aa3b)"
+                : "linear-gradient(160deg, #ecf6fc, #a7d8f1 55%, #2a92cc)";
+              return (
+                <div key={p.id} className={s.mpScreen} aria-hidden={i !== active} style={{ transform: `translate3d(${(i - active) * 100}%,0,0)` }}>
+                  {shot ? (
+                    <img src={shot} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <div style={{ width: "100%", height: "100%", background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, textAlign: "center", padding: 18 }}>
+                      <img src="/assets/logo-mark.png" alt="" style={{ height: 40, width: "auto", opacity: 0.92 }} />
+                      <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: fg }}>{p.title}</div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      <div className={s.mpInfo}>
+        {FEATURED.map((p, i) => (
+          <div key={p.id} className={s.mpInfoLayer} aria-hidden={i !== active} data-active={i === active ? "" : undefined} style={{ transform: `translate3d(${(i - active) * 24}px,0,0)` }}>
+            <div className={s.mpBadges}>
+              <Badge variant={p.tone === "gold" ? "warning" : "accent"} className={p.tone === "gold" ? s.darkBadgeWarning : s.darkBadgeAccent}>{p.category}</Badge>
+              <Badge variant="neutral" className={s.darkBadgeNeutral}>{p.year}</Badge>
+            </div>
+            <h3 className={s.mpTitle}>{p.title}</h3>
+            <p className={s.mpDesc}>{p.blurb}</p>
+            <div className={s.mpTech}>{p.tech}</div>
+            <div className={s.mpBtns}>
+              {p.website && <Button variant="primary" className={s.btnGlow} as="a" href={p.website} target="_blank" rel="noopener" trailingIcon={<Icon name="external-link" size={15} />}>Website</Button>}
+              {p.download && <Button variant="secondary" as="a" href={p.download} target="_blank" rel="noopener" leadingIcon={<Icon name="download" size={15} />}>Download</Button>}
+              <Button variant={p.website ? "ghost" : "primary"} className={p.website ? "" : s.btnGlow} as="a" href={`/projects/${p.id}`} trailingIcon={<Icon name="arrow-right" size={15} />}>Case study</Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function Featured() {
   const trackRef = React.useRef<HTMLDivElement>(null);
   const idxRef = React.useRef(0);
   const [active, setActive] = React.useState(0);
-  // Every breakpoint uses the same sticky scroll deck as desktop (no swipe
-  // carousel on mobile/tablet).
+  // Desktop/tablet use the side-by-side sticky deck; phones get a dedicated deck
+  // where the phone screen slides through the frame (detected AFTER mount so SSR
+  // and the first client render agree — avoids a hydration mismatch).
+  const [mobile, setMobile] = React.useState(false);
+  React.useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const apply = () => setMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
   const N = FEATURED.length;
   React.useEffect(() => {
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
@@ -374,16 +438,20 @@ export function Featured() {
   return (
     <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
-        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
+        <div className={s.featStage} style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
           {/* same clean base + continuous stars as every other section (the
               LightPillar was removed — its volumetric glow hazed the section) */}
           <SectionStars />
           <SectionConnector sectionKey="products" enter="r" exit="l" />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             <SectionHead nodeId="products" tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
-            <div className={s.featDeck} style={{ position: "relative", marginTop: 6 }}>
-              {FEATURED.map((p, i) => <ProductSlide key={p.id} p={p} d={i - active} />)}
-            </div>
+            {mobile ? (
+              <FeaturedMobileDeck active={active} />
+            ) : (
+              <div className={s.featDeck} style={{ position: "relative", marginTop: 6 }}>
+                {FEATURED.map((p, i) => <ProductSlide key={p.id} p={p} d={i - active} />)}
+              </div>
+            )}
             <div style={{ display: "flex", justifyContent: "center", gap: 9, marginTop: 14 }}>
               {FEATURED.map((p, i) => (
                 <span key={p.id} aria-hidden="true" style={{ width: i === active ? 26 : 8, height: 8, borderRadius: 99, background: i === active ? "var(--brand-gradient)" : "rgba(255,255,255,0.22)", transition: "width .4s var(--ease-out), background .4s var(--ease-out)" }} />

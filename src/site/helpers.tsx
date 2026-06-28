@@ -530,7 +530,7 @@ export function SectionHead({ tag, title, sub, light, nodeId, nodeSides = true }
     <HeadingReveal as="h2" segments={[{ text: title }]} style={{ fontSize: "clamp(30px, 4.4vw, 46px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "14px 0 0", lineHeight: 1.08, color: light ? "#fff" : "var(--text-primary)" }} />
   );
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto 56px", textAlign: "center" }}>
+    <div className={s.sectionHead} style={{ maxWidth: 680, textAlign: "center" }}>
       <Reveal>
         <div className={s.eyebrow} style={light ? { color: "var(--accent-300)" } : undefined}>{tag}</div>
       </Reveal>
