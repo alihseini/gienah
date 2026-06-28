@@ -14,6 +14,7 @@ import { TypingAnimation } from "./TypingAnimation";
 import { Stagger, StaggerItem, FadeIn, Lift, Press } from "./motion";
 import { GienahLight } from "./GienahLight";
 import { TitleNodes } from "./TitleNodes";
+import { SectionConnector } from "./SectionConnector";
 import c from "./constellationJourney.module.css";
 import { SectionStars } from "./SectionStars";
 import m from "./moreExplorer.module.css";
@@ -76,8 +77,10 @@ export function Hero() {
             main identity */}
         <GienahLight pos="corner" tone="mixed" size="md" flare twinkle />
       </div>
-      {/* the constellation journey begins from this Hero star */}
+      {/* the constellation journey begins from this Hero star, then this section's
+          connector draws the first leg down toward Services (behind the content) */}
       <span data-node="hero:star" className={c.heroStar} aria-hidden="true" />
+      <SectionConnector sectionKey="hero" role="start" exit="l" />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
         <FadeIn y={12}>
           <div style={{ display: "inline-flex", marginBottom: 26 }}>
@@ -243,6 +246,7 @@ export function Services() {
       <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
         <SectionStars />
         <Meteors />
+        <SectionConnector sectionKey="services" enter="l" exit="r" />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
           {Header}
           <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
@@ -259,6 +263,9 @@ export function Services() {
         <div className={s.svcStage} style={{ position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
           <SectionStars />
           <Meteors />
+          {/* connector lives inside the pinned stage so it never drifts from the
+              (sticky) title nodes; it draws in the side lanes, behind the deck */}
+          <SectionConnector sectionKey="services" enter="l" exit="r" />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             {Header}
             <div className={s.svcDeck}>
@@ -371,6 +378,7 @@ export function Featured() {
           {/* same clean base + continuous stars as every other section (the
               LightPillar was removed — its volumetric glow hazed the section) */}
           <SectionStars />
+          <SectionConnector sectionKey="products" enter="r" exit="l" />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             <SectionHead nodeId="products" tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
             <div className={s.featDeck} style={{ position: "relative", marginTop: 6 }}>
@@ -470,6 +478,7 @@ export function MoreProducts() {
       {/* base color → continuous stars only (the moving topology/triangle network
           was removed — keeps the same calm cosmic base as every other section) */}
       <SectionStars />
+      <SectionConnector sectionKey="studio" enter="l" exit="r" />
       {/* layer 2: content */}
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 2 }}>
         <div style={{ textAlign: "center" }}>
@@ -632,6 +641,10 @@ export function Agile() {
           constellation, no fog/topology/meteors/aurora) — keeps Agile visually
           connected to the Hero but simpler. Both sit behind the content (z-index 1). */}
       <ScrollParallax max={48}><StarField /></ScrollParallax>
+      {/* global journey: line arrives at the Agile title node, then GAPS (Agile's
+          own internal line owns the middle), and resumes from the lower handoff
+          node toward Contact */}
+      <SectionConnector sectionKey="agile" enter="r" exit="l" gap />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         <SectionHead nodeId="agile" tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
         <div className={ag.timeline} ref={timelineRef}>
@@ -679,6 +692,9 @@ export function About() {
     <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
       <SectionStars />
       <ScrollParallax max={52}><BackgroundBeams /></ScrollParallax>
+      {/* the journey passes down the left lane through About (no stop), so it
+          continues unbroken from Agile to Contact without crossing About's content */}
+      <SectionConnector sectionKey="about" role="pass" enter="l" />
       <div className={[s.wrap, s.layer, s.respGrid2].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
         <div>
           <Reveal><div className={s.eyebrow}>#ABOUT_US</div></Reveal>
@@ -751,6 +767,8 @@ export function Contact() {
           ParticleField is the section's particle signature */}
       <div ref={bgRef} style={{ position: "absolute", inset: -90, willChange: "opacity, filter, transform", transition: "opacity .2s linear" }} />
       <ParticleField progressRef={progRef} />
+      {/* final leg: drawn only when it arrives (never pre-drawn) — lands on contact:l */}
+      <SectionConnector sectionKey="contact" role="end" enter="l" />
       <div ref={ref} className={s.wrap} style={{ maxWidth: 1000, position: "relative", zIndex: 1, transformOrigin: "center center", willChange: "transform" }}>
         <div className={s.respGrid2} style={{ gap: "clamp(32px,6vw,72px)", alignItems: "start" }}>
           <div>

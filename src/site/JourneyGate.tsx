@@ -21,3 +21,15 @@ export const useJourneyReady = () => React.useContext(JourneyReadyContext);
 export function JourneyGate({ ready, children }: { ready: boolean; children: React.ReactNode }) {
   return <JourneyReadyContext.Provider value={ready}>{children}</JourneyReadyContext.Provider>;
 }
+
+/* Activation channel: each section's SectionConnector calls activate(key) once the
+   line reaches that section's entry node, which flips the section's gate to ready.
+   Provided once at the top of SiteApp; default is a no-op so connectors render
+   harmlessly outside a provider. */
+const JourneyActivateContext = React.createContext<(key: string) => void>(() => {});
+
+export const useJourneyActivate = () => React.useContext(JourneyActivateContext);
+
+export function JourneyActivateProvider({ activate, children }: { activate: (key: string) => void; children: React.ReactNode }) {
+  return <JourneyActivateContext.Provider value={activate}>{children}</JourneyActivateContext.Provider>;
+}
