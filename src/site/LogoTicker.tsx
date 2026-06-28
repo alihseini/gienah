@@ -1,6 +1,7 @@
 import React from "react";
 import partners from "@/data/partners.json";
 import t from "./logoTicker.module.css";
+import { SectionConnector } from "./SectionConnector";
 
 type Partner = { id: string; name: string; logo: string | null; url: string | null };
 
@@ -11,7 +12,11 @@ const PARTNERS = partners as Partner[];
 export function LogoTicker() {
   const row = [...PARTNERS, ...PARTNERS];
   return (
-    <div className={t.wrap} role="region" aria-label="Companies we've worked with">
+    <div style={{ position: "relative" }}>
+      {/* the journey passes straight down the left lane behind the (transparent)
+          ticker, bridging Hero → Services without a break */}
+      <SectionConnector sectionKey="ticker" role="pass" enter="l" />
+      <div className={t.wrap} role="region" aria-label="Companies we've worked with">
       <div className={t.track}>
         {row.map((p, i) => {
           const dup = i >= PARTNERS.length;
@@ -29,6 +34,7 @@ export function LogoTicker() {
             <span key={i} className={t.item} aria-hidden={dup || undefined}>{inner}</span>
           );
         })}
+      </div>
       </div>
     </div>
   );
