@@ -5,7 +5,6 @@ import {
   Reveal, CountUp, SectionHead, ScrollParallax, siteStyles as s, go,
 } from "./helpers";
 import { ParticleField } from "./ParticleField";
-import { TopologyField } from "./TopologyField";
 import { BackgroundBeams } from "./BackgroundBeams";
 import { StarField } from "./StarField";
 import { HeroAtmosphere } from "./HeroAtmosphere";
@@ -200,30 +199,6 @@ function ServiceSlide({ s: svc, d }: { s: Service; d: number }) {
   );
 }
 
-/* Mobile/tablet services carousel — equal-height cards, scroll-snap, coverflow
-   active state + staggered entrance. Own component so the hooks stay mobile-only. */
-function ServicesCarousel({ header }: { header: React.ReactNode }) {
-  const railRef = React.useRef<HTMLDivElement>(null);
-  const active = useActiveCard(railRef, SERVICES.length);
-  return (
-    <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2, padding: "96px 0 84px" }}>
-      <SectionStars />
-      <Meteors />
-      <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
-        {header}
-        <FadeIn y={22} amount={0.18}>
-          <div className={[s.pcarousel, s.scarousel].join(" ")} ref={railRef}>
-            {SERVICES.map((svc, i) => (
-              <div className={s.scard} key={svc.title} data-active={i === active ? "" : undefined}><ServicePanel s={svc} /></div>
-            ))}
-          </div>
-          <div className={[s.pcardHint, s.pcardHintLive].join(" ")} aria-hidden="true"><Icon name="arrow-left" size={13} /> swipe through services <Icon name="arrow-right" size={13} /></div>
-        </FadeIn>
-      </div>
-    </section>
-  );
-}
-
 export function Services() {
   const trackRef = React.useRef<HTMLDivElement>(null);
   const idxRef = React.useRef(0);
@@ -234,19 +209,11 @@ export function Services() {
   // (hydration mismatch / React #418).
   const [reduce, setReduce] = React.useState(false);
   React.useEffect(() => { setReduce(reduceMotion()); }, []);
-  // mobile/tablet (<=1024) renders a native swipe carousel; desktop keeps the
-  // scroll-stepped deck. Detected after mount so SSR + first paint agree.
-  const [carousel, setCarousel] = React.useState(false);
-  React.useEffect(() => {
-    const mq = window.matchMedia("(max-width: 1024px)");
-    const apply = () => setCarousel(mq.matches);
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
-  }, []);
+  // Every breakpoint uses the same scroll-stepped deck as desktop (no swipe
+  // carousel on mobile/tablet). Reduced-motion still falls back to a plain stack.
   const N = SERVICES.length;
   React.useEffect(() => {
-    if (reduce || carousel) return;
+    if (reduce) return;
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
     let raf = 0;
     const update = () => {
@@ -265,16 +232,11 @@ export function Services() {
     window.addEventListener("resize", onScroll);
     update();
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [reduce, N, carousel]);
+  }, [reduce, N]);
 
   const Header = (
     <SectionHead nodeId="services" tag="#Services" light title="Everything from idea to launch" sub="Four disciplines, one team — so your product stays coherent from the first conversation to its first users." />
   );
-
-  // ---- mobile / tablet: native swipe carousel through the service cards ----
-  if (carousel) {
-    return <ServicesCarousel header={Header} />;
-  }
 
   if (reduce) {
     return (
@@ -374,105 +336,14 @@ function ProductSlide({ p, d }: { p: Product; d: number }) {
   );
 }
 
-/* Tracks which carousel cell is centered in the scroller, so the active card can
-   be emphasised (coverflow) while neighbours recede. rAF-throttled, passive. The
-   carousel gets data-enhanced so the dim/scale styling only applies once JS runs
-   (no-JS / SSR shows every card at full prominence). */
-function useActiveCard(ref: React.RefObject<HTMLDivElement | null>, count: number) {
-  const [active, setActive] = React.useState(0);
-  React.useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.dataset.enhanced = "";
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const center = el.scrollLeft + el.clientWidth / 2;
-      const cards = Array.from(el.children) as HTMLElement[];
-      let best = 0, bestD = Infinity;
-      cards.forEach((c, i) => {
-        const cc = c.offsetLeft + c.offsetWidth / 2;
-        const d = Math.abs(cc - center);
-        if (d < bestD) { bestD = d; best = i; }
-      });
-      setActive(best);
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    update();
-    return () => { el.removeEventListener("scroll", onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [ref, count]);
-  return active;
-}
-
-/* Mobile/tablet product card — full, readable content in a swipe-carousel cell
-   (no absolute positioning, natural height; reuses the same product data). */
-function ProductCard({ p, active }: { p: Product; active?: boolean }) {
-  return (
-    <div className={s.pcard} data-active={active ? "" : undefined}>
-      <PhoneFrame p={p} />
-      <div className={s.pcardText}>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
-          <Badge variant={p.tone === "gold" ? "warning" : "accent"} className={p.tone === "gold" ? s.darkBadgeWarning : s.darkBadgeAccent}>{p.category}</Badge>
-          <Badge variant="neutral" className={s.darkBadgeNeutral}>{p.year}</Badge>
-        </div>
-        <h3 style={{ fontSize: "clamp(24px, 5vw, 32px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 12px" }}>{p.title}</h3>
-        <p style={{ fontSize: 15.5, lineHeight: 1.6, color: "var(--text-secondary)", margin: "0 0 14px" }}>{p.blurb}</p>
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-tertiary)", marginBottom: 18 }}>{p.tech}</div>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          {p.website && <Button variant="primary" size="sm" className={s.btnGlow} as="a" href={p.website} target="_blank" rel="noopener" trailingIcon={<Icon name="external-link" size={14} />}>Website</Button>}
-          {p.download && <Button variant="secondary" size="sm" as="a" href={p.download} target="_blank" rel="noopener" leadingIcon={<Icon name="download" size={14} />}>Download</Button>}
-          <Button variant={p.website ? "ghost" : "primary"} size="sm" className={p.website ? "" : s.btnGlow} as="a" href={`/projects/${p.id}`} trailingIcon={<Icon name="arrow-right" size={14} />}>Case study</Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* Mobile/tablet products carousel — scroll-snap + a coverflow active state and a
-   staggered entrance. Split into its own component so the hooks only run on the
-   mobile branch. */
-function FeaturedCarousel() {
-  const railRef = React.useRef<HTMLDivElement>(null);
-  const active = useActiveCard(railRef, FEATURED.length);
-  return (
-    <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
-      <div style={{ position: "relative", overflow: "hidden", padding: "78px 0 60px", background: "var(--page-bg)" }}>
-        {/* same clean base + continuous stars as every other section (the
-            LightPillar was removed — its volumetric glow hazed the section) */}
-        <SectionStars />
-        <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
-          <SectionHead nodeId="products" tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
-          <FadeIn y={22} amount={0.18}>
-            <div className={s.pcarousel} ref={railRef}>
-              {FEATURED.map((p, i) => <ProductCard key={p.id} p={p} active={i === active} />)}
-            </div>
-            <div className={[s.pcardHint, s.pcardHintLive].join(" ")} aria-hidden="true"><Icon name="arrow-left" size={13} /> swipe to explore <Icon name="arrow-right" size={13} /></div>
-          </FadeIn>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export function Featured() {
   const trackRef = React.useRef<HTMLDivElement>(null);
   const idxRef = React.useRef(0);
   const [active, setActive] = React.useState(0);
-  // mobile/tablet (<=1024) renders a native swipe carousel; desktop keeps the
-  // sticky deck. Detected AFTER mount (SSR + first paint render the deck) so the
-  // server and client agree — no hydration mismatch.
-  const [carousel, setCarousel] = React.useState(false);
-  React.useEffect(() => {
-    const mq = window.matchMedia("(max-width: 1024px)");
-    const apply = () => setCarousel(mq.matches);
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
-  }, []);
+  // Every breakpoint uses the same sticky scroll deck as desktop (no swipe
+  // carousel on mobile/tablet).
   const N = FEATURED.length;
   React.useEffect(() => {
-    if (carousel) return; // desktop-only scroll deck — no scroll listener on mobile/tablet
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
     let raf = 0;
     const update = () => {
@@ -491,12 +362,7 @@ export function Featured() {
     window.addEventListener("resize", onScroll);
     update();
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [N, carousel]);
-
-  // ---- mobile / tablet: native swipe carousel (scroll-snap + coverflow) ----
-  if (carousel) {
-    return <FeaturedCarousel />;
-  }
+  }, [N]);
 
   return (
     <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
@@ -601,15 +467,18 @@ export function MoreProducts() {
   }, []);
   return (
     <section className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
-      {/* base color → continuous stars → topology network animation (no mask /
-          blob fog washes — keeps the same clean cosmic base as every section) */}
+      {/* base color → continuous stars only (the moving topology/triangle network
+          was removed — keeps the same calm cosmic base as every other section) */}
       <SectionStars />
-      <div className={m.topo}><TopologyField /></div>
       {/* layer 2: content */}
       <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 2 }}>
         <div style={{ textAlign: "center" }}>
           <TitleNodes id="studio">
-            <HeadingReveal as="div" className={s.eyebrow} style={{ textAlign: "center", marginBottom: 8 }} segments={[{ text: "More from the studio" }]} />
+            <HeadingReveal
+              as="h2"
+              style={{ fontSize: "clamp(28px, 3.6vw, 40px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 8px", lineHeight: 1.1, color: "#fff", textAlign: "center" }}
+              segments={[{ text: "More from the studio" }]}
+            />
           </TitleNodes>
         </div>
         <Reveal delay={60}><TypingAnimation as="p" text={touch ? "Tap a project to open its case study." : "Hover a project to preview it — click to open the case study."} style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 8px" }} /></Reveal>
