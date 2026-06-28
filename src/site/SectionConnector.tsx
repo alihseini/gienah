@@ -201,10 +201,15 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
     segs.forEach((g, i) => {
       if (i === gapIndex) {
         d += ` M ${g.p0.x.toFixed(1)} ${g.p0.y.toFixed(1)}`;
-        // park: from the previous node down to the gap-resume node, fraction holds
-        // (the section's own internal line owns this stretch)
-        keys.push({ y: Math.max(yprev + 1, g.p0.y), fr: cum / total });
-        yprev = Math.max(yprev + 1, g.p0.y);
+        // park: the fraction holds across the gap (the section's own internal line
+        // owns this stretch). We extend the park PAST the resume node by `late` so the
+        // outgoing leg doesn't begin while the last card is still centred — it waits
+        // until the card has scrolled up toward the top (i.e. the section is ending).
+        const vh = window.innerHeight || 800;
+        const late = Math.min(vh * 0.34, Math.max(0, g.p3.y - g.p0.y - 70));
+        const py = Math.max(yprev + 1, g.p0.y + late);
+        keys.push({ y: py, fr: cum / total });
+        yprev = py;
       }
       d += ` C ${g.c1.x.toFixed(1)} ${g.c1.y.toFixed(1)}, ${g.c2.x.toFixed(1)} ${g.c2.y.toFixed(1)}, ${g.p3.x.toFixed(1)} ${g.p3.y.toFixed(1)}`;
       cum += lens[i];

@@ -147,8 +147,9 @@
     display: block;
     position: absolute;
     left: 11px;
-    top: 4px;
-    bottom: 4px;
+    /* span exactly first node → last node (set from JS); fall back to near-full */
+    top: var(--rail-top, 4px);
+    bottom: var(--rail-bottom, 4px);
     width: 2px;
     border-radius: 2px;
     background: rgba(190, 220, 240, 0.18);

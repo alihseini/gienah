@@ -932,6 +932,14 @@
    padding and deck height shrink so the column (title + card + dots) fits inside
    the 100vh frame and the dot indicators don't bleed under the next section. The
    deck never drops below the card's content height (~403px) so nothing clips. */
+/* sticky deck stages fill the viewport. Use svh (the stable, URL-bar-collapsed
+   height) with a vh fallback so mobile Safari/Chrome don't RESIZE the pinned stage
+   — and jolt its background — every time the address bar shows/hides on scroll. */
+.svcStage,
+.featStage {
+  height: 100vh;
+  height: 100svh;
+}
 .svcStage {
   padding: 100px 0 52px;
 }
