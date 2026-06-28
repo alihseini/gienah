@@ -98,11 +98,29 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
     const box = svg.getBoundingClientRect();
     const w = box.width, h = box.height;
     if (!w || !h) return;
+    // Measure node anchors in TRANSFORM-INDEPENDENT layout space (the offsetLeft/Top
+    // chain) rather than getBoundingClientRect. A card/title entrance reveal animates
+    // a transform that getBoundingClientRect folds in; because a transform doesn't
+    // change layout size, the ResizeObserver never re-fires, so a getBoundingClientRect
+    // measurement taken before the reveal settles would leave the line drawn at the
+    // pre-reveal position (this is what put the Agile hand-off ~80px off its node).
+    // The SVG fills its containing block via inset:0, so node-local = docPos(node) -
+    // docPos(host), where host is the SVG's nearest positioned ancestor (the section
+    // or sticky stage). Both are layout-space, so reveal/parallax/sticky transforms
+    // never shift a node out from under the line.
+    const docPos = (el: HTMLElement) => {
+      let x = 0, y = 0, n: HTMLElement | null = el;
+      while (n) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      return { x, y };
+    };
+    let host: HTMLElement | null = svg.parentElement;
+    while (host && getComputedStyle(host).position === "static") host = host.parentElement;
+    const ho = docPos(host || document.body);
     const local = (sel: string): Pt | null => {
       const el = document.querySelector(sel) as HTMLElement | null;
       if (!el) return null;
-      const r = el.getBoundingClientRect();
-      return { x: r.left + r.width / 2 - box.left, y: r.top + r.height / 2 - box.top };
+      const d = docPos(el);
+      return { x: d.x + el.offsetWidth / 2 - ho.x, y: d.y + el.offsetHeight / 2 - ho.y };
     };
     const node = (side: Side) => local(`[data-node="${sectionKey}:${side}"]`);
 

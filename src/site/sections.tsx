@@ -547,8 +547,9 @@ export function MoreProducts() {
           was removed — keeps the same calm cosmic base as every other section) */}
       <SectionStars />
       <SectionConnector sectionKey="studio" enter="l" exit="r" />
-      {/* layer 2: content */}
-      <div className={[s.wrap, s.layer].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 2 }}>
+      {/* layer 2: content — NO scroll-choreography transform here: it would shift the
+          title's connector nodes out from under the (separately measured) line */}
+      <div className={s.wrap} style={{ position: "relative", zIndex: 2 }}>
         <div style={{ textAlign: "center" }}>
           <TitleNodes id="studio">
             <HeadingReveal
@@ -766,7 +767,9 @@ export function About() {
           lands on the About node, then continues down the same lane to Contact —
           so it never crosses About's two-column content */}
       <SectionConnector sectionKey="about" enter="l" exit="l" />
-      <div className={[s.wrap, s.layer, s.respGrid2].join(" ")} data-layer="front" style={{ position: "relative", zIndex: 1, gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
+      {/* no scroll-choreography transform here — it would drift the About connector
+          node out from under the line */}
+      <div className={[s.wrap, s.respGrid2].join(" ")} style={{ position: "relative", zIndex: 1, gap: "clamp(32px,6vw,80px)", alignItems: "center" }}>
         <div>
           <Reveal><div className={s.eyebrow}>#ABOUT_US</div></Reveal>
           <TitleNodes id="about">
@@ -815,11 +818,11 @@ export function Contact() {
       const p = clamp((vh - r.top) / total, 0, 1);
       const e = p * p * (3 - 2 * p);
       progRef.current = e;
-      // content RISES only (translateY) — no scroll scale on text/cards (the inner
-      // Reveals + the section's own entrance already handle scale; stacking another
-      // scroll-linked scale here made the content pop larger as it revealed).
-      const ty = ((0.62 - e) * 34).toFixed(1);
-      el.style.transform = `translate3d(0, ${ty}px, 0)`;
+      // NOTE: the content used to RISE on scroll (translateY) here, but that shifted
+      // the contact title's connector node out from under the (separately measured)
+      // journey line. The wrap now stays put — the inner Reveals handle entrance —
+      // so the final line lands cleanly on the contact node. Only the decorative
+      // background still drifts (it carries no connector anchor).
       const bg = bgRef.current;
       // background lights drift slower than the content + breathe in scale (decorative depth)
       if (bg) bg.style.transform = `translate3d(0, ${((0.5 - e) * 46).toFixed(1)}px, 0) scale(${(1 + e * 0.1).toFixed(4)})`;
