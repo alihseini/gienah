@@ -880,6 +880,17 @@
     grid-template-columns: 1fr !important;
   }
 }
+/* mobile: the Services / Products card decks break out of the .wrap's 32px side
+   padding and run full-bleed to the screen edges (the section's overflow:clip
+   keeps this from ever causing horizontal scroll). The section heading keeps its
+   padding, so only the cards reach the edges. */
+@media (max-width: 767px) {
+  .svcDeck,
+  .featDeck {
+    margin-left: -32px;
+    margin-right: -32px;
+  }
+}
 /* mobile / small-tablet: the floating menu stacks vertically — the horizontal
    pill doesn't fit and would clip its items */
 @media (max-width: 860px) {
