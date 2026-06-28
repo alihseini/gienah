@@ -441,6 +441,7 @@
   z-index: 2;
 }
 .deviceScreen {
+  position: relative;
   width: 100%;
   height: 100%;
   border-radius: calc(var(--dw) * 0.111);
@@ -461,6 +462,100 @@
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+/* section heading block: horizontally centred (restores the previous inline
+   `margin: 0 auto 56px`); the bottom margin is in a class so mobile media queries
+   can tighten it while the auto side margins keep the block centred */
+.sectionHead {
+  margin: 0 auto 56px;
+}
+
+/* ===== mobile products deck (phone screen slides through the frame) ===== */
+.mpDeck {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 2px;
+}
+.mpPhoneWrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+/* fixed phone size on mobile (overrides the responsive --dw via higher specificity) */
+.mpPhone.mpPhone {
+  --dw: clamp(138px, 39vw, 168px);
+  animation: none;
+  margin: 0 auto;
+}
+/* one product screen inside the phone; siblings wait off each edge and are clipped
+   by .deviceScreen's overflow:hidden, so the active screen reads as sliding in/out
+   of the phone */
+.mpScreen {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.mpInfo {
+  position: relative;
+  width: 100%;
+  text-align: center;
+}
+/* stacked text layers — only the active one shows; the rest fade + nudge sideways
+   so the copy travels with the phone screen */
+.mpInfoLayer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s var(--ease-out), transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mpInfoLayer:first-child {
+  position: relative;
+}
+.mpInfoLayer[data-active] {
+  opacity: 1;
+  pointer-events: auto;
+}
+.mpBadges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.mpTitle {
+  font-size: clamp(24px, 6.6vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 10px;
+  line-height: 1.1;
+}
+.mpDesc {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0 auto 10px;
+  max-width: 34ch;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mpTech {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  margin-bottom: 13px;
+}
+.mpBtns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 /* ===== flowing list (more from the studio) ===== */
@@ -882,15 +977,122 @@
     grid-template-columns: 1fr !important;
   }
 }
-/* mobile: the Services / Products card decks break out of the .wrap's 32px side
-   padding and run full-bleed to the screen edges (the section's overflow:clip
-   keeps this from ever causing horizontal scroll). The section heading keeps its
-   padding, so only the cards reach the edges. */
+/* mobile (phones): both decks sit inside the .wrap's side padding (proper gutters,
+   no edge-clipped text/cards) and the sticky stage aligns its column to the top
+   with enough clearance below the floating nav, so the section title is never tucked
+   under the nav and the deck/dots fit the 100vh frame without clipping. */
 @media (max-width: 767px) {
-  .svcDeck,
-  .featDeck {
-    margin-left: -32px;
-    margin-right: -32px;
+  .sectionHead {
+    margin-bottom: 18px;
+  }
+  /* the section subtitle is long and wraps to several lines on a phone, eating the
+     vertical budget the deck needs — shrink it (and the title) a touch on phones */
+  .sectionHead p {
+    font-size: 15px;
+    line-height: 1.5;
+    margin-top: 12px !important;
+  }
+  .svcStage,
+  .featStage {
+    justify-content: flex-start !important;
+    padding-top: 76px !important;
+    padding-bottom: 16px !important;
+  }
+  /* the deck holds absolute slides, so it needs an explicit height; size it to the
+     card's natural mobile content so nothing clips at the bottom */
+  .svcDeck {
+    height: clamp(470px, 62vh, 540px);
+    margin-top: 4px;
+  }
+  /* tighten the card's internal padding + row gap on phones so its content fits
+     the deck height (the card sets these inline, hence the override) */
+  .svcPanel {
+    padding: 22px !important;
+    gap: 18px !important;
+  }
+  /* the card title/description are oversized for a phone column; compact them (and
+     clamp the longest descriptions) so every service card fits the deck cleanly */
+  .svcPanel h3 {
+    font-size: 33px !important;
+    margin-bottom: 12px !important;
+  }
+  .svcPanel p {
+    font-size: 15px !important;
+    margin-bottom: 14px !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  /* tighten the capabilities list rows so the longest card (5 items) fits */
+  .svcPanel .respGrid2 {
+    gap: 9px 18px !important;
+  }
+}
+/* shorter phones (SE / most Android): the stacked title + phone + info + dots is
+   tall, so compact it further so the dot indicators stay on-screen and nothing
+   clips inside the 100vh sticky frame */
+@media (max-width: 767px) and (max-height: 800px) {
+  .sectionHead {
+    margin-bottom: 8px;
+  }
+  /* shrink the section title + subtitle further so the deck + dots clear the fold */
+  .sectionHead h2 {
+    font-size: 27px !important;
+  }
+  .sectionHead p {
+    font-size: 13.5px !important;
+    line-height: 1.45 !important;
+    margin-top: 10px !important;
+  }
+  .svcStage,
+  .featStage {
+    padding-top: 72px !important;
+    padding-bottom: 8px !important;
+  }
+  /* products: shrink the phone + tighten the copy so phone + badges + title +
+     2-line desc + tech + (possibly wrapping) buttons + dots all fit */
+  .mpDeck {
+    gap: 8px;
+  }
+  .mpPhone.mpPhone {
+    --dw: clamp(104px, 29vw, 132px);
+  }
+  .mpBadges {
+    margin-bottom: 6px;
+  }
+  .mpTitle {
+    font-size: 24px;
+    margin-bottom: 5px;
+  }
+  .mpDesc {
+    -webkit-line-clamp: 2;
+    margin-bottom: 7px;
+  }
+  .mpTech {
+    margin-bottom: 10px;
+  }
+  /* services: compact the card so the full content (incl. capabilities) + dots fit */
+  .svcDeck {
+    height: clamp(384px, 56vh, 450px);
+  }
+  .svcPanel {
+    padding: 18px !important;
+    gap: 12px !important;
+  }
+  .svcPanel h3 {
+    font-size: 25px !important;
+    line-height: 1.05 !important;
+    margin-bottom: 8px !important;
+  }
+  .svcPanel p {
+    font-size: 13px !important;
+    -webkit-line-clamp: 3;
+    margin-bottom: 10px !important;
+  }
+  .svcPanel .floatIcon {
+    width: 48px !important;
+    height: 48px !important;
   }
 }
 /* mobile / small-tablet: the floating menu stacks vertically — the horizontal
@@ -1079,6 +1281,12 @@
   }
   .pcardHintLive svg {
     animation: none !important;
+  }
+  /* mobile products: the screen still snaps to the active product, but without the
+     horizontal slide/fade motion */
+  .mpScreen,
+  .mpInfoLayer {
+    transition: none !important;
   }
   .site :global([data-parallax]) {
     transform: none !important;
