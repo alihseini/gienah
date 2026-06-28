@@ -62,7 +62,7 @@ export function Hero() {
   }, []);
 
   return (
-    <section id="top" className={s.page} style={{ overflow: "hidden", padding: "172px 0 110px" }}>
+    <section id="top" className={s.page} style={{ overflow: "hidden", padding: "172px 0 110px", position: "relative", zIndex: 0 }}>
       {/* layered background, all behind content & with different scroll speeds for depth:
           atmosphere (slowest glow) → stars (medium) → main constellation (fastest).
           Each keeps its existing pointer-parallax / float; the wrappers only add the
