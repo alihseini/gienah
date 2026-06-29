@@ -150,7 +150,7 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
             ))}
           </div>
         </div>
-        <div style={{ position: "relative", zIndex: 1 }}>
+        <div className={s.svcCapsBlock} style={{ position: "relative", zIndex: 1 }}>
           <div className={s.svcCapsLabel} style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-text-dim)", marginBottom: 16 }}>Capabilities</div>
           <div className={s.respGrid2} style={{ gap: "12px 22px" }}>
             {svc.caps.map((c) => (
