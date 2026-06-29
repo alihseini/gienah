@@ -18,18 +18,9 @@
 * { box-sizing: border-box; }
 html {
   scroll-behavior: smooth;
-  /* Native per-card stepping for the Services / Products decks: those tracks lay one
-     scroll-snap marker per card (each scroll-snap-stop:always), so the browser stops on
-     one card per scroll gesture and a single big flick can't fly past several. PROXIMITY
-     (not mandatory) means the rest of the page — which has no snap markers — scrolls
-     completely normally and is unaffected. */
-  scroll-snap-type: y proximity;
   /* App-matched scrollbar (Firefox): brand-blue thumb on a dark track. */
   scrollbar-width: thin;
   scrollbar-color: rgba(88, 171, 206, 0.55) #0a1322;
-}
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-snap-type: none; }
 }
 body {
   margin: 0;
