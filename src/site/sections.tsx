@@ -105,7 +105,7 @@ export function Hero() {
         <Stagger style={{ display: "flex", justifyContent: "center", gap: "clamp(28px,6vw,72px)", marginTop: 64, flexWrap: "wrap" }} gap={0.1} delayChildren={0.28} amount={0.4}>
           {site.hero.stats.map(([n, l]) => (
             <StaggerItem key={l} y={14} style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 36, fontWeight: 700, letterSpacing: "-0.03em" }}><CountUp value={n} /></div>
+              <div className={s.heroStat} style={{ fontSize: 36, fontWeight: 700, letterSpacing: "-0.03em" }}><CountUp value={n} /></div>
               <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 2 }}>{l}</div>
             </StaggerItem>
           ))}
@@ -566,7 +566,7 @@ export function MoreProducts() {
     return () => mq.removeEventListener("change", apply);
   }, []);
   return (
-    <section className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
+    <section id="studio" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
       {/* base color → continuous stars only (the moving topology/triangle network
           was removed — keeps the same calm cosmic base as every other section) */}
       <SectionStars />

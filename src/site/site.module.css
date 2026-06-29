@@ -1037,6 +1037,61 @@
 /* phones only: the sticky stages top-align with nav clearance + a tighter deck so
    the stacked title + deck + dots fit the (short) phone viewport without clipping */
 @media (max-width: 767px) {
+  /* ===== mobile typography scale =====
+     The section/card text is sized with inline clamp()/px values tuned for desktop,
+     which read oversized on phones. Step the headline + body sizes down to a calmer,
+     readable mobile scale. !important is required because the sizes are set inline on
+     the elements (inline styles otherwise beat plain class rules). Phones only — the
+     desktop/tablet sizes are untouched. */
+  .sectionHead h2 {
+    font-size: 25px !important;
+    line-height: 1.14 !important;
+  }
+  .sectionHead p {
+    font-size: 14.5px !important;
+    line-height: 1.55 !important;
+  }
+  /* hero */
+  .site :global(#top) h1 {
+    font-size: 32px !important;
+    line-height: 1.07 !important;
+  }
+  .site :global(#top) p {
+    font-size: 15px !important;
+    line-height: 1.55 !important;
+  }
+  .heroStat {
+    font-size: 28px !important;
+  }
+  /* about + contact (custom headers, not SectionHead) */
+  .site :global(#about) h2 {
+    font-size: 25px !important;
+    line-height: 1.16 !important;
+  }
+  .site :global(#about) p {
+    font-size: 14.5px !important;
+    line-height: 1.65 !important;
+  }
+  .site :global(#contact) h2 {
+    font-size: 26px !important;
+    line-height: 1.1 !important;
+  }
+  .site :global(#contact) p {
+    font-size: 14.5px !important;
+    line-height: 1.6 !important;
+  }
+  .site :global(#contact) a[href^="mailto"] {
+    font-size: 15px !important;
+  }
+  /* more-from-the-studio (custom header) */
+  .site :global(#studio) h2 {
+    font-size: 25px !important;
+    line-height: 1.16 !important;
+  }
+  /* product card title (mobile deck) */
+  .mpTitle {
+    font-size: 22px !important;
+  }
   .svcStage,
   .featStage {
     justify-content: flex-start !important;
@@ -1098,11 +1153,11 @@
     height: 50px !important;
   }
   .svcPanel h3 {
-    font-size: 28px !important;
+    font-size: 22px !important;
     margin-bottom: 8px !important;
   }
   .svcPanel p {
-    font-size: 14px !important;
+    font-size: 13.5px !important;
     -webkit-line-clamp: 2 !important;
     margin-bottom: 10px !important;
   }
@@ -1137,7 +1192,7 @@
   }
   /* shrink the section title + subtitle further so the deck + dots clear the fold */
   .sectionHead h2 {
-    font-size: 27px !important;
+    font-size: 23px !important;
   }
   .sectionHead p {
     font-size: 13.5px !important;
@@ -1164,7 +1219,7 @@
     margin-bottom: 6px;
   }
   .mpTitle {
-    font-size: 24px;
+    font-size: 21px !important;
     margin-bottom: 5px;
   }
   .mpDesc {
@@ -1189,7 +1244,7 @@
     height: 44px !important;
   }
   .svcPanel h3 {
-    font-size: 24px !important;
+    font-size: 21px !important;
     line-height: 1.05 !important;
     margin-bottom: 6px !important;
   }
@@ -1242,7 +1297,7 @@
     height: 40px !important;
   }
   .svcPanel h3 {
-    font-size: 22px !important;
+    font-size: 20px !important;
     margin-bottom: 5px !important;
   }
   .svcPanel p {
