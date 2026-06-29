@@ -138,20 +138,20 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
       >
         <span className={s.svcRing} aria-hidden="true" style={{ opacity: dim ? 0.35 : 1 }}><i /></span>
         <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 22 }}>
+          <div className={s.svcIconRow} style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 22 }}>
             <span className={s.floatIcon} style={{ width: 64, height: 64, borderRadius: 18, background: "var(--brand-gradient-soft)", color: gold ? "var(--gold-700)" : "var(--accent-600)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", boxShadow: `0 10px 30px -10px ${glowA}` }}><Icon name={svc.icon} size={30} /></span>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: accent, letterSpacing: "0.04em" }}>SERVICE {svc.no}</span>
           </div>
           <h3 style={{ fontSize: "clamp(34px, 4.4vw, 54px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 18px", color: "#fff", lineHeight: 1.04 }}>{svc.title}</h3>
           <p style={{ fontSize: "clamp(16px, 1.4vw, 19px)", lineHeight: 1.65, color: "var(--ink-text-dim)", margin: "0 0 24px", maxWidth: 440 }}>{svc.desc}</p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div className={s.svcTags} style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             {svc.tags.map((tg) => (
               <span key={tg} style={{ fontSize: 13, fontWeight: 500, color: "#fff", padding: "7px 14px", borderRadius: 99, background: "rgba(255,255,255,0.07)", border: `1px solid ${gold ? "rgba(244,198,95,0.34)" : "rgba(88,171,206,0.34)"}` }}>{tg}</span>
             ))}
           </div>
         </div>
         <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-text-dim)", marginBottom: 16 }}>Capabilities</div>
+          <div className={s.svcCapsLabel} style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-text-dim)", marginBottom: 16 }}>Capabilities</div>
           <div className={s.respGrid2} style={{ gap: "12px 22px" }}>
             {svc.caps.map((c) => (
               <div key={c} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: "clamp(13.5px, 1.05vw, 15px)", color: "rgba(232,234,238,0.92)", lineHeight: 1.4 }}>
@@ -288,7 +288,7 @@ export function Services() {
             <div className={s.svcDeck}>
               {SERVICES.map((svc, i) => <ServiceSlide key={svc.title} s={svc} d={i - active} mobile={mobile} />)}
             </div>
-            <div style={{ display: "flex", justifyContent: "center", gap: 9, marginTop: 22 }}>
+            <div className={s.deckDots} style={{ display: "flex", justifyContent: "center", gap: 9, marginTop: 22 }}>
               {SERVICES.map((svc, i) => (
                 <span key={svc.title} aria-hidden="true" style={{ width: i === active ? 26 : 8, height: 8, borderRadius: 99, background: i === active ? "var(--brand-gradient)" : "rgba(255,255,255,0.22)", transition: "width .4s var(--ease-out), background .4s var(--ease-out)" }} />
               ))}
@@ -476,7 +476,7 @@ export function Featured() {
                 {FEATURED.map((p, i) => <ProductSlide key={p.id} p={p} d={i - active} />)}
               </div>
             )}
-            <div style={{ display: "flex", justifyContent: "center", gap: 9, marginTop: 14 }}>
+            <div className={s.deckDots} style={{ display: "flex", justifyContent: "center", gap: 9, marginTop: 14 }}>
               {FEATURED.map((p, i) => (
                 <span key={p.id} aria-hidden="true" style={{ width: i === active ? 26 : 8, height: 8, borderRadius: 99, background: i === active ? "var(--brand-gradient)" : "rgba(255,255,255,0.22)", transition: "width .4s var(--ease-out), background .4s var(--ease-out)" }} />
               ))}
