@@ -58,6 +58,13 @@
 .btnBlock {
   width: 100%;
 }
+/* touch widths (phones + tablets): raise the default control height to a comfortable
+   44px tap target (per responsive touch-target guidance). Desktop keeps 38px. */
+@media (max-width: 1023px) {
+  .btn {
+    --_h: 44px;
+  }
+}
 .btnPrimary {
   background: var(--accent-600);
   color: #fff;

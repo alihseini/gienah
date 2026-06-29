@@ -215,11 +215,11 @@ export function Services() {
   // (hydration mismatch / React #418).
   const [reduce, setReduce] = React.useState(false);
   React.useEffect(() => { setReduce(reduceMotion()); }, []);
-  // phones recede the deck without the upward lift (see ServiceSlide) — detected
-  // after mount so SSR and the first client render agree.
+  // phones + tablets recede the deck without the upward lift (see ServiceSlide) —
+  // detected after mount so SSR and the first client render agree.
   const [mobile, setMobile] = React.useState(false);
   React.useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
+    const mq = window.matchMedia("(max-width: 1023px)");
     const apply = () => setMobile(mq.matches);
     apply();
     mq.addEventListener("change", apply);
@@ -415,12 +415,12 @@ export function Featured() {
   const trackRef = React.useRef<HTMLDivElement>(null);
   const idxRef = React.useRef(0);
   const [active, setActive] = React.useState(0);
-  // Desktop/tablet use the side-by-side sticky deck; phones get a dedicated deck
-  // where the phone screen slides through the frame (detected AFTER mount so SSR
-  // and the first client render agree — avoids a hydration mismatch).
+  // Desktop (>= 1024) uses the side-by-side sticky deck; phones + tablets get the
+  // dedicated single-phone deck where the screen slides through the frame (detected
+  // AFTER mount so SSR and the first client render agree — avoids a hydration mismatch).
   const [mobile, setMobile] = React.useState(false);
   React.useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
+    const mq = window.matchMedia("(max-width: 1023px)");
     const apply = () => setMobile(mq.matches);
     apply();
     mq.addEventListener("change", apply);

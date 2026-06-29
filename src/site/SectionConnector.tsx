@@ -156,13 +156,14 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
     const strokeSegs: Seg[][] = [[]];
     const push = (a: Pt, c1: Pt, c2: Pt, b: Pt) => strokeSegs[strokeSegs.length - 1].push({ p0: a, c1, c2, p3: b });
     const newStroke = () => { strokeSegs.push([]); };
-    // On phones the side lanes sit off-screen, so a diagonal approach to a node
-    // cuts across the title/cards. Instead route an L: drop straight down the
-    // (hidden) lane to the node's level, then a short horizontal stub into the node
-    // (and the reverse on exit) — the on-screen part is only the stub, in the empty
-    // margin beside the title, never over the text.
-    const mob = w < 768;
-    const arc = w >= 768 ? 42 : 54; // over-title bow (taller on phones to clear a 2-line title)
+    // Below the desktop breakpoint (phones AND tablets, < 1024) a diagonal approach
+    // to a node cuts across the title/cards, because the side lanes sit in (or past)
+    // the narrow margin. Instead route an L: drop straight down the lane to the
+    // node's level, then a short horizontal stub into the node (and the reverse on
+    // exit) — the on-screen part is only the stub, in the empty margin beside the
+    // title, never over the text. Desktop (>= 1024) keeps the original diagonal.
+    const mob = w < 1024;
+    const arc = mob ? 54 : 42; // over-title bow (taller below desktop to clear the title)
     let nodeY: number | null = null; // entry-node local y (arrival timing)
 
     // --- build this section's piece ---
