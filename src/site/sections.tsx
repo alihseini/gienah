@@ -15,7 +15,6 @@ import { Stagger, StaggerItem, FadeIn, Lift, Press } from "./motion";
 import { GienahLight } from "./GienahLight";
 import { TitleNodes } from "./TitleNodes";
 import { SectionConnector } from "./SectionConnector";
-import { usePinnedSteps } from "./usePinnedSteps";
 import c from "./constellationJourney.module.css";
 import { SectionStars } from "./SectionStars";
 import m from "./moreExplorer.module.css";
@@ -229,10 +228,27 @@ export function Services() {
   // Every breakpoint uses the same scroll-stepped deck as desktop (no swipe
   // carousel on mobile/tablet). Reduced-motion still falls back to a plain stack.
   const N = SERVICES.length;
-  // pinned step-scroll: the controller OWNS the active index — one service card per
-  // intentional gesture (wheel / trackpad / touch / keys), releasing at the ends.
-  // Disabled under reduced motion, where the section is a plain stacked list.
-  usePinnedSteps(trackRef, N, { enabled: !reduce, onIndex: (i) => { idxRef.current = i; setActive(i); } });
+  React.useEffect(() => {
+    if (reduce) return;
+    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const el = trackRef.current; if (!el) return;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const dist = el.offsetHeight - vh;
+      const scrolled = clamp(-r.top, 0, dist);
+      const raw = dist > 0 ? clamp(scrolled / (dist * 0.9), 0, 1) : 0;
+      const ni = clamp(Math.floor(raw * N), 0, N - 1);
+      if (ni !== idxRef.current) { idxRef.current = ni; setActive(ni); }
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, [reduce, N]);
 
   const Header = (
     <SectionHead nodeId="services" tag="#Services" light title="Everything from idea to launch" sub="Four disciplines, one team — so your product stays coherent from the first conversation to its first users." />
@@ -410,17 +426,27 @@ export function Featured() {
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
   }, []);
-  // reduced-motion detected after mount (keeps SSR/first-render in sync); under it
-  // the step-pin interaction is disabled and the deck scrolls normally.
-  const [reduce, setReduce] = React.useState(false);
-  React.useEffect(() => { setReduce(reduceMotion()); }, []);
   const N = FEATURED.length;
-  // pinned step-scroll: the controller OWNS the active index — one product per
-  // intentional gesture (wheel / trackpad / touch / keys), releasing at the ends. On
-  // mobile this drives the phone-frame slide one product at a time. Under reduced
-  // motion the deck still renders here, so the controller stays mounted but only
-  // syncs the active product to scroll position (no step-hijacking).
-  usePinnedSteps(trackRef, N, { enabled: true, interactive: !reduce, onIndex: (i) => { idxRef.current = i; setActive(i); } });
+  React.useEffect(() => {
+    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const el = trackRef.current; if (!el) return;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const dist = el.offsetHeight - vh;
+      const scrolled = clamp(-r.top, 0, dist);
+      const raw = dist > 0 ? clamp(scrolled / (dist * 0.88), 0, 1) : 0;
+      const ni = clamp(Math.floor(raw * N), 0, N - 1);
+      if (ni !== idxRef.current) { idxRef.current = ni; setActive(ni); }
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, [N]);
 
   return (
     <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
