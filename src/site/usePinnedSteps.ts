@@ -3,31 +3,34 @@ import * as React from "react";
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
+// programmatic positioning MUST be instant: the page sets html{scroll-behavior:smooth}
+// globally, so a plain scrollTo(y) would animate and fight native momentum.
+const jumpTo = (y: number) => window.scrollTo({ top: y, behavior: "instant" as ScrollBehavior });
 
-/* usePinnedSteps — a small, explicit state machine for the "tall track + sticky
- * stage" decks (Services / Products). While the sticky stage fills the viewport the
- * deck is PINNED and each intentional gesture (wheel flick, trackpad swipe, touch
- * swipe, arrow key) advances EXACTLY ONE item. At the first / last item the next
- * gesture in that direction RELEASES the section so the page scrolls on to the
- * neighbour — the user is never trapped.
+/* usePinnedSteps — a transaction-based controller for the "tall track + sticky stage"
+ * decks (Services / Products). While the sticky stage fills the viewport the deck is
+ * PINNED and ONE intentional input transaction advances EXACTLY ONE item. At the
+ * first / last item the next transaction in that direction RELEASES the section so the
+ * page scrolls on to the neighbour — the user is never trapped.
  *
- * States (`phase`):
- *   idle       — stage not filling the viewport; native scroll, input is a no-op.
- *   pinned     — stage fills the viewport; gestures step the active item.
- *   releasing  — a boundary gesture passed through; native scroll carries the page
- *                out and we wait (never re-pinning) until the stage has left.
+ * The core idea — an INPUT TRANSACTION, not a per-event gap heuristic:
+ *   A real trackpad emits a long, irregular stream of wheel events (the swipe plus its
+ *   momentum tail). The previous "gap between two events" heuristic could not tell a
+ *   new swipe from the momentum tail: one stretched gap re-armed mid-tail (skip), and
+ *   a steady slow stream never produced a gap so it never re-armed (stuck after one).
  *
- * Why it is robust (vs. the old re-assert-on-scroll approach):
- *   - While pinned the page never moves on its own — every consumed wheel/touch is
- *     preventDefault()ed, so native momentum can't drift or fight us. The scroll
- *     position is only ever set programmatically, and because the stage is
- *     position:sticky that move is INVISIBLE — it only keeps the document position in
- *     sync with the active index so a boundary release lands on the right neighbour.
- *   - ONE step per gesture comes from a "fresh gesture" gate, not a timer: after a
- *     step the controller disarms, and only re-arms when input has paused (a gap
- *     larger than a momentum frame). Wheel/trackpad momentum keeps small gaps, so it
- *     can never re-arm → it can never skip. A genuine new flick comes after a pause →
- *     it arms and steps once. There is no input-fed lock that could get stuck.
+ *   Instead we treat a whole continuous stream as ONE transaction. A "wheel-end" timer
+ *   is RESET on every wheel event and only fires after the input has been SILENT for
+ *   END_DELAY ms. Because momentum keeps the events (and therefore the reset) coming,
+ *   the timer cannot fire mid-tail, so a transaction never re-arms inside its own
+ *   momentum → it can NEVER skip. The first event of a transaction commits exactly one
+ *   step; every later event in that transaction (including the entire momentum tail) is
+ *   consumed and ignored. Only once input has truly stopped does the transaction close,
+ *   and the next event opens a fresh one → the deck keeps responding to every new
+ *   gesture and is never stuck.
+ *
+ * States (`phase`): idle → pinned → releasing. All hot state is in refs; React state
+ * is only the active index (for rendering), updated at most once per step.
  */
 export function usePinnedSteps(
   trackRef: React.RefObject<HTMLElement | null>,
@@ -35,7 +38,6 @@ export function usePinnedSteps(
   opts: { enabled?: boolean; interactive?: boolean; onIndex: (i: number) => void }
 ) {
   const { enabled = true, interactive = true, onIndex } = opts;
-  // keep the latest callback without re-binding listeners
   const cb = React.useRef(onIndex);
   cb.current = onIndex;
 
@@ -44,29 +46,31 @@ export function usePinnedSteps(
     if (!track || !enabled || count < 2) return;
 
     // ----- tuning -----
-    const STEP_DELTA = 26;     // accumulated wheel px that commits one step
-    const GESTURE_GAP = 150;   // input quiet (ms) that starts a NEW gesture (re-arms)
-    const ARM_NOISE = 2;       // min |delta| for a gap to count as a new gesture
-    const SWIPE = 34;          // touch px that commits one step
+    const STEP_DELTA = 16;     // px of travel within a transaction before a step commits
+    const END_DELAY = 140;     // ms of SILENCE that closes a wheel transaction (reset each event)
+    const RELEASE_CD = 180;    // ms after a release during which we won't re-pin (anti-flicker)
+    const SWIPE = 34;          // px touch travel that commits a step
+    const KEY_CD = 260;        // ms minimum between keyboard steps (tames key auto-repeat)
     const EPS = 1.5;
 
     // ----- machine state (refs only — input never triggers a React render) -----
     let phase: "idle" | "pinned" | "releasing" = "idle";
     let index = 0;
-    let acc = 0;               // accumulated wheel delta for the current gesture
-    let armed = false;         // may the current gesture still commit a step?
-    let lastTs = 0;            // ts of last wheel event (for gap detection)
+    // wheel transaction
+    let txnOpen = false;       // is a wheel stream currently in progress?
+    let txnStepped = false;    // has this transaction already produced its one step?
+    let txnAcc = 0;            // accumulated delta until a direction is committed
+    let endTimer = 0;          // wheel-end timer (reset on every event)
+    let releaseAt = -1e9;      // ts of the last release (for the re-pin cooldown)
+    let keyAt = -1e9;          // ts of the last keyboard step
 
     const vh = () => window.innerHeight || 1;
     const geom = () => {
       const r = track.getBoundingClientRect();
-      const top = window.scrollY + r.top;                 // document-space track top
-      const range = Math.max(1, track.offsetHeight - vh());
-      return { top, range };
+      return { top: window.scrollY + r.top, range: Math.max(1, track.offsetHeight - vh()) };
     };
-    // item i maps evenly across the pinned range; item 0 sits at the very top and the
-    // last item at the very bottom, so a boundary gesture releases into the neighbour
-    // section immediately (no dead scroll distance left in the track).
+    // item i maps evenly across the pinned range; item 0 at the very top, last item at
+    // the very bottom, so a boundary release exits into the neighbour immediately.
     const anchorY = (i: number) => {
       const { top, range } = geom();
       return top + (count <= 1 ? 0 : i / (count - 1)) * range;
@@ -83,77 +87,83 @@ export function usePinnedSteps(
       e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? vh() : 1);
 
     const setIndex = (i: number) => { index = i; cb.current(i); };
-    // pin the deck at its current scroll-derived item (entering from above → 0, from
-    // below → last); snap the document position to that item's anchor (invisible — the
-    // stage is sticky) so later steps + the release line up. lastTs is stamped so the
-    // entry gesture's own momentum can't immediately step past the entry item.
-    const engage = () => {
+
+    const closeTxn = () => {
+      txnOpen = false; txnStepped = false; txnAcc = 0;
+      if (endTimer) { clearTimeout(endTimer); endTimer = 0; }
+    };
+    const keepTxnAlive = () => {            // reset the wheel-end timer on every event
+      if (endTimer) clearTimeout(endTimer);
+      endTimer = window.setTimeout(closeTxn, END_DELAY);
+    };
+
+    // pin on the ENTRY card chosen by gesture direction (down → first, up → last) — not
+    // by scroll position, so even a fast/huge entry can never scrub past the first card.
+    const engageAt = (i: number) => {
       phase = "pinned";
-      setIndex(indexFromScroll());
-      acc = 0; armed = false; lastTs = now();
-      window.scrollTo(0, anchorY(index));
-    };
-    const stepTo = (i: number) => {
       setIndex(i);
-      acc = 0; armed = false;
-      window.scrollTo(0, anchorY(i)); // invisible; keeps document position in sync
+      jumpTo(anchorY(i));                   // instant snap (invisible — stage is sticky)
+      // the entry gesture only pins; mark its transaction already-stepped so its own
+      // momentum can't also advance an item.
+      txnOpen = true; txnStepped = true; txnAcc = 0;
+      keepTxnAlive();
     };
-    const release = () => { phase = "releasing"; acc = 0; armed = false; };
+    const stepTo = (i: number) => { setIndex(i); jumpTo(anchorY(i)); };
+    const release = () => { phase = "releasing"; releaseAt = now(); closeTxn(); };
 
     // ---------------- wheel / trackpad ----------------
     const onWheel = (e: WheelEvent) => {
-      // mid-release: never preventDefault — let native scroll carry the page out, and
-      // only return to idle once the stage has actually left the viewport (so a
-      // boundary gesture can't immediately re-pin and trap the user).
+      // leaving: never preventDefault — let native scroll carry the page out; only go
+      // idle once the stage has actually left the viewport (no immediate re-pin trap).
       if (phase === "releasing") { if (!isPinned()) phase = "idle"; return; }
-      // not pinned yet: let native scroll bring the stage in; engage the moment it fills
       if (phase === "idle") {
-        if (!isPinned()) return;
-        e.preventDefault();
-        engage();
-        return;
+        if (now() - releaseAt < RELEASE_CD) return;                 // anti-flicker after a release
+        if (isPinned()) { e.preventDefault(); engageAt(e.deltaY >= 0 ? 0 : count - 1); return; }
+        // not pinned yet — but clamp a delta big enough to cross the whole section in
+        // one event, so a huge wheel can't blow straight past without pinning.
+        const r = track.getBoundingClientRect();
+        const d = normalize(e);
+        if (d > 0 && r.top > 0 && r.top <= d) { e.preventDefault(); engageAt(0); return; }            // from above
+        if (d < 0 && r.bottom < vh() && r.bottom - d >= vh()) { e.preventDefault(); engageAt(count - 1); return; } // from below
+        return;                                                     // section not reached → native scroll
       }
-      // pinned
-      const ts = now();
-      const gap = ts - lastTs;
-      lastTs = ts;
-      const d = normalize(e);
-      if (gap > GESTURE_GAP && Math.abs(d) > ARM_NOISE) { armed = true; acc = 0; } // fresh gesture
-      if (!armed) { e.preventDefault(); return; }                 // momentum tail → hold, ignore
-      acc += d;
-      if (Math.abs(acc) < STEP_DELTA) { e.preventDefault(); return; } // still accumulating
-      const dir = acc > 0 ? 1 : -1;
+      // phase === "pinned"
+      if (!txnOpen) { txnOpen = true; txnStepped = false; txnAcc = 0; }
+      keepTxnAlive();                         // every event extends the live transaction
+      if (txnStepped) { e.preventDefault(); return; }            // one step already → consume tail
+      txnAcc += normalize(e);
+      if (Math.abs(txnAcc) < STEP_DELTA) { e.preventDefault(); return; } // gathering direction
+      const dir = txnAcc > 0 ? 1 : -1;
       const next = index + dir;
-      if (next < 0 || next >= count) { release(); return; }       // boundary → let it scroll out
+      if (next < 0 || next >= count) { txnStepped = true; release(); return; } // boundary → let it scroll out
       e.preventDefault();
+      txnStepped = true;
       stepTo(next);
     };
 
-    // ---------------- touch ----------------
-    let tStartY = 0;
-    let tConsumed = false;
-    const onTouchStart = (e: TouchEvent) => {
-      tStartY = e.touches[0]?.clientY ?? 0;
-      tConsumed = false;
-    };
+    // ---------------- touch (a swipe is a natural transaction: start → move → end) ----------------
+    let tY = 0;
+    let tStepped = false;
+    const onTouchStart = (e: TouchEvent) => { tY = e.touches[0]?.clientY ?? 0; tStepped = false; };
     const onTouchMove = (e: TouchEvent) => {
       if (phase === "releasing") { if (!isPinned()) phase = "idle"; return; }
       if (phase === "idle") {
-        if (!isPinned()) return;
+        if (!isPinned() || now() - releaseAt < RELEASE_CD) return;
         e.preventDefault();
-        engage();
-        tConsumed = true;            // entry swipe only pins; it doesn't also step
+        const ddy = tY - (e.touches[0]?.clientY ?? tY);
+        engageAt(ddy >= 0 ? 0 : count - 1);   // swipe up (content up) → first, down → last
+        tStepped = true;                      // entry swipe only pins
         return;
       }
-      const dy = tStartY - (e.touches[0]?.clientY ?? tStartY); // swipe up (content up) → +
+      const dy = tY - (e.touches[0]?.clientY ?? tY); // swipe up (content up) → +
       if (Math.abs(dy) < 3) { e.preventDefault(); return; }
       const dir = dy > 0 ? 1 : -1;
       const next = index + dir;
-      if (next < 0 || next >= count) { release(); return; }       // boundary → native scroll
+      if (next < 0 || next >= count) { tStepped = true; release(); return; } // boundary → native scroll
       e.preventDefault();
-      if (!tConsumed && Math.abs(dy) > SWIPE) { tConsumed = true; stepTo(next); }
+      if (!tStepped && Math.abs(dy) > SWIPE) { tStepped = true; stepTo(next); }
     };
-    const onTouchEnd = () => { tConsumed = false; };
+    const onTouchEnd = () => { tStepped = false; };
 
     // ---------------- keyboard ----------------
     const onKey = (e: KeyboardEvent) => {
@@ -164,29 +174,30 @@ export function usePinnedSteps(
       if (!fwd && !back) return;
       if (phase === "releasing") { if (!isPinned()) phase = "idle"; return; }
       if (phase === "idle") {
-        if (!isPinned()) return;
+        if (!isPinned() || now() - releaseAt < RELEASE_CD) return;
         e.preventDefault();
-        engage();
+        engageAt(fwd ? 0 : count - 1);
+        keyAt = now();
         return;
       }
+      if (now() - keyAt < KEY_CD) { e.preventDefault(); return; } // tame auto-repeat
       const dir = fwd ? 1 : -1;
       const next = index + dir;
       if (next < 0 || next >= count) { release(); return; }       // boundary → default key scroll
       e.preventDefault();
+      keyAt = now();
       stepTo(next);
     };
 
     // ---------------- passive scroll sync ----------------
-    // when NOT actively pinning (the user drags the scrollbar, or the stage scrubs by
-    // while idle), keep the active item in step with the scroll position, and drop any
-    // stale pinned/releasing state once the stage leaves the viewport.
+    // scrollbar drag while idle scrubs the active item; and any time the stage leaves
+    // the viewport we drop back to idle (so stale pinned/releasing state can't linger).
     const onScroll = () => {
       if (!isPinned()) { phase = "idle"; return; }
       if (phase === "idle") {
         const i = indexFromScroll();
         if (i !== index) setIndex(i);
       }
-      // phase "pinned" / "releasing": we own the position; ignore our own scrolls
     };
 
     // ---------------- listener lifecycle ----------------
@@ -195,10 +206,8 @@ export function usePinnedSteps(
     const add = () => {
       if (attached) return;
       attached = true;
-      // scroll-sync is always on; the interactive (step-hijacking) listeners are only
-      // bound when motion is allowed. Under reduced motion the deck just scrubs.
       window.addEventListener("scroll", onScroll, { passive: true });
-      if (!interactive) return;
+      if (!interactive) return;               // reduced motion → scroll-sync only
       window.addEventListener("wheel", onWheel, { passive: false });
       window.addEventListener("touchstart", onTouchStart, { passive: true });
       window.addEventListener("touchmove", onTouchMove, { passive: false });
@@ -209,6 +218,7 @@ export function usePinnedSteps(
       if (!attached) return;
       attached = false;
       phase = "idle";
+      closeTxn();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("touchstart", onTouchStart);
@@ -225,9 +235,9 @@ export function usePinnedSteps(
       );
       io.observe(track);
     } catch {
-      add(); // no IO support → keep them on
+      add();
     }
 
-    return () => { remove(); if (io) io.disconnect(); };
+    return () => { remove(); if (io) io.disconnect(); if (endTimer) clearTimeout(endTimer); };
   }, [trackRef, count, enabled, interactive]);
 }
