@@ -79,17 +79,43 @@ function cubicLen(s: Seg): number {
   return len;
 }
 
+type Stroke = { d: string; keys: Key[] };
+// turn a run of cubic segments into one continuous <path> + its Y→fraction draw
+// keypoints. Each stroke is its OWN path element (no internal moveto): a moveto
+// inside a single path makes SVG restart the stroke-dash pattern per subpath, so
+// the two halves would fill simultaneously instead of in sequence — which is why
+// Agile's outgoing leg looked "already drawn". Separate paths draw independently.
+function buildStroke(segs: Seg[]): Stroke {
+  const lens = segs.map(cubicLen);
+  const total = lens.reduce((a, b) => a + b, 0) || 1;
+  let d = `M ${segs[0].p0.x.toFixed(1)} ${segs[0].p0.y.toFixed(1)}`;
+  const keys: Key[] = [{ y: segs[0].p0.y, fr: 0 }];
+  let cum = 0, yprev = segs[0].p0.y;
+  for (let i = 0; i < segs.length; i++) {
+    const g = segs[i];
+    d += ` C ${g.c1.x.toFixed(1)} ${g.c1.y.toFixed(1)}, ${g.c2.x.toFixed(1)} ${g.c2.y.toFixed(1)}, ${g.p3.x.toFixed(1)} ${g.p3.y.toFixed(1)}`;
+    cum += lens[i];
+    const y = Math.max(yprev + 1, g.p3.y); // force monotonic (over-title ends ≈ same y)
+    keys.push({ y, fr: cum / total });
+    yprev = y;
+  }
+  return { d, keys };
+}
+
 export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }: Props) {
   const svgRef = React.useRef<SVGSVGElement>(null);
   const reduce = useReducedMotion();
   const onArrive = useJourneyActivate();
+  // up to two independently-drawn strokes: draw → stroke 0 (incoming, + over-title
+  // exit for normal sections), draw2 → stroke 1 (Agile's outgoing leg, which must
+  // wait and draw only once you reach the LAST card's node).
   const draw = useMotionValue(reduce ? 1 : 0);
+  const draw2 = useMotionValue(reduce ? 1 : 0);
 
   // geometry, measured on mount/resize only (never per scroll frame).
-  // nodeY = the entry node's local y (for arrival timing), maxY = the path's
-  // lowest point (for draw progress). Both decouple arrival/draw from the section's
-  // total height, which is huge for the sticky decks.
-  const [geo, setGeo] = React.useState<{ w: number; h: number; d: string; nodeY: number | null; keys: Key[] }>({ w: 0, h: 0, d: "", nodeY: null, keys: [] });
+  // nodeY = the entry node's local y (for arrival timing). The strokes carry their
+  // own Y→fraction keypoints so each draws at its own scroll position.
+  const [geo, setGeo] = React.useState<{ w: number; h: number; strokes: Stroke[]; nodeY: number | null }>({ w: 0, h: 0, strokes: [], nodeY: null });
   const firedRef = React.useRef(false);
 
   const measure = React.useCallback(() => {
@@ -124,8 +150,12 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
     };
     const node = (side: Side) => local(`[data-node="${sectionKey}:${side}"]`);
 
-    const segs: Seg[] = [];
-    const push = (a: Pt, c1: Pt, c2: Pt, b: Pt) => segs.push({ p0: a, c1, c2, p3: b });
+    // Each entry is one continuous run of segments → one independent <path>. The
+    // Agile gap opens a SECOND stroke (the outgoing leg) so it can draw on its own
+    // schedule instead of filling together with the incoming one.
+    const strokeSegs: Seg[][] = [[]];
+    const push = (a: Pt, c1: Pt, c2: Pt, b: Pt) => strokeSegs[strokeSegs.length - 1].push({ p0: a, c1, c2, p3: b });
+    const newStroke = () => { strokeSegs.push([]); };
     // On phones the side lanes sit off-screen, so a diagonal approach to a node
     // cuts across the title/cards. Instead route an L: drop straight down the
     // (hidden) lane to the node's level, then a short horizontal stub into the node
@@ -133,7 +163,6 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
     // margin beside the title, never over the text.
     const mob = w < 768;
     const arc = w >= 768 ? 42 : 54; // over-title bow (taller on phones to clear a 2-line title)
-    let dGap = false; // a moveto was inserted (Agile gap) → record where to break length accounting
     let nodeY: number | null = null; // entry-node local y (arrival timing)
 
     // --- build this section's piece ---
@@ -163,11 +192,12 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
       }
       if (role !== "end") {
         if (gap) {
-          // Agile: pen lifts off the title; resume from the lower handoff node
+          // Agile: the incoming leg ends at the first card; a SEPARATE stroke resumes
+          // from the lower handoff node so it draws only when you reach the last card.
           const low = local(`[data-node="${sectionKey}:exitlow"]`);
           const ex = mob && low ? laneX(low.x < w / 2 ? "l" : "r", w) : laneX(exit ?? "l", w);
           if (low) {
-            dGap = true;
+            newStroke();
             const end = { x: ex, y: h };
             if (mob) push(low, { x: ex, y: low.y }, { x: ex, y: low.y + (end.y - low.y) * 0.5 }, end); // stub out, then down lane
             else push(low, { x: low.x, y: low.y + (end.y - low.y) * 0.4 }, { x: ex, y: end.y - (end.y - low.y) * 0.4 }, end);
@@ -187,37 +217,9 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
       }
     }
 
-    if (!segs.length) return;
-
-    // build d (insert a moveto before the gap-resume segment) + the Y→fraction
-    // keypoints that drive the scroll draw.
-    const gapIndex = dGap ? segs.length - 1 : -1;
-    const lens = segs.map(cubicLen);
-    const total = lens.reduce((a, b) => a + b, 0) || 1;
-    let d = `M ${segs[0].p0.x.toFixed(1)} ${segs[0].p0.y.toFixed(1)}`;
-    const keys: Key[] = [{ y: segs[0].p0.y, fr: 0 }];
-    let cum = 0;
-    let yprev = segs[0].p0.y;
-    segs.forEach((g, i) => {
-      if (i === gapIndex) {
-        d += ` M ${g.p0.x.toFixed(1)} ${g.p0.y.toFixed(1)}`;
-        // park: the fraction holds across the gap (the section's own internal line
-        // owns this stretch). We extend the park PAST the resume node by `late` so the
-        // outgoing leg doesn't begin while the last card is still centred — it waits
-        // until the card has scrolled up toward the top (i.e. the section is ending).
-        const vh = window.innerHeight || 800;
-        const late = Math.min(vh * 0.34, Math.max(0, g.p3.y - g.p0.y - 70));
-        const py = Math.max(yprev + 1, g.p0.y + late);
-        keys.push({ y: py, fr: cum / total });
-        yprev = py;
-      }
-      d += ` C ${g.c1.x.toFixed(1)} ${g.c1.y.toFixed(1)}, ${g.c2.x.toFixed(1)} ${g.c2.y.toFixed(1)}, ${g.p3.x.toFixed(1)} ${g.p3.y.toFixed(1)}`;
-      cum += lens[i];
-      const y = Math.max(yprev + 1, g.p3.y); // force monotonic (over-title ends ≈ same y)
-      keys.push({ y, fr: cum / total });
-      yprev = y;
-    });
-    setGeo({ w, h, d, nodeY, keys });
+    const strokes = strokeSegs.filter((s) => s.length).map(buildStroke);
+    if (!strokes.length) return;
+    setGeo({ w, h, strokes, nodeY });
   }, [sectionKey, role, enter, exit, gap]);
 
   React.useLayoutEffect(() => {
@@ -252,10 +254,13 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
       raf = 0;
       const r = svg.getBoundingClientRect();
       const vh = window.innerHeight || 1;
-      // draw up to the path point sitting at the reference line — the head's
-      // VERTICAL position tracks the scroll, so it lands on each node exactly when
-      // you reach it, parks across the gap, and never overshoots or pre-draws.
-      draw.set(interpKeys(geo.keys, vh * REF - r.top));
+      const q = vh * REF - r.top;
+      // draw each stroke up to the path point sitting at the reference line — the
+      // head's VERTICAL position tracks the scroll, so it lands on each node exactly
+      // when you reach it and never overshoots/pre-draws. Stroke 1 (Agile's outgoing
+      // leg) starts at the LAST node, so it only begins once you scroll to it.
+      if (geo.strokes[0]) draw.set(interpKeys(geo.strokes[0].keys, q));
+      if (geo.strokes[1]) draw2.set(interpKeys(geo.strokes[1].keys, q));
       // arrival fires on the ENTRY NODE's own screen position — robust for the tall
       // sticky decks where the title is pinned.
       if (geo.nodeY != null && r.top + geo.nodeY <= vh * REF) fire();
@@ -265,7 +270,7 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
     window.addEventListener("resize", onScroll);
     update();
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [reduce, draw, geo.keys, geo.nodeY, fire]);
+  }, [reduce, draw, draw2, geo.strokes, geo.nodeY, fire]);
 
   return (
     <svg
@@ -276,7 +281,7 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
       fill="none"
       aria-hidden="true"
     >
-      {geo.d && (
+      {geo.strokes.length > 0 && (
         <>
           <defs>
             <linearGradient id={`cjg-${sectionKey}`} x1="0" y1="0" x2="0" y2="1">
@@ -297,10 +302,12 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
               )}
             </linearGradient>
           </defs>
-          {reduce ? (
-            <path className={c.draw} d={geo.d} stroke={`url(#cjg-${sectionKey})`} pathLength={1} />
-          ) : (
-            <motion.path className={c.draw} d={geo.d} stroke={`url(#cjg-${sectionKey})`} style={{ pathLength: draw }} />
+          {geo.strokes.map((st, i) =>
+            reduce ? (
+              <path key={i} className={c.draw} d={st.d} stroke={`url(#cjg-${sectionKey})`} pathLength={1} />
+            ) : (
+              <motion.path key={i} className={c.draw} d={st.d} stroke={`url(#cjg-${sectionKey})`} style={{ pathLength: i === 0 ? draw : draw2 }} />
+            )
           )}
         </>
       )}
