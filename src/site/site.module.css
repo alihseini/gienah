@@ -1065,16 +1065,30 @@
     margin-top: 10px !important;
   }
   /* phones show ONE service card at a time with up to EIGHT capabilities. The caps go
-     TWO-up (like desktop) so the list is half as tall and fits without clipping, and
-     the card content top-aligns (not centred) so the last items never crop. */
+     TWO-up (like desktop) so the list is half as tall and fits without clipping. The
+     card is a two-row grid — the title/tags block sits at its natural height up top,
+     and the capabilities block STRETCHES to fill the rest of the card (the 1fr row). */
   .svcPanel {
     padding: 20px !important;
     gap: 11px !important;
-    align-content: start !important;
-    align-items: start !important;
+    grid-template-rows: auto 1fr !important;
+    align-content: stretch !important;
+    align-items: stretch !important;
   }
   .svcPanel .respGrid2 {
     grid-template-columns: 1fr 1fr !important;
+  }
+  /* the capabilities block fills the card height; the rows then DISTRIBUTE into that
+     space (space-between) — so when the card is tall the capabilities spread to fill
+     it, and when it's short they collapse back to their minimum row gap. */
+  .svcCapsBlock {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0;
+  }
+  .svcCapsBlock .respGrid2 {
+    flex: 1 1 auto;
+    align-content: space-between;
   }
   .svcIconRow {
     margin-bottom: 12px !important;
