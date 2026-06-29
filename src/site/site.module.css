@@ -985,40 +985,27 @@
     grid-template-columns: 1fr !important;
   }
 }
-/* mobile (phones): both decks sit inside the .wrap's side padding (proper gutters,
-   no edge-clipped text/cards) and the sticky stage aligns its column to the top
-   with enough clearance below the floating nav, so the section title is never tucked
-   under the nav and the deck/dots fit the 100vh frame without clipping. */
-@media (max-width: 767px) {
+/* phones + tablets (< 1024): the single-column service card and stacked product
+   deck are used here, so compact the section heads + service cards so content fits
+   inside the deck without clipping. Both decks sit inside the .wrap's side padding
+   (proper gutters, no edge-clipped text/cards). */
+@media (max-width: 1023px) {
   .sectionHead {
     margin-bottom: 18px;
   }
-  /* the section subtitle is long and wraps to several lines on a phone, eating the
-     vertical budget the deck needs — shrink it (and the title) a touch on phones */
+  /* the section subtitle is long and wraps to several lines on narrow screens,
+     eating the vertical budget the deck needs — shrink it a touch */
   .sectionHead p {
     font-size: 15px;
     line-height: 1.5;
     margin-top: 12px !important;
   }
-  .svcStage,
-  .featStage {
-    justify-content: flex-start !important;
-    padding-top: 76px !important;
-    padding-bottom: 16px !important;
-  }
-  /* the deck holds absolute slides, so it needs an explicit height; size it to the
-     card's natural mobile content so nothing clips at the bottom */
-  .svcDeck {
-    height: clamp(470px, 62vh, 540px);
-    margin-top: 4px;
-  }
-  /* tighten the card's internal padding + row gap on phones so its content fits
-     the deck height (the card sets these inline, hence the override) */
+  /* tighten the card's internal padding + row gap (the card sets these inline) */
   .svcPanel {
     padding: 22px !important;
     gap: 13px !important;
   }
-  /* the card title/description are oversized for a phone column; compact them (and
+  /* the card title/description are oversized for a single column; compact them (and
      clamp the longest descriptions) so every service card fits the deck cleanly */
   .svcPanel h3 {
     font-size: 32px !important;
@@ -1035,6 +1022,30 @@
   /* tighten the capabilities list rows so the longest cards (up to 7 items) fit */
   .svcPanel .respGrid2 {
     gap: 6px 18px !important;
+  }
+}
+/* tablets only: the stacked product phone reads a touch small at the mobile size,
+   so give it more presence (the deck itself stays centred in the sticky stage) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .mpPhone.mpPhone {
+    --dw: clamp(196px, 26vw, 264px);
+  }
+  .mpDeck {
+    gap: 22px;
+  }
+}
+/* phones only: the sticky stages top-align with nav clearance + a tighter deck so
+   the stacked title + deck + dots fit the (short) phone viewport without clipping */
+@media (max-width: 767px) {
+  .svcStage,
+  .featStage {
+    justify-content: flex-start !important;
+    padding-top: 76px !important;
+    padding-bottom: 16px !important;
+  }
+  .svcDeck {
+    height: clamp(470px, 62vh, 540px);
+    margin-top: 4px;
   }
 }
 /* shorter phones (SE / most Android): the stacked title + phone + info + dots is
