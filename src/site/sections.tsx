@@ -15,6 +15,7 @@ import { Stagger, StaggerItem, FadeIn, Lift, Press } from "./motion";
 import { GienahLight } from "./GienahLight";
 import { TitleNodes } from "./TitleNodes";
 import { SectionConnector } from "./SectionConnector";
+import { useStepScroll } from "./useStepScroll";
 import c from "./constellationJourney.module.css";
 import { SectionStars } from "./SectionStars";
 import m from "./moreExplorer.module.css";
@@ -249,6 +250,9 @@ export function Services() {
     update();
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
   }, [reduce, N]);
+  // step-pinned scroll: one card per gesture (factor matches the raw-progress divisor
+  // above). Disabled under reduced motion, where the section is a plain stacked list.
+  useStepScroll(trackRef, N, { factor: 0.9, enabled: !reduce });
 
   const Header = (
     <SectionHead nodeId="services" tag="#Services" light title="Everything from idea to launch" sub="Four disciplines, one team — so your product stays coherent from the first conversation to its first users." />
@@ -426,6 +430,10 @@ export function Featured() {
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
   }, []);
+  // reduced-motion detected after mount (keeps SSR/first-render in sync); under it
+  // the step-pin interaction is disabled and the deck scrolls normally.
+  const [reduce, setReduce] = React.useState(false);
+  React.useEffect(() => { setReduce(reduceMotion()); }, []);
   const N = FEATURED.length;
   React.useEffect(() => {
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
@@ -447,6 +455,9 @@ export function Featured() {
     update();
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
   }, [N]);
+  // step-pinned scroll: one product per gesture (factor matches the divisor above).
+  // On mobile this drives the existing phone-frame slide one product at a time.
+  useStepScroll(trackRef, N, { factor: 0.88, enabled: !reduce });
 
   return (
     <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
