@@ -34,6 +34,11 @@ const AGILE = agileData as AgileStage[];
 const reduceMotion = () =>
   typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+const _clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+const _lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+const smoothstep = (t: number) => t * t * (3 - 2 * t);
+
 /* ---------------- hero ---------------- */
 export function Hero() {
   const atmoRef = React.useRef<HTMLDivElement>(null);
@@ -164,50 +169,66 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
   );
 }
 
-/* stepped sticky stage — previous cards recede into a visible stacked deck behind the active one */
-function ServiceSlide({ s: svc, d, mobile }: { s: Service; d: number; mobile?: boolean }) {
-  const cur = d === 0;
-  const past = d < 0;
-  const depth = Math.min(-d, 3);
-  let transform: string, opacity: number | string, filter: string, zIndex: number;
-  if (cur) {
-    transform = "translate3d(0,0,0) scale(1)";
-    opacity = 1; filter = "none"; zIndex = 30;
-  } else if (past) {
-    // On desktop the receded cards rise into a visible stacked deck. On mobile that
-    // upward travel pokes the deck out the TOP of its (taller) card, over the section
-    // subtitle — so phones recede with scale + fade only (origin top keeps the card's
-    // top edge pinned, so it never crosses up into the title).
-    const lift = mobile ? 0 : -depth * 14;
-    transform = `translate3d(0, ${lift.toFixed(1)}px, 0) scale(${(1 - depth * 0.05).toFixed(3)})`;
-    opacity = Math.max(0.28, 1 - depth * 0.26).toFixed(3);
-    filter = `brightness(${Math.max(0.55, 1 - depth * 0.16).toFixed(2)})`;
-    zIndex = 30 - depth;
-  } else {
-    // incoming card: rise + fade only (no scale) so it doesn't grow as it becomes active
-    transform = "translate3d(0, 64px, 0)";
-    opacity = 0; filter = "blur(5px)"; zIndex = 1;
-  }
-  return (
-    <div
-      aria-hidden={!cur}
-      style={{
-        position: "absolute", inset: 0,
-        transform, opacity, filter, zIndex,
-        pointerEvents: cur ? "auto" : "none",
-        transformOrigin: "center top",
-        transition: "transform .66s cubic-bezier(.22,1,.36,1), opacity .5s var(--ease-out), filter .5s var(--ease-out)",
-        willChange: "transform, opacity",
-      }}
-    >
-      <ServicePanel s={svc} dim={past} />
-    </div>
-  );
+/* Continuous scroll-progress card model.
+ * `head` is a fractional position in the deck (0 … N-1): the deck's "playhead".
+ * Each card i owns a one-unit window of `head`:
+ *   - entrance `e`  : 0 → 1 while head travels i-1 → i  (the card rises, de-blurs,
+ *                     fades up from nothing and settles exactly at head === i)
+ *   - recede `depth`: grows 0 → 3 once head passes i    (settled card eases back
+ *                     into a softly dimmed, scaled-down deck behind the next one)
+ * The two phases hand off cleanly at head === i (e hits 1 just as depth leaves 0),
+ * so the motion is one smooth, scroll-linked curve — no snapping between states.
+ * Previous cards never disappear: their floor opacity stays at 0.32 so the stack
+ * stays visible behind the active card, AIR-style. */
+type CardStyle = { transform: string; opacity: number; filter: string };
+function computeCardStyle(i: number, head: number, mobile: boolean): CardStyle {
+  const e = _clamp(head - i + 1, 0, 1);       // entrance 0→1 (settles at head===i)
+  const depth = _clamp(head - i, 0, 3);       // recede depth once settled
+  const eo = easeOutCubic(e);                  // premium ease for travel/scale
+  const fade = smoothstep(e);                  // soft ease for opacity
+
+  // settled → receded targets (reached as the deck advances past this card).
+  // On phones the upward lift is dropped: with a taller single-column card it would
+  // poke the receding deck up over the section title — origin:top + scale/fade only
+  // keeps the top edge pinned, so it never crosses into the heading.
+  const lift = mobile ? 0 : -10 * depth;
+  const recedeScale = 1 - 0.045 * depth;
+  const recedeOpacity = Math.max(0.32, 1 - 0.24 * depth);
+  const recedeBright = Math.max(0.6, 1 - 0.14 * depth);
+
+  // entrance start-state blended into the settled/receded target by the eased e.
+  const y = _lerp(72, lift, eo);              // rises from +72px into place, then lifts
+  const scale = _lerp(0.93, recedeScale, eo);
+  const opacity = _lerp(0, recedeOpacity, fade);
+  const blur = (1 - e) * 8;                    // soft blur ONLY while entering (≤1 card)
+  const bright = _lerp(1, recedeBright, eo);
+
+  const parts: string[] = [];
+  if (blur > 0.12) parts.push(`blur(${blur.toFixed(2)}px)`);
+  if (bright < 0.999) parts.push(`brightness(${bright.toFixed(3)})`);
+
+  return {
+    transform: `translate3d(0, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`,
+    opacity: Number(opacity.toFixed(3)),
+    filter: parts.length ? parts.join(" ") : "none",
+  };
+}
+
+function writeCardStyle(el: HTMLElement, st: CardStyle) {
+  el.style.transform = st.transform;
+  el.style.opacity = String(st.opacity);
+  el.style.filter = st.filter;
 }
 
 export function Services() {
   const trackRef = React.useRef<HTMLDivElement>(null);
+  const cardRefs = React.useRef<(HTMLDivElement | null)[]>([]);
   const idxRef = React.useRef(0);
+  // `active` is the rounded playhead — used ONLY for the discrete bits (dots, aria,
+  // pointer-events, dimmed ring). It changes a handful of times across the whole
+  // scroll, so it never drives a per-frame re-render. The continuous transform /
+  // opacity / blur are written straight to each card's DOM node in rAF (below),
+  // never through React state, so scrolling costs zero React work.
   const [active, setActive] = React.useState(0);
   // reduced-motion is detected AFTER mount so the server and the first client
   // render agree (both render the sticky version) — reading it synchronously in
@@ -215,22 +236,21 @@ export function Services() {
   // (hydration mismatch / React #418).
   const [reduce, setReduce] = React.useState(false);
   React.useEffect(() => { setReduce(reduceMotion()); }, []);
-  // phones + tablets recede the deck without the upward lift (see ServiceSlide) —
-  // detected after mount so SSR and the first client render agree.
-  const [mobile, setMobile] = React.useState(false);
+  // phones + tablets recede the deck without the upward lift (see computeCardStyle).
+  // Kept in a ref so the rAF loop reads the live value without re-subscribing.
+  const mobileRef = React.useRef(false);
   React.useEffect(() => {
     const mq = window.matchMedia("(max-width: 1023px)");
-    const apply = () => setMobile(mq.matches);
+    const apply = () => { mobileRef.current = mq.matches; };
     apply();
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
   }, []);
-  // Every breakpoint uses the same scroll-stepped deck as desktop (no swipe
+  // Every breakpoint uses the same scroll-progress deck as desktop (no swipe
   // carousel on mobile/tablet). Reduced-motion still falls back to a plain stack.
   const N = SERVICES.length;
   React.useEffect(() => {
     if (reduce) return;
-    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
     let raf = 0;
     const update = () => {
       raf = 0;
@@ -238,9 +258,16 @@ export function Services() {
       const r = el.getBoundingClientRect();
       const vh = window.innerHeight || 1;
       const dist = el.offsetHeight - vh;
-      const scrolled = clamp(-r.top, 0, dist);
-      const raw = dist > 0 ? clamp(scrolled / (dist * 0.9), 0, 1) : 0;
-      const ni = clamp(Math.floor(raw * N), 0, N - 1);
+      const scrolled = _clamp(-r.top, 0, dist);
+      // complete the reveal at 90% of the travel, leaving a brief "hold" on the last
+      // card before the section unpins — feels deliberate rather than abrupt.
+      const progress = dist > 0 ? _clamp(scrolled / (dist * 0.9), 0, 1) : 0;
+      const head = progress * (N - 1);          // continuous playhead across the deck
+      for (let i = 0; i < N; i++) {
+        const node = cardRefs.current[i];
+        if (node) writeCardStyle(node, computeCardStyle(i, head, mobileRef.current));
+      }
+      const ni = _clamp(Math.round(head), 0, N - 1);
       if (ni !== idxRef.current) { idxRef.current = ni; setActive(ni); }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
@@ -281,8 +308,31 @@ export function Services() {
           <SectionConnector sectionKey="services" enter="l" exit="r" />
           <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
             {Header}
+            {/* The deck. Every card is absolutely stacked (inset:0); z-index = i+1 so
+                each new card layers ABOVE the previous one (newest in front, earlier
+                ones peeking behind). transform/opacity/filter start from CSS (.svcCard
+                defaults = the head===0 resting state, so no pre-JS flash) and are then
+                owned by the rAF writer. They're intentionally NOT in this JSX style so
+                an `active` re-render can't clobber the live scroll values. */}
             <div className={s.svcDeck}>
-              {SERVICES.map((svc, i) => <ServiceSlide key={svc.title} s={svc} d={i - active} mobile={mobile} />)}
+              {SERVICES.map((svc, i) => (
+                <div
+                  key={svc.title}
+                  ref={(el) => { cardRefs.current[i] = el; }}
+                  className={s.svcCard}
+                  aria-hidden={i !== active}
+                  style={{
+                    position: "absolute", inset: 0,
+                    zIndex: i + 1,
+                    transformOrigin: "center top",
+                    pointerEvents: i === active ? "auto" : "none",
+                    willChange: "transform, opacity, filter",
+                    backfaceVisibility: "hidden",
+                  }}
+                >
+                  <ServicePanel s={svc} dim={i < active} />
+                </div>
+              ))}
             </div>
             <div className={s.deckDots} style={{ display: "flex", justifyContent: "center", gap: 9, marginTop: 22 }}>
               {SERVICES.map((svc, i) => (
