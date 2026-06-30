@@ -5,36 +5,38 @@ import st from "./productStoryline.module.css";
 
 /* ProductStoryline
  *
- * The Products section's OWN constellation route — separate from the global
- * SectionConnector (which still draws this section's slice of the page-wide
- * journey through the side lanes + title node). This one snakes vertically down
- * the EMPTY CENTRE GUTTER between the two product columns, dropping a glowing
- * node beside each product row.
+ * The Products section's own constellation route — a single organic SVG path made
+ * entirely of cubic Béziers (no rectangular L-turns), drawn progressively with
+ * scroll, exactly like the rest of Gienah's journey connectors.
  *
- * It owns the per-product reveal: as the drawn head reaches a row's node (the
- * node crossing the scroll reference line), it lights that node and flips the
- * row's `data-revealed`, which the CSS animates in. So "the storyline reaches the
- * node ⇒ the product reveals" is literally one mechanism. Reveal is once-only and
- * previous rows stay revealed.
+ * Route: it starts AT the title's left constellation node, curves down into the
+ * first product's node (which sits just outside that mockup, on the side away from
+ * the text), then flows in alternating S-curves to each next product's node on the
+ * opposite side. Every node is a point ON the path. The wire only travels
+ * vertically in the empty outer gutter beside a mockup and curves across the empty
+ * gap between two rows, so it never crosses a mockup, text or buttons.
  *
- * Draw is scroll-linked through a single rAF writing a MotionValue (no React
- * state per frame); the path's pathLength binds to it — same approach as
- * SectionConnector. It measures row centres in transform-independent layout space
- * (offsetTop), so the rows' own reveal transform never shifts the line off a node.
+ * Timing: draw is a single MotionValue mapped LINEARLY to scroll (not to the head's
+ * y), so each path segment — including the long side-to-side curves — gets scroll
+ * time proportional to its real arc length, and the travel between products reads
+ * as continuous/cinematic instead of snapping. Each product's reveal is gated on
+ * the DRAWN length passing that node's own fraction along the path: the node lights
+ * the instant the stroke reaches it, then the product animates in. Once-only.
  *
- * Layering: the SVG sits at z-index 0 inside the (position:relative) list, above
- * the section background + global connector but below the rows (z-index 1). The
- * route stays inside a narrow central band, so it never crosses content; on
- * phones it drops into a thin left lane (rows are padded to clear it). */
+ * Layering: SVG at z-index 0 inside the (position:relative) list — above the
+ * background + global connector, below the rows (z-index 1). Mobile collapses to a
+ * gentle vertical line in a thin left lane (rows padded to clear it). */
 
 type Pt = { x: number; y: number };
-type Key = { y: number; fr: number };
 type Seg = { p0: Pt; c1: Pt; c2: Pt; p3: Pt };
+
+const f = (n: number) => n.toFixed(1);
+const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
 function cubicLen(s: Seg): number {
   let len = 0, px = s.p0.x, py = s.p0.y;
-  for (let k = 1; k <= 16; k++) {
-    const t = k / 16, mt = 1 - t;
+  for (let k = 1; k <= 18; k++) {
+    const t = k / 18, mt = 1 - t;
     const x = mt * mt * mt * s.p0.x + 3 * mt * mt * t * s.c1.x + 3 * mt * t * t * s.c2.x + t * t * t * s.p3.x;
     const y = mt * mt * mt * s.p0.y + 3 * mt * mt * t * s.c1.y + 3 * mt * t * t * s.c2.y + t * t * t * s.p3.y;
     len += Math.hypot(x - px, y - py); px = x; py = y;
@@ -42,93 +44,79 @@ function cubicLen(s: Seg): number {
   return len;
 }
 
-function interpKeys(keys: Key[], y: number): number {
-  if (!keys.length) return 0;
-  if (y <= keys[0].y) return keys[0].fr;
-  for (let i = 1; i < keys.length; i++) {
-    if (y <= keys[i].y) {
-      const a = keys[i - 1], b = keys[i];
-      const t = (y - a.y) / ((b.y - a.y) || 1);
-      return a.fr + (b.fr - a.fr) * t;
-    }
-  }
-  return keys[keys.length - 1].fr;
-}
-
-// Y→draw-fraction keypoints from a polyline (cumulative length, monotonic y).
-function polyKeys(pts: Pt[]): Key[] {
-  const keys: Key[] = [{ y: pts[0].y, fr: 0 }];
+// Turn a start point + cubic segments into a path string + each product node's
+// fraction along the total length (nodeBoundary[i] = how many segments are drawn
+// once node i has been reached).
+function finalize(start: Pt, segs: Seg[], nodeBoundary: number[]): { d: string; nodeFracs: number[] } {
+  let d = `M ${f(start.x)} ${f(start.y)}`;
+  const cum = [0];
   let total = 0;
-  const segLen: number[] = [];
-  for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y); segLen.push(l); total += l; }
+  for (const s of segs) {
+    d += ` C ${f(s.c1.x)} ${f(s.c1.y)}, ${f(s.c2.x)} ${f(s.c2.y)}, ${f(s.p3.x)} ${f(s.p3.y)}`;
+    total += cubicLen(s);
+    cum.push(total);
+  }
   total = total || 1;
-  let cum = 0, yprev = pts[0].y;
-  for (let i = 1; i < pts.length; i++) { cum += segLen[i - 1]; const y = Math.max(yprev + 1, pts[i].y); keys.push({ y, fr: cum / total }); yprev = y; }
-  return keys;
+  return { d, nodeFracs: nodeBoundary.map((b) => cum[b] / total) };
 }
 
-// Mobile left-lane line: a gentle vertical bow through the nodes.
-function buildSnake(pts: Pt[]): { d: string; keys: Key[] } {
-  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+// Desktop/tablet alternating timeline. Two cubics per node→node move: the first
+// leaves the node straight DOWN (a long vertical handle hugs the gutter past the
+// mockup), curves into a sway point sitting in the empty inter-row gap; the second
+// leaves that gap point and arrives at the next node straight DOWN its gutter. All
+// curves, no corners; a small alternating sway keeps it asymmetric/organic.
+function buildDesktop(start: Pt, nodes: Pt[], mockHalf: number, h: number): { d: string; nodeFracs: number[] } {
+  const segs: Seg[] = [];
+  const hv = mockHalf + 30;               // vertical hug past a mockup before curving
+  const n0 = nodes[0];
+  // lead-in from the title node: pull into node 0's lane while descending so it
+  // clears the first mockup, landing vertically on the node.
+  segs.push({
+    p0: start,
+    c1: { x: n0.x, y: start.y + (n0.y - start.y) * 0.5 },
+    c2: { x: n0.x, y: n0.y - Math.max(40, (n0.y - start.y) * 0.16) },
+    p3: n0,
+  });
+  const nodeBoundary = [segs.length]; // node 0 reached
+  for (let i = 0; i < nodes.length - 1; i++) {
+    const a = nodes[i], b = nodes[i + 1];
+    const dx = b.x - a.x;
+    const mid = (a.y + b.y) / 2;
+    const sway = (i % 2 ? -1 : 1) * Math.min(46, Math.abs(dx) * 0.05);
+    const gm: Pt = { x: (a.x + b.x) / 2 + sway, y: mid };
+    // a → gap-mid: down the gutter, then curve across into the gap
+    segs.push({ p0: a, c1: { x: a.x, y: a.y + hv }, c2: { x: gm.x - dx * 0.16, y: gm.y - 6 }, p3: gm });
+    // gap-mid → b: curve out of the gap, then straight down the next gutter to b
+    segs.push({ p0: gm, c1: { x: gm.x + dx * 0.16, y: gm.y + 6 }, c2: { x: b.x, y: b.y - hv }, p3: b });
+    nodeBoundary.push(segs.length); // node i+1 reached
+  }
+  const nl = nodes[nodes.length - 1];
+  const tailY = Math.min(h, nl.y + 110);
+  segs.push({ p0: nl, c1: { x: nl.x, y: nl.y + 50 }, c2: { x: nl.x + 8, y: tailY - 24 }, p3: { x: nl.x, y: tailY } });
+  return finalize(start, segs, nodeBoundary);
+}
+
+// Mobile left-lane line: a gentle organic vertical bow through the nodes.
+function buildMobile(nodes: Pt[], h: number): { d: string; nodeFracs: number[] } {
+  const pts: Pt[] = [
+    { x: nodes[0].x, y: Math.max(0, nodes[0].y - 80) },
+    ...nodes,
+    { x: nodes[nodes.length - 1].x, y: Math.min(h, nodes[nodes.length - 1].y + 80) },
+  ];
   const segs: Seg[] = [];
   for (let i = 1; i < pts.length; i++) {
     const a = pts[i - 1], b = pts[i], dy = b.y - a.y;
-    const c1 = { x: a.x, y: a.y + dy * 0.42 }, c2 = { x: b.x, y: b.y - dy * 0.42 };
-    d += ` C ${c1.x.toFixed(1)} ${c1.y.toFixed(1)}, ${c2.x.toFixed(1)} ${c2.y.toFixed(1)}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
-    segs.push({ p0: a, c1, c2, p3: b });
+    segs.push({ p0: a, c1: { x: a.x, y: a.y + dy * 0.45 }, c2: { x: b.x, y: b.y - dy * 0.45 }, p3: b });
   }
-  const lens = segs.map(cubicLen);
-  const total = lens.reduce((x, y) => x + y, 0) || 1;
-  const keys: Key[] = [{ y: pts[0].y, fr: 0 }];
-  let cum = 0, yprev = pts[0].y;
-  for (let i = 0; i < segs.length; i++) { cum += lens[i]; const y = Math.max(yprev + 1, segs[i].p3.y); keys.push({ y, fr: cum / total }); yprev = y; }
-  return { d, keys };
-}
-
-// Rounded-corner polyline: straight runs joined by quadratic fillets — a smooth,
-// organic wire that still travels only along its given vertices.
-function roundedPath(pts: Pt[], R: number): string {
-  if (pts.length < 3) return `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)} L ${pts[pts.length - 1].x.toFixed(1)} ${pts[pts.length - 1].y.toFixed(1)}`;
-  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
-  for (let i = 1; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1], p1 = pts[i], p2 = pts[i + 1];
-    const d1 = Math.hypot(p0.x - p1.x, p0.y - p1.y) || 1;
-    const d2 = Math.hypot(p2.x - p1.x, p2.y - p1.y) || 1;
-    const r = Math.min(R, d1 / 2, d2 / 2);
-    const a = { x: p1.x + (p0.x - p1.x) / d1 * r, y: p1.y + (p0.y - p1.y) / d1 * r };
-    const b = { x: p1.x + (p2.x - p1.x) / d2 * r, y: p1.y + (p2.y - p1.y) / d2 * r };
-    d += ` L ${a.x.toFixed(1)} ${a.y.toFixed(1)} Q ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
-  }
-  const last = pts[pts.length - 1];
-  d += ` L ${last.x.toFixed(1)} ${last.y.toFixed(1)}`;
-  return d;
-}
-
-// Desktop/tablet alternating timeline. The wire only ever runs VERTICALLY in the
-// outer gutter beside a mockup and HORIZONTALLY across the empty gap between two
-// rows (midpoint of adjacent node centres) — so it can never cross a mockup, text
-// or buttons. From the title it jogs to the first node's lane up in the header,
-// drops to node 0, then for each pair: down the lane → across the gap → down the
-// next lane to the opposite-side node.
-function buildZig(start: Pt, nodes: Pt[], h: number): { d: string; keys: Key[] } {
-  const spine: Pt[] = [start];
-  if (Math.abs(start.x - nodes[0].x) > 4) spine.push({ x: nodes[0].x, y: start.y });
-  spine.push(nodes[0]);
-  for (let i = 0; i < nodes.length - 1; i++) {
-    const mid = (nodes[i].y + nodes[i + 1].y) / 2;
-    spine.push({ x: nodes[i].x, y: mid });
-    spine.push({ x: nodes[i + 1].x, y: mid });
-    spine.push(nodes[i + 1]);
-  }
-  spine.push({ x: nodes[nodes.length - 1].x, y: Math.min(h, nodes[nodes.length - 1].y + 80) });
-  return { d: roundedPath(spine, 34), keys: polyKeys(spine) };
+  // node i is p3 of segment i (0-based) → boundary i + 1
+  return finalize(pts[0], segs, nodes.map((_, i) => i + 1));
 }
 
 export function ProductStoryline({ count }: { count: number }) {
   const svgRef = React.useRef<SVGSVGElement>(null);
   const reduce = useReducedMotion();
   const draw = useMotionValue(reduce ? 1 : 0);
-  const [geo, setGeo] = React.useState<{ w: number; h: number; d: string; keys: Key[]; nodes: Pt[] }>({ w: 0, h: 0, d: "", keys: [], nodes: [] });
+  const [geo, setGeo] = React.useState<{ w: number; h: number; d: string; nodeFracs: number[]; nodes: Pt[] }>({ w: 0, h: 0, d: "", nodeFracs: [], nodes: [] });
 
   const measure = React.useCallback(() => {
     const svg = svgRef.current;
@@ -142,49 +130,43 @@ export function ProductStoryline({ count }: { count: number }) {
     const mob = w < 768;
 
     if (mob) {
-      // phones: a thin left-lane line with a small organic bow; nodes beside each
-      // row (rows are padded left to clear it).
       const cx = Math.max(13, w * 0.045);
       const nodes: Pt[] = rows.map((row, i) => ({ x: cx + (i % 2 ? 6 : -6), y: row.offsetTop + row.offsetHeight / 2 }));
-      const pts: Pt[] = [
-        { x: nodes[0].x, y: Math.max(0, nodes[0].y - 90) },
-        ...nodes,
-        { x: nodes[nodes.length - 1].x, y: Math.min(h, nodes[nodes.length - 1].y + 90) },
-      ];
-      const { d, keys } = buildSnake(pts);
-      setGeo({ w, h, d, keys, nodes });
+      const { d, nodeFracs } = buildMobile(nodes, h);
+      setGeo({ w, h, d, nodeFracs, nodes });
       return;
     }
 
-    // desktop/tablet: alternating timeline. The node sits just OUTSIDE each mockup
-    // on the side away from the text (mockup-left rows → node on the far left;
-    // mockup-right rows → node on the far right), measured from the mockup box in
-    // transform-independent layout space so reveal transforms never shift it.
+    // node sits just OUTSIDE each mockup, on the side away from the text — measured
+    // from the mockup box in transform-independent layout space (offset chain) so
+    // the rows' reveal transforms never shift the line off a node.
     const docPos = (el: HTMLElement) => {
       let x = 0, y = 0, n: HTMLElement | null = el;
       while (n) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
       return { x, y };
     };
     const lp = docPos(list);
-    const GAP = 26;
+    const GAP = 28;
+    let mockHalf = 200;
     const nodes: Pt[] = rows.map((row, i) => {
       const m = (row.querySelector<HTMLElement>("[data-pj-mockup]") ?? row);
       const mp = docPos(m);
       const mx = mp.x - lp.x, my = mp.y - lp.y;
+      mockHalf = m.offsetHeight / 2;
       const reverse = i % 2 === 1; // mockup on the right
       const nx = reverse ? mx + m.offsetWidth + GAP : mx - GAP;
       return { x: clamp(nx, 16, w - 16), y: my + m.offsetHeight / 2 };
     });
 
-    // lead-in from the title's LEFT constellation node (it sits well above the list,
-    // giving the curve room to slide into the far-left lane before the first mockup).
+    // start EXACTLY at the title's left node centre, so the path originates from
+    // the real anchor (not offset beside the heading).
     const tl = document.querySelector<HTMLElement>('[data-node="products:l"]');
     const start: Pt = tl
-      ? { x: clamp(docPos(tl).x - lp.x, 16, w - 16), y: docPos(tl).y - lp.y }
+      ? { x: docPos(tl).x + tl.offsetWidth / 2 - lp.x, y: docPos(tl).y + tl.offsetHeight / 2 - lp.y }
       : { x: nodes[0].x, y: -70 };
 
-    const { d, keys } = buildZig(start, nodes, h);
-    setGeo({ w, h, d, keys, nodes });
+    const { d, nodeFracs } = buildDesktop(start, nodes, mockHalf, h);
+    setGeo({ w, h, d, nodeFracs, nodes });
   }, []);
 
   React.useLayoutEffect(() => {
@@ -200,34 +182,40 @@ export function ProductStoryline({ count }: { count: number }) {
     return () => { ro.disconnect(); window.removeEventListener("resize", schedule); window.clearTimeout(t); window.clearTimeout(settle); };
   }, [measure]);
 
-  // reveal-all fallback for reduced motion (the static full line is already drawn).
+  // reduced motion: show everything statically (full path already drawn at 1).
   React.useEffect(() => {
     if (!reduce) return;
-    const list = svgRef.current?.parentElement;
+    const svg = svgRef.current;
+    const list = svg?.parentElement;
     list?.querySelectorAll<HTMLElement>("[data-pj-row]").forEach((r) => r.setAttribute("data-revealed", ""));
-  }, [reduce]);
+    svg?.querySelectorAll<SVGGElement>("[data-pj-node]").forEach((n) => n.setAttribute("data-active", ""));
+    document.querySelector('[data-node="products:l"]')?.setAttribute("data-active", "");
+  }, [reduce, geo.nodeFracs]);
 
-  // scroll-linked draw + per-node reveal. One rAF, writes a MotionValue + toggles
-  // data attributes only on change — no React state per frame.
+  // scroll-linked draw (linear in scroll → side-to-side is visible) + reveal gated
+  // on the DRAWN fraction reaching each node's own fraction along the path.
   React.useEffect(() => {
     if (reduce) { draw.set(1); return; }
     const svg = svgRef.current;
     const list = svg?.parentElement as HTMLElement | null;
-    if (!svg || !list || !geo.nodes.length) return;
+    if (!svg || !list || !geo.nodeFracs.length) return;
+    const tlNode = document.querySelector<HTMLElement>('[data-node="products:l"]');
     let raf = 0;
-    const REF = 0.66; // viewport reference line the head draws toward
+    const REF = 0.58;                       // line begins drawing as the list top passes here
+    const SPAN = Math.max(1, geo.h * 0.92); // scroll distance that draws the whole path
     const update = () => {
       raf = 0;
       const r = svg.getBoundingClientRect();
       const vh = window.innerHeight || 1;
-      draw.set(interpKeys(geo.keys, vh * REF - r.top));
+      const frac = clamp01((vh * REF - r.top) / SPAN);
+      draw.set(frac);
+      if (frac > 0.003 && tlNode && !tlNode.hasAttribute("data-active")) tlNode.setAttribute("data-active", "");
       const rows = list.querySelectorAll<HTMLElement>("[data-pj-row]");
       const dots = svg.querySelectorAll<SVGGElement>("[data-pj-node]");
-      for (let i = 0; i < geo.nodes.length; i++) {
-        const reached = r.top + geo.nodes[i].y <= vh * REF;
-        if (reached) {
-          if (rows[i] && !rows[i].hasAttribute("data-revealed")) rows[i].setAttribute("data-revealed", "");
+      for (let i = 0; i < geo.nodeFracs.length; i++) {
+        if (frac >= geo.nodeFracs[i]) {
           if (dots[i] && !dots[i].hasAttribute("data-active")) dots[i].setAttribute("data-active", "");
+          if (rows[i] && !rows[i].hasAttribute("data-revealed")) rows[i].setAttribute("data-revealed", "");
         }
       }
     };
@@ -236,7 +224,7 @@ export function ProductStoryline({ count }: { count: number }) {
     window.addEventListener("resize", onScroll);
     update();
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [reduce, draw, geo.keys, geo.nodes]);
+  }, [reduce, draw, geo.nodeFracs, geo.h]);
 
   return (
     <svg
