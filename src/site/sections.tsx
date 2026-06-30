@@ -15,6 +15,7 @@ import { Stagger, StaggerItem, FadeIn, Lift, Press } from "./motion";
 import { GienahLight } from "./GienahLight";
 import { TitleNodes } from "./TitleNodes";
 import { SectionConnector } from "./SectionConnector";
+import { ProductStoryline } from "./ProductStoryline";
 import c from "./constellationJourney.module.css";
 import { SectionStars } from "./SectionStars";
 import m from "./moreExplorer.module.css";
@@ -390,24 +391,20 @@ function PhoneFrame({ p }: { p: Product }) {
   );
 }
 
-function ProductSlide({ p, d }: { p: Product; d: number }) {
-  const cur = d === 0;
-  const style: React.CSSProperties = {
-    position: "absolute", inset: 0, display: "flex", alignItems: "center",
-    gap: "clamp(28px, 5vw, 80px)",
-    // slide + fade only — no scale, so a product never grows/pops as it becomes active
-    transform: cur ? "translate3d(0,0,0)" : `translate3d(${d > 0 ? 96 : -72}px,0,0)`,
-    opacity: cur ? 1 : 0,
-    filter: cur ? "none" : "blur(6px)",
-    pointerEvents: cur ? "auto" : "none",
-    zIndex: cur ? 2 : 1,
-    transition: "transform .62s cubic-bezier(.22,1,.36,1), opacity .5s var(--ease-out), filter .5s var(--ease-out)",
-    willChange: "transform, opacity",
-  };
+/* One product row in the vertical journey. It starts in a hidden pre-reveal state
+   (.pjRow in the CSS: opacity 0, translateY + slight scale + blur) and animates in
+   once ProductStoryline flips its data-revealed (when the storyline head reaches
+   this row's node). Alternation is data-reverse → CSS grid order, so odd rows put
+   the mockup on the right. Mockup + content reuse the existing product visuals. */
+function ProductRow({ p, i }: { p: Product; i: number }) {
+  const reverse = i % 2 === 1;
   return (
-    <div style={style} aria-hidden={!cur} className={s.featrow}>
-      <div style={{ flex: "none", display: "flex", justifyContent: "center" }}><PhoneFrame p={p} /></div>
-      <div style={{ flex: 1 }}>
+    <article className={s.pjRow} data-pj-row={i} data-reverse={reverse ? "" : undefined}>
+      <div className={s.pjMedia}>
+        <span className={s.pjMediaGlow} aria-hidden="true" data-tone={p.tone} />
+        <PhoneFrame p={p} />
+      </div>
+      <div className={s.pjBody}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
           <Badge variant={p.tone === "gold" ? "warning" : "accent"} className={p.tone === "gold" ? s.darkBadgeWarning : s.darkBadgeAccent}>{p.category}</Badge>
           <Badge variant="neutral" className={s.darkBadgeNeutral}>{p.year}</Badge>
@@ -421,125 +418,31 @@ function ProductSlide({ p, d }: { p: Product; d: number }) {
           <Button variant={p.website ? "ghost" : "primary"} className={p.website ? "" : s.btnGlow} as="a" href={`/projects/${p.id}`} trailingIcon={<Icon name="arrow-right" size={15} />}>Case study</Button>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 
-/* Mobile products deck. The phone frame stays put; the product SCREENS are stacked
-   inside it and translated by (i-active)*100%, so the active screen sits centred
-   while the others wait off each edge — the phone's own overflow:hidden clips them,
-   making the screen look like it slides out one edge of the phone and the next
-   slides in from the opposite edge. The text block below cross-fades in step. */
-function FeaturedMobileDeck({ active }: { active: number }) {
-  return (
-    <div className={s.mpDeck}>
-      <div className={s.mpPhoneWrap}>
-        <div className={[s.device, s.mpPhone].join(" ")}>
-          <div className={s.deviceScreen} style={{ padding: 0, background: "#0b1422" }}>
-            {FEATURED.map((p, i) => {
-              const shot = p.shots[0];
-              const fg = p.tone === "gold" ? "var(--gold-800)" : "var(--accent-800)";
-              const bg = p.tone === "gold"
-                ? "linear-gradient(160deg, #fdf6e6, #f4d485 55%, #e2aa3b)"
-                : "linear-gradient(160deg, #ecf6fc, #a7d8f1 55%, #2a92cc)";
-              return (
-                <div key={p.id} className={s.mpScreen} aria-hidden={i !== active} style={{ transform: `translate3d(${(i - active) * 100}%,0,0)` }}>
-                  {shot ? (
-                    <img src={shot} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  ) : (
-                    <div style={{ width: "100%", height: "100%", background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, textAlign: "center", padding: 18 }}>
-                      <img src="/assets/logo-mark.png" alt="" style={{ height: 40, width: "auto", opacity: 0.92 }} />
-                      <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: fg }}>{p.title}</div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      <div className={s.mpInfo}>
-        {FEATURED.map((p, i) => (
-          <div key={p.id} className={s.mpInfoLayer} aria-hidden={i !== active} data-active={i === active ? "" : undefined} style={{ transform: `translate3d(${(i - active) * 24}px,0,0)` }}>
-            <div className={s.mpBadges}>
-              <Badge variant={p.tone === "gold" ? "warning" : "accent"} className={p.tone === "gold" ? s.darkBadgeWarning : s.darkBadgeAccent}>{p.category}</Badge>
-              <Badge variant="neutral" className={s.darkBadgeNeutral}>{p.year}</Badge>
-            </div>
-            <h3 className={s.mpTitle}>{p.title}</h3>
-            <p className={s.mpDesc}>{p.blurb}</p>
-            <div className={s.mpTech}>{p.tech}</div>
-            <div className={s.mpBtns}>
-              {p.website && <Button variant="primary" className={s.btnGlow} as="a" href={p.website} target="_blank" rel="noopener" trailingIcon={<Icon name="external-link" size={15} />}>Website</Button>}
-              {p.download && <Button variant="secondary" as="a" href={p.download} target="_blank" rel="noopener" leadingIcon={<Icon name="download" size={15} />}>Download</Button>}
-              <Button variant={p.website ? "ghost" : "primary"} className={p.website ? "" : s.btnGlow} as="a" href={`/projects/${p.id}`} trailingIcon={<Icon name="arrow-right" size={15} />}>Case study</Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
+/* Products — a normal vertical journey (NOT a pinned/sticky deck any more). All
+   featured products render as alternating left/right rows in document flow; a
+   ProductStoryline snakes down the centre gutter and reveals each row as its node
+   is reached. The global page-wide journey (SectionConnector) is unchanged: it
+   still draws this section's slice through the side lanes + title node and flips
+   the section's JourneyGate. */
 export function Featured() {
-  const trackRef = React.useRef<HTMLDivElement>(null);
-  const idxRef = React.useRef(0);
-  const [active, setActive] = React.useState(0);
-  // Desktop (>= 1024) uses the side-by-side sticky deck; phones + tablets get the
-  // dedicated single-phone deck where the screen slides through the frame (detected
-  // AFTER mount so SSR and the first client render agree — avoids a hydration mismatch).
-  const [mobile, setMobile] = React.useState(false);
-  React.useEffect(() => {
-    const mq = window.matchMedia("(max-width: 1023px)");
-    const apply = () => setMobile(mq.matches);
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
-  }, []);
-  const N = FEATURED.length;
-  React.useEffect(() => {
-    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const el = trackRef.current; if (!el) return;
-      const r = el.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
-      const dist = el.offsetHeight - vh;
-      const scrolled = clamp(-r.top, 0, dist);
-      const raw = dist > 0 ? clamp(scrolled / (dist * 0.88), 0, 1) : 0;
-      const ni = clamp(Math.floor(raw * N), 0, N - 1);
-      if (ni !== idxRef.current) { idxRef.current = ni; setActive(ni); }
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    update();
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [N]);
-
   return (
-    <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3 }}>
-      <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
-        <div className={s.featStage} style={{ position: "sticky", top: 0, display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 92, paddingBottom: 44, boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
-          {/* same clean base + continuous stars as every other section (the
-              LightPillar was removed — its volumetric glow hazed the section) */}
-          <SectionStars />
-          <SectionConnector sectionKey="products" enter="r" exit="l" />
-          <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
-            <SectionHead nodeId="products" tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
-            {mobile ? (
-              <FeaturedMobileDeck active={active} />
-            ) : (
-              <div className={s.featDeck} style={{ position: "relative", marginTop: 6 }}>
-                {FEATURED.map((p, i) => <ProductSlide key={p.id} p={p} d={i - active} />)}
-              </div>
-            )}
-            <div className={s.deckDots} style={{ display: "flex", justifyContent: "center", gap: 9, marginTop: 14 }}>
-              {FEATURED.map((p, i) => (
-                <span key={p.id} aria-hidden="true" style={{ width: i === active ? 26 : 8, height: 8, borderRadius: 99, background: i === active ? "var(--brand-gradient)" : "rgba(255,255,255,0.22)", transition: "width .4s var(--ease-out), background .4s var(--ease-out)" }} />
-              ))}
-            </div>
-          </div>
+    <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3, padding: "120px 0 96px" }}>
+      <SectionStars />
+      {/* Global journey: ARRIVE at the products title (header zone) + fire the gate,
+          but draw no body-crossing exit leg — the alternating full-width rows leave
+          no empty side lane, so the page line hands the journey off to the centre
+          ProductStoryline here (role="end" = entry + activation only, like Contact). */}
+      <SectionConnector sectionKey="products" role="end" enter="r" />
+      <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
+        <SectionHead nodeId="products" tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
+        {/* vertical journey: storyline (centre gutter, z 0) behind the rows (z 1) */}
+        <div className={s.pjList}>
+          <ProductStoryline count={FEATURED.length} />
+          {FEATURED.map((p, i) => <ProductRow key={p.id} p={p} i={i} />)}
         </div>
       </div>
     </section>

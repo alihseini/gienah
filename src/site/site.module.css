@@ -471,91 +471,97 @@
   margin: 0 auto 56px;
 }
 
-/* ===== mobile products deck (phone screen slides through the frame) ===== */
-.mpDeck {
+/* ===== Products vertical journey (alternating rows + centre storyline) =====
+   Replaces the old pinned/sticky product deck. Rows flow normally; the
+   ProductStoryline SVG (productStoryline.module.css) snakes down the centre
+   gutter behind them. */
+.pjList {
+  position: relative; /* containing block: storyline (z 0) + rows (z 1) */
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
+  gap: clamp(72px, 11vh, 150px);
+}
+.pjRow {
+  position: relative;
+  z-index: 1; /* above the storyline path */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
-  gap: 16px;
-  margin-top: 2px;
-}
-.mpPhoneWrap {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-/* fixed phone size on mobile (overrides the responsive --dw via higher specificity) */
-.mpPhone.mpPhone {
-  --dw: clamp(138px, 39vw, 168px);
-  animation: none;
-  margin: 0 auto;
-}
-/* one product screen inside the phone; siblings wait off each edge and are clipped
-   by .deviceScreen's overflow:hidden, so the active screen reads as sliding in/out
-   of the phone */
-.mpScreen {
-  position: absolute;
-  inset: 0;
-  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
-}
-.mpInfo {
-  position: relative;
-  width: 100%;
-  text-align: center;
-}
-/* stacked text layers — only the active one shows; the rest fade + nudge sideways
-   so the copy travels with the phone screen */
-.mpInfoLayer {
-  position: absolute;
-  inset: 0;
+  column-gap: clamp(40px, 7vw, 120px);
+  /* pre-reveal hidden state — ProductStoryline flips data-revealed when the line
+     reaches this row's node; matches the site's other first-entry reveals. */
   opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.45s var(--ease-out), transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(56px) scale(0.975);
+  filter: blur(10px);
+  transition:
+    opacity 0.8s var(--ease-out),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.8s var(--ease-out);
+  will-change: transform, opacity;
 }
-.mpInfoLayer:first-child {
-  position: relative;
-}
-.mpInfoLayer[data-active] {
+.pjRow[data-revealed] {
   opacity: 1;
-  pointer-events: auto;
+  transform: none;
+  filter: none;
 }
-.mpBadges {
+/* alternation: odd rows put the mockup on the right via grid order */
+.pjRow[data-reverse] .pjMedia { order: 2; }
+.pjRow[data-reverse] .pjBody { order: 1; }
+.pjMedia {
+  position: relative;
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 12px;
+  align-items: center;
 }
-.mpTitle {
-  font-size: clamp(24px, 6.6vw, 30px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  margin: 0 0 10px;
-  line-height: 1.1;
+/* soft brand glow behind the mockup (layer 3: above the storyline path) */
+.pjMediaGlow {
+  position: absolute;
+  width: 68%;
+  height: 68%;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.5;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(88, 171, 206, 0.5), transparent 70%);
 }
-.mpDesc {
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--text-secondary);
-  margin: 0 auto 10px;
-  max-width: 34ch;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.pjMediaGlow[data-tone="gold"] {
+  background: radial-gradient(circle, rgba(244, 198, 95, 0.45), transparent 70%);
 }
-.mpTech {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  color: var(--text-tertiary);
-  margin-bottom: 13px;
+.pjBody {
+  min-width: 0;
 }
-.mpBtns {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
+/* tablet: keep the two-column alternation, tighten the gutter */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .pjList { gap: clamp(60px, 9vh, 120px); }
+  .pjRow { column-gap: clamp(26px, 4vw, 56px); }
+}
+/* phones: single column, mockup ALWAYS above the text; the storyline drops into a
+   thin left lane, so rows are padded left to clear the line + nodes — no overlap,
+   no horizontal overflow. */
+@media (max-width: 767px) {
+  .pjList {
+    gap: 60px;
+    padding-left: 30px;
+  }
+  .pjRow {
+    grid-template-columns: 1fr;
+    row-gap: 20px;
+    transform: translateY(48px) scale(0.98);
+  }
+  .pjRow .pjMedia,
+  .pjRow[data-reverse] .pjMedia { order: 1; }
+  .pjRow .pjBody,
+  .pjRow[data-reverse] .pjBody { order: 2; }
+  .pjMediaGlow { width: 58%; height: 48%; }
+}
+/* readable + static when motion is reduced (no reveal transform/blur) */
+@media (prefers-reduced-motion: reduce) {
+  .pjRow {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
 }
 
 /* ===== flowing list (more from the studio) ===== */
@@ -923,10 +929,6 @@
 .svcPanel {
   grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
 }
-/* the featured product deck (fixed-height stage the absolute product slides fill) */
-.featDeck {
-  height: min(560px, 62vh);
-}
 /* Services scroll-deck stage. On tall windows (>820px) these match the original
    inline values exactly, so the desktop look is unchanged. On short windows the
    padding and deck height shrink so the column (title + card + dots) fits inside
@@ -935,8 +937,7 @@
 /* sticky deck stages fill the viewport. Use svh (the stable, URL-bar-collapsed
    height) with a vh fallback so mobile Safari/Chrome don't RESIZE the pinned stage
    — and jolt its background — every time the address bar shows/hides on scroll. */
-.svcStage,
-.featStage {
+.svcStage {
   height: 100vh;
   height: 100svh;
 }
@@ -984,15 +985,6 @@
 @media (max-width: 920px) {
   .navDesktop {
     display: none !important;
-  }
-  /* product slide stacks text-first (always visible) above the device, which can
-     crop at the bottom rather than hiding the product text */
-  .featrow {
-    flex-direction: column-reverse !important;
-    gap: 18px !important;
-  }
-  .featDeck {
-    height: min(660px, 84vh);
   }
   .device {
     --dw: 208px;
@@ -1109,8 +1101,7 @@
   .mpTitle {
     font-size: 22px !important;
   }
-  .svcStage,
-  .featStage {
+  .svcStage {
     justify-content: flex-start !important;
     padding-top: 76px !important;
     padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
@@ -1216,8 +1207,7 @@
     line-height: 1.45 !important;
     margin-top: 10px !important;
   }
-  .svcStage,
-  .featStage {
+  .svcStage {
     padding-top: 64px !important;
     padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
   }
@@ -1286,8 +1276,7 @@
    smaller nav clearance, title + subtitle — so the flexed deck grows enough for all
    eight capabilities AND the dots to stay on-screen, without clipping the last row. */
 @media (max-width: 767px) and (max-height: 660px) {
-  .svcStage,
-  .featStage {
+  .svcStage {
     padding-top: 44px !important;
   }
   .sectionHead {
