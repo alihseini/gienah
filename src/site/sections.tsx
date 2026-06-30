@@ -169,39 +169,56 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
   );
 }
 
-/* Continuous scroll-progress card model.
+/* Continuous scroll-progress card model — AIR "trusted advisor" stacking.
  * `head` is a fractional position in the deck (0 … N-1): the deck's "playhead".
- * Each card i owns a one-unit window of `head`:
- *   - entrance `e`  : 0 → 1 while head travels i-1 → i  (the card rises, de-blurs,
- *                     fades up from nothing and settles exactly at head === i)
- *   - recede `depth`: grows 0 → 3 once head passes i    (settled card eases back
- *                     into a softly dimmed, scaled-down deck behind the next one)
- * The two phases hand off cleanly at head === i (e hits 1 just as depth leaves 0),
- * so the motion is one smooth, scroll-linked curve — no snapping between states.
- * Previous cards never disappear: their floor opacity stays at 0.32 so the stack
- * stays visible behind the active card, AIR-style. */
+ * For each card we work in `rel = head - i` (negative = still to come, 0 = active,
+ * positive = already passed):
+ *   - rel < -1  : waiting below the fold — peeks a sliver at the BOTTOM of the deck
+ *                 (soft, blurred, dim), the immediate-next one fading up as it nears.
+ *   - -1 → 0    : ENTERING — slides UP from that bottom-peek to fill the deck, fading
+ *                 in + de-blurring with a premium ease. It rides on top (z = i+1), so
+ *                 it covers the previous card as it rises ("comes from down, goes on
+ *                 top of the previous card").
+ *   - rel > 0   : PASSED — it does NOT recede/shrink away; it stays put and only
+ *                 eases up a little so its header peeks above the new active card,
+ *                 staying prominent behind it (high opacity floor, near full scale).
+ * The three phases are continuous at rel = -1 and rel = 0, so the whole thing is one
+ * smooth scroll-linked curve — never jumpy. `H` is the live deck height, so the rise
+ * distance and bottom-peek scale with the actual card size at every breakpoint. */
 type CardStyle = { transform: string; opacity: number; filter: string };
-function computeCardStyle(i: number, head: number, mobile: boolean): CardStyle {
-  const e = _clamp(head - i + 1, 0, 1);       // entrance 0→1 (settles at head===i)
-  const depth = _clamp(head - i, 0, 3);       // recede depth once settled
-  const eo = easeOutCubic(e);                  // premium ease for travel/scale
-  const fade = smoothstep(e);                  // soft ease for opacity
+function computeCardStyle(i: number, head: number, mobile: boolean, H: number): CardStyle {
+  const rel = head - i;
+  const ENTER = Math.max(220, H * 0.88);        // rise distance ⇒ ~12% bottom-peek
+  const PEEK_TOP = mobile ? 0 : 18;             // header sliver each passed card shows
+  let y: number, opacity: number, blur: number, scale: number, bright: number;
 
-  // settled → receded targets (reached as the deck advances past this card).
-  // On phones the upward lift is dropped: with a taller single-column card it would
-  // poke the receding deck up over the section title — origin:top + scale/fade only
-  // keeps the top edge pinned, so it never crosses into the heading.
-  const lift = mobile ? 0 : -10 * depth;
-  const recedeScale = 1 - 0.045 * depth;
-  const recedeOpacity = Math.max(0.32, 1 - 0.24 * depth);
-  const recedeBright = Math.max(0.6, 1 - 0.14 * depth);
-
-  // entrance start-state blended into the settled/receded target by the eased e.
-  const y = _lerp(72, lift, eo);              // rises from +72px into place, then lifts
-  const scale = _lerp(0.93, recedeScale, eo);
-  const opacity = _lerp(0, recedeOpacity, fade);
-  const blur = (1 - e) * 8;                    // soft blur ONLY while entering (≤1 card)
-  const bright = _lerp(1, recedeBright, eo);
+  if (rel >= 0) {
+    // passed/active: stays in place, only eases up to peek above the new top card.
+    // On phones PEEK_TOP is 0 (taller single-column cards would poke over the title),
+    // so passed cards simply sit covered — the rise-over still reads during scroll.
+    const d = Math.min(rel, 3);
+    y = -PEEK_TOP * d;
+    scale = 1 - 0.018 * d;
+    opacity = Math.max(0.5, 1 - 0.14 * d);
+    blur = 1.1 * d;                              // subtle, just pushes it back
+    bright = Math.max(0.72, 1 - 0.09 * d);
+  } else if (rel >= -1) {
+    // entering: rise from the bottom-peek up to active, fading in + de-blurring.
+    const t = easeOutCubic(rel + 1);            // 0 at rel=-1 → 1 at rel=0
+    y = _lerp(ENTER, 0, t);
+    scale = _lerp(0.96, 1, t);
+    opacity = _lerp(0.35, 1, smoothstep(rel + 1));
+    blur = _lerp(8, 0, t);
+    bright = _lerp(0.85, 1, t);
+  } else {
+    // waiting below: the immediate-next card peeks a sliver at the bottom, the rest
+    // stay hidden until they're next (opacity fades 0 → 0.35 as rel climbs -2 → -1).
+    y = ENTER;
+    scale = 0.96;
+    opacity = _lerp(0, 0.35, _clamp(rel + 2, 0, 1));
+    blur = 8;
+    bright = 0.85;
+  }
 
   const parts: string[] = [];
   if (blur > 0.12) parts.push(`blur(${blur.toFixed(2)}px)`);
@@ -222,6 +239,7 @@ function writeCardStyle(el: HTMLElement, st: CardStyle) {
 
 export function Services() {
   const trackRef = React.useRef<HTMLDivElement>(null);
+  const deckRef = React.useRef<HTMLDivElement>(null);
   const cardRefs = React.useRef<(HTMLDivElement | null)[]>([]);
   const idxRef = React.useRef(0);
   // `active` is the rounded playhead — used ONLY for the discrete bits (dots, aria,
@@ -263,9 +281,10 @@ export function Services() {
       // card before the section unpins — feels deliberate rather than abrupt.
       const progress = dist > 0 ? _clamp(scrolled / (dist * 0.9), 0, 1) : 0;
       const head = progress * (N - 1);          // continuous playhead across the deck
+      const H = deckRef.current?.offsetHeight || vh * 0.5;   // live card height
       for (let i = 0; i < N; i++) {
         const node = cardRefs.current[i];
-        if (node) writeCardStyle(node, computeCardStyle(i, head, mobileRef.current));
+        if (node) writeCardStyle(node, computeCardStyle(i, head, mobileRef.current, H));
       }
       const ni = _clamp(Math.round(head), 0, N - 1);
       if (ni !== idxRef.current) { idxRef.current = ni; setActive(ni); }
@@ -314,7 +333,7 @@ export function Services() {
                 defaults = the head===0 resting state, so no pre-JS flash) and are then
                 owned by the rAF writer. They're intentionally NOT in this JSX style so
                 an `active` re-render can't clobber the live scroll values. */}
-            <div className={s.svcDeck}>
+            <div className={s.svcDeck} ref={deckRef}>
               {SERVICES.map((svc, i) => (
                 <div
                   key={svc.title}
