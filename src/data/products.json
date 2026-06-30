@@ -71,7 +71,7 @@
     "featured": true,
     "banner": "/uploads/nabz-banner.jpg",
     "shots": ["/uploads/nabz-ui1.jpg", "/uploads/nabz-ui2.png"],
-    "landingShot": "/uploads/nabz-ui1.jpg",
+    "landingShot": "/nabz/nabz-main.avif",
     "blurb": "A platform that nudges people to cut gas and electricity use through awareness and gamification. AI-driven reports, challenges, points and rewards make sustainable habits engaging — and measurable.",
     "desc": [
       "Nabz Energy encourages users to reduce their gas and electricity consumption through awareness-building and gamification.",

@@ -380,7 +380,7 @@
 .device::after {
   content: "";
   position: absolute;
-  top: calc(var(--dw) * 0.074);
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   width: calc(var(--dw) * 0.437);
