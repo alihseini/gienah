@@ -375,7 +375,7 @@ function PhoneFrame({ p }: { p: Product }) {
   const fg = tone === "gold" ? "var(--gold-800)" : "var(--accent-800)";
   const shot = p.shots[0];
   return (
-    <div className={s.device}>
+    <div className={s.device} data-pj-mockup="">
       <div className={s.deviceScreen} style={{ background: bg, padding: shot ? 0 : undefined }}>
         {shot ? (
           <img src={shot} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />

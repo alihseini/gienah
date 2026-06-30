@@ -55,16 +55,25 @@ function interpKeys(keys: Key[], y: number): number {
   return keys[keys.length - 1].fr;
 }
 
-// smooth vertical snake through the points; control points pulled along Y so the
-// curve bows gently between nodes (organic, never a straight ruler line).
+// Y→draw-fraction keypoints from a polyline (cumulative length, monotonic y).
+function polyKeys(pts: Pt[]): Key[] {
+  const keys: Key[] = [{ y: pts[0].y, fr: 0 }];
+  let total = 0;
+  const segLen: number[] = [];
+  for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y); segLen.push(l); total += l; }
+  total = total || 1;
+  let cum = 0, yprev = pts[0].y;
+  for (let i = 1; i < pts.length; i++) { cum += segLen[i - 1]; const y = Math.max(yprev + 1, pts[i].y); keys.push({ y, fr: cum / total }); yprev = y; }
+  return keys;
+}
+
+// Mobile left-lane line: a gentle vertical bow through the nodes.
 function buildSnake(pts: Pt[]): { d: string; keys: Key[] } {
   let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
   const segs: Seg[] = [];
   for (let i = 1; i < pts.length; i++) {
-    const a = pts[i - 1], b = pts[i];
-    const dy = b.y - a.y;
-    const c1 = { x: a.x, y: a.y + dy * 0.42 };
-    const c2 = { x: b.x, y: b.y - dy * 0.42 };
+    const a = pts[i - 1], b = pts[i], dy = b.y - a.y;
+    const c1 = { x: a.x, y: a.y + dy * 0.42 }, c2 = { x: b.x, y: b.y - dy * 0.42 };
     d += ` C ${c1.x.toFixed(1)} ${c1.y.toFixed(1)}, ${c2.x.toFixed(1)} ${c2.y.toFixed(1)}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
     segs.push({ p0: a, c1, c2, p3: b });
   }
@@ -72,13 +81,47 @@ function buildSnake(pts: Pt[]): { d: string; keys: Key[] } {
   const total = lens.reduce((x, y) => x + y, 0) || 1;
   const keys: Key[] = [{ y: pts[0].y, fr: 0 }];
   let cum = 0, yprev = pts[0].y;
-  for (let i = 0; i < segs.length; i++) {
-    cum += lens[i];
-    const y = Math.max(yprev + 1, segs[i].p3.y);
-    keys.push({ y, fr: cum / total });
-    yprev = y;
-  }
+  for (let i = 0; i < segs.length; i++) { cum += lens[i]; const y = Math.max(yprev + 1, segs[i].p3.y); keys.push({ y, fr: cum / total }); yprev = y; }
   return { d, keys };
+}
+
+// Rounded-corner polyline: straight runs joined by quadratic fillets — a smooth,
+// organic wire that still travels only along its given vertices.
+function roundedPath(pts: Pt[], R: number): string {
+  if (pts.length < 3) return `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)} L ${pts[pts.length - 1].x.toFixed(1)} ${pts[pts.length - 1].y.toFixed(1)}`;
+  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1], p1 = pts[i], p2 = pts[i + 1];
+    const d1 = Math.hypot(p0.x - p1.x, p0.y - p1.y) || 1;
+    const d2 = Math.hypot(p2.x - p1.x, p2.y - p1.y) || 1;
+    const r = Math.min(R, d1 / 2, d2 / 2);
+    const a = { x: p1.x + (p0.x - p1.x) / d1 * r, y: p1.y + (p0.y - p1.y) / d1 * r };
+    const b = { x: p1.x + (p2.x - p1.x) / d2 * r, y: p1.y + (p2.y - p1.y) / d2 * r };
+    d += ` L ${a.x.toFixed(1)} ${a.y.toFixed(1)} Q ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+  }
+  const last = pts[pts.length - 1];
+  d += ` L ${last.x.toFixed(1)} ${last.y.toFixed(1)}`;
+  return d;
+}
+
+// Desktop/tablet alternating timeline. The wire only ever runs VERTICALLY in the
+// outer gutter beside a mockup and HORIZONTALLY across the empty gap between two
+// rows (midpoint of adjacent node centres) — so it can never cross a mockup, text
+// or buttons. From the title it jogs to the first node's lane up in the header,
+// drops to node 0, then for each pair: down the lane → across the gap → down the
+// next lane to the opposite-side node.
+function buildZig(start: Pt, nodes: Pt[], h: number): { d: string; keys: Key[] } {
+  const spine: Pt[] = [start];
+  if (Math.abs(start.x - nodes[0].x) > 4) spine.push({ x: nodes[0].x, y: start.y });
+  spine.push(nodes[0]);
+  for (let i = 0; i < nodes.length - 1; i++) {
+    const mid = (nodes[i].y + nodes[i + 1].y) / 2;
+    spine.push({ x: nodes[i].x, y: mid });
+    spine.push({ x: nodes[i + 1].x, y: mid });
+    spine.push(nodes[i + 1]);
+  }
+  spine.push({ x: nodes[nodes.length - 1].x, y: Math.min(h, nodes[nodes.length - 1].y + 80) });
+  return { d: roundedPath(spine, 34), keys: polyKeys(spine) };
 }
 
 export function ProductStoryline({ count }: { count: number }) {
@@ -95,26 +138,52 @@ export function ProductStoryline({ count }: { count: number }) {
     if (!w || !h) return;
     const rows = Array.from(list.querySelectorAll<HTMLElement>("[data-pj-row]"));
     if (!rows.length) return;
-
+    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
     const mob = w < 768;
-    // central gutter on desktop/tablet; a thin left lane on phones (rows are padded
-    // to clear it). A small alternating bow keeps the route organic, never straight.
-    const cx = mob ? Math.max(13, w * 0.045) : w * 0.5;
-    // keep the bow inside the centre gutter at every width so the route never
-    // drifts onto a content column (gutter narrows with the grid column-gap).
-    const bow = mob ? 6 : Math.min(28, w * 0.018);
-    const nodes: Pt[] = rows.map((row, i) => ({
-      x: cx + (i % 2 === 1 ? bow : -bow),
-      y: row.offsetTop + row.offsetHeight / 2,
-    }));
 
-    // start a little above the first node, end a little below the last
-    const pts: Pt[] = [
-      { x: nodes[0].x, y: Math.max(0, nodes[0].y - 90) },
-      ...nodes,
-      { x: nodes[nodes.length - 1].x, y: Math.min(h, nodes[nodes.length - 1].y + 90) },
-    ];
-    const { d, keys } = buildSnake(pts);
+    if (mob) {
+      // phones: a thin left-lane line with a small organic bow; nodes beside each
+      // row (rows are padded left to clear it).
+      const cx = Math.max(13, w * 0.045);
+      const nodes: Pt[] = rows.map((row, i) => ({ x: cx + (i % 2 ? 6 : -6), y: row.offsetTop + row.offsetHeight / 2 }));
+      const pts: Pt[] = [
+        { x: nodes[0].x, y: Math.max(0, nodes[0].y - 90) },
+        ...nodes,
+        { x: nodes[nodes.length - 1].x, y: Math.min(h, nodes[nodes.length - 1].y + 90) },
+      ];
+      const { d, keys } = buildSnake(pts);
+      setGeo({ w, h, d, keys, nodes });
+      return;
+    }
+
+    // desktop/tablet: alternating timeline. The node sits just OUTSIDE each mockup
+    // on the side away from the text (mockup-left rows → node on the far left;
+    // mockup-right rows → node on the far right), measured from the mockup box in
+    // transform-independent layout space so reveal transforms never shift it.
+    const docPos = (el: HTMLElement) => {
+      let x = 0, y = 0, n: HTMLElement | null = el;
+      while (n) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      return { x, y };
+    };
+    const lp = docPos(list);
+    const GAP = 26;
+    const nodes: Pt[] = rows.map((row, i) => {
+      const m = (row.querySelector<HTMLElement>("[data-pj-mockup]") ?? row);
+      const mp = docPos(m);
+      const mx = mp.x - lp.x, my = mp.y - lp.y;
+      const reverse = i % 2 === 1; // mockup on the right
+      const nx = reverse ? mx + m.offsetWidth + GAP : mx - GAP;
+      return { x: clamp(nx, 16, w - 16), y: my + m.offsetHeight / 2 };
+    });
+
+    // lead-in from the title's LEFT constellation node (it sits well above the list,
+    // giving the curve room to slide into the far-left lane before the first mockup).
+    const tl = document.querySelector<HTMLElement>('[data-node="products:l"]');
+    const start: Pt = tl
+      ? { x: clamp(docPos(tl).x - lp.x, 16, w - 16), y: docPos(tl).y - lp.y }
+      : { x: nodes[0].x, y: -70 };
+
+    const { d, keys } = buildZig(start, nodes, h);
     setGeo({ w, h, d, keys, nodes });
   }, []);
 
