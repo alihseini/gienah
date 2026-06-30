@@ -783,13 +783,15 @@ export function About() {
           })}
           <Reveal delay={250}><div style={{ marginTop: 26 }}><Button variant="primary" className={s.btnGlow} onClick={() => go("contact")}>Start a project</Button></div></Reveal>
         </div>
-        <Stagger style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} gap={0.1} amount={0.3}>
-          {site.about.stats.map(([ic, t, d], i) => (
-            <Lift asItem key={t} y={20} style={{ marginTop: i % 2 ? 24 : 0 }}>
+        <Stagger style={{ display: "flex", flexDirection: "column", gap: 14 }} gap={0.13} amount={0.3}>
+          {site.about.stats.map(([ic, t, d]) => (
+            <Lift asItem key={t} y={0} x={52}>
               <Card padding={20} className={[s.glassCard, s.cardHoverGlow].join(" ")}>
-                <span style={{ color: "var(--accent-600)" }}><Icon name={ic} size={22} /></span>
-                <div style={{ fontSize: 17, fontWeight: 600, marginTop: 12 }}>{t}</div>
-                <div style={{ fontSize: 13.5, color: "var(--text-tertiary)", marginTop: 4, lineHeight: 1.5 }}>{d}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ color: "var(--accent-600)", display: "inline-flex" }}><Icon name={ic} size={22} /></span>
+                  <div style={{ fontSize: 17, fontWeight: 600 }}>{t}</div>
+                </div>
+                <div style={{ fontSize: 13.5, color: "var(--text-tertiary)", marginTop: 8, lineHeight: 1.5 }}>{d}</div>
               </Card>
             </Lift>
           ))}

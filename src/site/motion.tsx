@@ -35,9 +35,9 @@ const pick = (as: Tag) => (as === "span" ? motion.span : as === "li" ? motion.li
 const enterTransition = (reduce: boolean | null, delay = 0): Transition =>
   reduce ? { duration: 0 } : { duration: 0.55, ease: EASE, delay };
 
-const itemVariants = (y: number, reduce: boolean | null): Variants => ({
-  hidden: { opacity: 0, y },
-  show: { opacity: 1, y: 0, transition: enterTransition(reduce) },
+const itemVariants = (y: number, reduce: boolean | null, x = 0): Variants => ({
+  hidden: { opacity: 0, y, x },
+  show: { opacity: 1, y: 0, x: 0, transition: enterTransition(reduce) },
 });
 
 /* Container that reveals its children in a stagger when scrolled into view.
@@ -88,17 +88,19 @@ export function StaggerItem({
   style,
   as = "div",
   y = 16,
+  x = 0,
 }: {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
   as?: Tag;
   y?: number;
+  x?: number;
 }) {
   const reduce = useReducedMotion();
   const M = pick(as);
   return (
-    <M className={className} style={style} variants={itemVariants(y, reduce)}>
+    <M className={className} style={style} variants={itemVariants(y, reduce, x)}>
       {children}
     </M>
   );
@@ -160,6 +162,7 @@ export function Lift({
   hoverScale = 1.014,
   tapScale = 0.985,
   y = 18,
+  x = 0,
 }: {
   children: React.ReactNode;
   className?: string;
@@ -169,6 +172,7 @@ export function Lift({
   hoverScale?: number;
   tapScale?: number;
   y?: number;
+  x?: number;
 }) {
   const reduce = useReducedMotion();
   const ref = React.useRef<HTMLDivElement>(null);
@@ -186,7 +190,7 @@ export function Lift({
   if (asItem) {
     // entrance driven by the parent <Stagger> variants (which is itself gated)
     return (
-      <motion.div className={className} style={style} variants={itemVariants(y, reduce)} {...interaction}>
+      <motion.div className={className} style={style} variants={itemVariants(y, reduce, x)} {...interaction}>
         {children}
       </motion.div>
     );
@@ -196,8 +200,8 @@ export function Lift({
       ref={ref}
       className={className}
       style={style}
-      initial={{ opacity: 0, y }}
-      animate={inView && ready ? { opacity: 1, y: 0 } : { opacity: 0, y }}
+      initial={{ opacity: 0, y, x }}
+      animate={inView && ready ? { opacity: 1, y: 0, x: 0 } : { opacity: 0, y, x }}
       transition={enterTransition(reduce)}
       {...interaction}
     >
