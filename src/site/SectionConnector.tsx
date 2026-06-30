@@ -41,6 +41,9 @@ type Props = {
                       // instead of sweeping in from the side lane — used where the
                       // previous section hands the journey down from directly above
                       // (Products → Studio), so it doesn't detour out to the lane.
+  noExitLeg?: boolean; // draw the over-title bow to the exit node but NOT the exit
+                       // leg down to the bottom lane — used by Products, where its
+                       // own storyline (not the global line) carries the journey on.
 };
 
 type Pt = { x: number; y: number };
@@ -106,7 +109,7 @@ function buildStroke(segs: Seg[]): Stroke {
   return { d, keys };
 }
 
-export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, enterTop }: Props) {
+export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, enterTop, noExitLeg }: Props) {
   const svgRef = React.useRef<SVGSVGElement>(null);
   const reduce = useReducedMotion();
   const onArrive = useJourneyActivate();
@@ -223,9 +226,13 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
             // a different exit side bows over the title to the other node first; the
             // same side (About) just continues straight down from the same node.
             if (exNode !== en) push(en, { x: en.x, y: en.y - arc }, { x: exNode.x, y: exNode.y - arc }, exNode);
-            const end = { x: exX, y: h };
-            if (mob) push(exNode, { x: exX, y: exNode.y }, { x: exX, y: exNode.y + (end.y - exNode.y) * 0.5 }, end); // stub out, then down lane
-            else push(exNode, { x: exNode.x, y: exNode.y + (end.y - exNode.y) * 0.4 }, { x: exX, y: end.y - (end.y - exNode.y) * 0.4 }, end);
+            // Products: keep the over-title bow but skip the exit leg — its own
+            // storyline departs from this node and carries the journey onward.
+            if (!noExitLeg) {
+              const end = { x: exX, y: h };
+              if (mob) push(exNode, { x: exX, y: exNode.y }, { x: exX, y: exNode.y + (end.y - exNode.y) * 0.5 }, end); // stub out, then down lane
+              else push(exNode, { x: exNode.x, y: exNode.y + (end.y - exNode.y) * 0.4 }, { x: exX, y: end.y - (end.y - exNode.y) * 0.4 }, end);
+            }
           }
         }
       }
@@ -234,7 +241,7 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
     const strokes = strokeSegs.filter((s) => s.length).map(buildStroke);
     if (!strokes.length) return;
     setGeo({ w, h, strokes, nodeY });
-  }, [sectionKey, role, enter, exit, gap, enterTop]);
+  }, [sectionKey, role, enter, exit, gap, enterTop, noExitLeg]);
 
   React.useLayoutEffect(() => {
     measure();

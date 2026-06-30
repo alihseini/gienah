@@ -96,15 +96,18 @@ function buildDesktop(start: Pt, nodes: Pt[], mockHalf: number, h: number, bridg
     // last row, and arrive (vertically) at the next section's entry lane on the
     // section's bottom edge — so the Products wire continues seamlessly into the
     // "More from the studio" connector, which enters that exact lane.
-    const dx = bridge.x - nl.x; // negative: target is left of the last (right-side) node
-    // settle point sits DIRECTLY above the target, just below the last row, so the
-    // descent is a clean vertical drop into the node (no leftward hook).
-    const gm: Pt = { x: bridge.x, y: nl.y + mockHalf + 52 };
-    // seg 1 — leave the last node down its gutter, then sweep across the empty space
-    // below the row to directly above the target (approached from the right).
-    segs.push({ p0: nl, c1: { x: nl.x, y: nl.y + hv }, c2: { x: gm.x - dx * 0.3, y: gm.y - 12 }, p3: gm });
-    // seg 2 — straight, soft vertical descent into the hand-off point.
-    segs.push({ p0: gm, c1: { x: gm.x, y: gm.y + (bridge.y - gm.y) * 0.4 }, c2: { x: bridge.x, y: bridge.y - (bridge.y - gm.y) * 0.35 }, p3: bridge });
+    // ONE smooth cubic from the last node to the hand-off point — no mid waypoint,
+    // so there are no pointy corners. It leaves the node straight down (continuous
+    // with the storyline) and arrives straight down into the hand-off (continuous
+    // with the studio drop), curving softly from the right gutter across to the
+    // target in between — a single flowing constellation arc.
+    const span = bridge.y - nl.y;
+    segs.push({
+      p0: nl,
+      c1: { x: nl.x, y: nl.y + span * 0.52 },
+      c2: { x: bridge.x, y: bridge.y - span * 0.3 },
+      p3: bridge,
+    });
   } else {
     const tailY = Math.min(h, nl.y + 110);
     segs.push({ p0: nl, c1: { x: nl.x, y: nl.y + 50 }, c2: { x: nl.x + 8, y: tailY - 24 }, p3: { x: nl.x, y: tailY } });
