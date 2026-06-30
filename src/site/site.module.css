@@ -122,57 +122,6 @@
   mask-image: linear-gradient(to bottom, transparent 0, transparent 56px, #000 112px);
 }
 
-.marquee {
-  display: inline-flex;
-  white-space: nowrap;
-  animation: marquee 32s linear infinite;
-}
-.marquee:hover {
-  animation-play-state: paused;
-}
-.blob {
-  border-radius: 50%;
-  filter: blur(64px);
-  animation: blobfloat 15s var(--ease-in-out) infinite;
-  pointer-events: none;
-}
-
-/* ===== animated background system ===== */
-.abg {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-}
-.abgL {
-  position: absolute;
-  will-change: transform, opacity;
-}
-.abgMesh .m1 {
-  animation: meshA 22s var(--ease-in-out) infinite;
-}
-.abgMesh .m2 {
-  animation: meshB 26s var(--ease-in-out) infinite;
-}
-.abgMesh .m3 {
-  animation: meshC 30s var(--ease-in-out) infinite;
-}
-.abgWave {
-  animation: sway 16s var(--ease-in-out) infinite;
-}
-.abgGlow {
-  animation: glowpulse 11s var(--ease-in-out) infinite;
-}
-.abgSpark {
-  border-radius: 50%;
-  animation:
-    twinkle var(--d, 7s) var(--ease-in-out) infinite,
-    lightdrift calc(var(--d, 7s) * 2.2) var(--ease-in-out) infinite;
-}
-.abgFloat {
-  animation: lightdrift var(--d, 16s) var(--ease-in-out) infinite;
-}
 .site :global([data-paused]) * {
   animation-play-state: paused !important;
 }
