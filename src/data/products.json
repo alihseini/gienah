@@ -27,9 +27,9 @@
     "tech": "Next · Node.js",
     "tone": "azure",
     "featured": true,
-    "banner": "/snapp/snapp-main.png",
-    "shots": ["/snapp/snapp-main.png"],
-    "landingShot": "/snapp/snapp-main.png",
+    "banner": "/snapp/snapp-main.avif",
+    "shots": ["/snapp/snapp-main.avif"],
+    "landingShot": "/snapp/snapp-main.avif",
     "blurb": "A complete car maintenance and repair hub within the Snapp ecosystem. Browse and buy spare parts, tools and accessories, then connect with trusted mechanics nearby for repairs, pickup or delivery.",
     "desc": [
       "Snapp Carfix is a complete destination for car maintenance and repair, seamlessly connected to the Snapp ecosystem.",
