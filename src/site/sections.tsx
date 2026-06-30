@@ -430,7 +430,7 @@ function ProductRow({ p, i }: { p: Product; i: number }) {
    the section's JourneyGate. */
 export function Featured() {
   return (
-    <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3, padding: "120px 0 96px" }}>
+    <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3, padding: "120px 0 130px" }}>
       <SectionStars />
       {/* Global journey: ARRIVE at the products title (header zone) + fire the gate,
           but draw no body-crossing exit leg — the alternating full-width rows leave
@@ -531,7 +531,10 @@ export function MoreProducts() {
       {/* base color → continuous stars only (the moving topology/triangle network
           was removed — keeps the same calm cosmic base as every other section) */}
       <SectionStars />
-      <SectionConnector sectionKey="studio" enter="l" exit="r" />
+      {/* incoming drops straight down onto the title node (the Products storyline
+          hands the journey down from directly above), then bows over the title and
+          exits right toward Agile — no detour out to the side lane */}
+      <SectionConnector sectionKey="studio" enter="l" exit="r" enterTop />
       {/* layer 2: content — NO scroll-choreography transform here: it would shift the
           title's connector nodes out from under the (separately measured) line */}
       <div className={s.wrap} style={{ position: "relative", zIndex: 2 }}>

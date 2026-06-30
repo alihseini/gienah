@@ -96,10 +96,15 @@ function buildDesktop(start: Pt, nodes: Pt[], mockHalf: number, h: number, bridg
     // last row, and arrive (vertically) at the next section's entry lane on the
     // section's bottom edge — so the Products wire continues seamlessly into the
     // "More from the studio" connector, which enters that exact lane.
-    const dx = bridge.x - nl.x;
-    const gm: Pt = { x: (nl.x + bridge.x) / 2 + (nodes.length % 2 ? -1 : 1) * Math.min(46, Math.abs(dx) * 0.05), y: nl.y + mockHalf + 44 };
-    segs.push({ p0: nl, c1: { x: nl.x, y: nl.y + hv }, c2: { x: gm.x - dx * 0.16, y: gm.y - 6 }, p3: gm });
-    segs.push({ p0: gm, c1: { x: gm.x + dx * 0.16, y: gm.y + 6 }, c2: { x: bridge.x, y: bridge.y - (bridge.y - gm.y) * 0.4 }, p3: bridge });
+    const dx = bridge.x - nl.x; // negative: target is left of the last (right-side) node
+    // settle point sits DIRECTLY above the target, just below the last row, so the
+    // descent is a clean vertical drop into the node (no leftward hook).
+    const gm: Pt = { x: bridge.x, y: nl.y + mockHalf + 52 };
+    // seg 1 — leave the last node down its gutter, then sweep across the empty space
+    // below the row to directly above the target (approached from the right).
+    segs.push({ p0: nl, c1: { x: nl.x, y: nl.y + hv }, c2: { x: gm.x - dx * 0.3, y: gm.y - 12 }, p3: gm });
+    // seg 2 — straight, soft vertical descent into the hand-off point.
+    segs.push({ p0: gm, c1: { x: gm.x, y: gm.y + (bridge.y - gm.y) * 0.4 }, c2: { x: bridge.x, y: bridge.y - (bridge.y - gm.y) * 0.35 }, p3: bridge });
   } else {
     const tailY = Math.min(h, nl.y + 110);
     segs.push({ p0: nl, c1: { x: nl.x, y: nl.y + 50 }, c2: { x: nl.x + 8, y: tailY - 24 }, p3: { x: nl.x, y: tailY } });
@@ -149,22 +154,28 @@ export function ProductStoryline({ count }: { count: number }) {
     };
     const lp = docPos(list);
 
-    // Hand-off point into the next section ("More from the studio"). That section's
-    // connector enters on the LEFT lane at its top edge; sections are flush, so its
-    // top edge IS this section's bottom edge. End the wire at that same lane x on
-    // this section's bottom edge so the two read as one continuous line. laneL
-    // mirrors SectionConnector.laneX('l') (incl. the off-screen mobile lane);
-    // offL/secBottom convert section coords into the storyline SVG's (pjList) space.
+    // Hand-off point into the next section ("More from the studio"). Sections are
+    // flush, so that section's top edge IS this section's bottom edge. We end the
+    // wire on this section's bottom edge directly ABOVE the studio LEFT title node,
+    // so it flows straight down into the studio connector (which uses enterTop, a
+    // drop onto that node) as one continuous line — no detour out to the side lane.
+    // On phones the studio connector still enters from the off-screen side lane, so
+    // there we target that lane instead. secBottom converts section→pjList y; the
+    // studio node / lane give the x in the storyline SVG's space.
     const section = list.closest("section") as HTMLElement | null;
     let bridge: Pt | null = null;
     if (section) {
       const sp = docPos(section);
       const secW = section.offsetWidth;
       const inset = secW >= 1440 ? 0.07 : secW >= 1024 ? 0.085 : 0.1;
-      const laneL = secW < 768 ? -0.1 * secW : Math.max(34, inset * secW);
-      const offL = lp.x - sp.x;
       const secBottomLocal = sp.y + section.offsetHeight - lp.y;
-      bridge = { x: laneL - offL, y: secBottomLocal + 2 };
+      const studioL = document.querySelector<HTMLElement>('[data-node="studio:l"]');
+      if (!mob && studioL) {
+        bridge = { x: docPos(studioL).x + studioL.offsetWidth / 2 - lp.x, y: secBottomLocal + 2 };
+      } else {
+        const laneL = secW < 768 ? -0.1 * secW : Math.max(34, inset * secW);
+        bridge = { x: laneL - (lp.x - sp.x), y: secBottomLocal + 2 };
+      }
     }
 
     if (mob) {

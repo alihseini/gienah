@@ -37,6 +37,10 @@ type Props = {
   enter?: Side; // side the incoming line lands on (the entry title node)
   exit?: Side; // side the outgoing line departs from
   gap?: boolean; // Agile: arrive at the title node, then GAP, resume from the lower handoff node
+  enterTop?: boolean; // incoming drops straight DOWN onto the entry node (from above)
+                      // instead of sweeping in from the side lane — used where the
+                      // previous section hands the journey down from directly above
+                      // (Products → Studio), so it doesn't detour out to the lane.
 };
 
 type Pt = { x: number; y: number };
@@ -102,7 +106,7 @@ function buildStroke(segs: Seg[]): Stroke {
   return { d, keys };
 }
 
-export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }: Props) {
+export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, enterTop }: Props) {
   const svgRef = React.useRef<SVGSVGElement>(null);
   const reduce = useReducedMotion();
   const onArrive = useJourneyActivate();
@@ -183,12 +187,21 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
       const en = enter ? node(enter) : null;
       if (enter && !en) return; // entry node not measurable yet
       if (en) {
-        // phones: enter from whichever edge the node actually sits nearest (on mobile
-        // a card node can be on the opposite side from the desktop journey lane).
-        const lx = mob ? laneX(en.x < w / 2 ? "l" : "r", w) : laneX(enter as Side, w);
-        const top = { x: lx, y: 0 };
-        if (mob) push(top, { x: lx, y: en.y * 0.55 }, { x: lx, y: en.y }, en); // down lane, then stub in
-        else push(top, { x: lx, y: en.y * 0.45 }, { x: en.x, y: en.y * 0.7 }, en);
+        // enterTop (tablet + desktop, w≥768): the previous section hands the journey
+        // down from directly above, so drop straight onto the node instead of
+        // sweeping in from the side lane. True phones (<768) keep the lane route.
+        if (enterTop && w >= 768) {
+          const top = { x: en.x, y: 0 };
+          push(top, { x: en.x - (w >= 1024 ? 30 : 18), y: en.y * 0.42 }, { x: en.x, y: en.y * 0.78 }, en); // gentle drop from above
+        } else if (mob) {
+          // phones: enter from whichever edge the node actually sits nearest (a card
+          // node can be on the opposite side from the desktop journey lane).
+          const lx = laneX(en.x < w / 2 ? "l" : "r", w);
+          push({ x: lx, y: 0 }, { x: lx, y: en.y * 0.55 }, { x: lx, y: en.y }, en); // down lane, then stub in
+        } else {
+          const lx = laneX(enter as Side, w);
+          push({ x: lx, y: 0 }, { x: lx, y: en.y * 0.45 }, { x: en.x, y: en.y * 0.7 }, en);
+        }
         nodeY = en.y;
       }
       if (role !== "end") {
@@ -221,7 +234,7 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap }:
     const strokes = strokeSegs.filter((s) => s.length).map(buildStroke);
     if (!strokes.length) return;
     setGeo({ w, h, strokes, nodeY });
-  }, [sectionKey, role, enter, exit, gap]);
+  }, [sectionKey, role, enter, exit, gap, enterTop]);
 
   React.useLayoutEffect(() => {
     measure();
