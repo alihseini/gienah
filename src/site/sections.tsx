@@ -432,11 +432,11 @@ export function Featured() {
   return (
     <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3, padding: "120px 0 130px" }}>
       <SectionStars />
-      {/* Global journey: ARRIVE at the products title (header zone) + fire the gate,
-          but draw no body-crossing exit leg — the alternating full-width rows leave
-          no empty side lane, so the page line hands the journey off to the centre
-          ProductStoryline here (role="end" = entry + activation only, like Contact). */}
-      <SectionConnector sectionKey="products" role="end" enter="r" />
+      {/* Global journey: arrive at the title (right node), bow OVER the title to the
+          left node like every other section — then stop. No exit leg down: the
+          alternating full-width rows leave no side lane, so the ProductStoryline
+          departs from that left node and carries the journey down to Studio. */}
+      <SectionConnector sectionKey="products" enter="r" exit="l" noExitLeg />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         <SectionHead nodeId="products" tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
         {/* vertical journey: storyline (centre gutter, z 0) behind the rows (z 1) */}
