@@ -6,6 +6,12 @@
     "url": "https://tapsi.ir"
   },
   {
+    "id": "snapp",
+    "name": "snapp",
+    "logo": "/logos/snapp.png",
+    "url": "https://snapp.ir"
+  },
+  {
     "id": "iran-airshow",
     "name": "Iran Airshow",
     "logo": "/logos/airshow.avif",
@@ -17,12 +23,11 @@
     "logo": "/logos/charb.avif",
     "url": null
   },
-  { "id": "tops", "name": "Tops", "logo": null, "url": "https://topsapp.net/" },
   {
-    "id": "air-properties",
-    "name": "Air Properties",
-    "logo": null,
-    "url": null
+    "id": "tops",
+    "name": "Tops",
+    "logo": "/logos/tops.avif",
+    "url": "https://topsapp.net/"
   },
   {
     "id": "nabz-energy",
@@ -30,7 +35,17 @@
     "logo": "/logos/nabz.avif",
     "url": null
   },
-  { "id": "stonade", "name": "Stonade", "logo": null, "url": null },
-  { "id": "wigo", "name": "Wigo", "logo": null, "url": null },
-  { "id": "ilnekrad", "name": "iLnekrad", "logo": null, "url": null }
+  {
+    "id": "stonade",
+    "name": "Stonade",
+    "logo": "/logos/stonade.avif",
+    "url": null
+  },
+  { "id": "wigo", "name": "Wigo", "logo": "/logos/wigo.avif", "url": null },
+  {
+    "id": "ilnekrad",
+    "name": "iLnekrad",
+    "logo": "/logos/ilenkrad.avif",
+    "url": null
+  }
 ]

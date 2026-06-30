@@ -33,7 +33,7 @@
 .logo {
   height: 70px;
   width: auto;
-  max-width: 240px;
+  max-width: 150px;
   object-fit: contain;
   opacity: 0.55;
   filter: grayscale(1) brightness(1.7);
