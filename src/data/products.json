@@ -11,6 +11,7 @@
     "download": "https://play.google.com/store/apps/details?id=net.topsapp.app",
     "banner": "/uploads/tops-banner1.png",
     "shots": ["/uploads/tops1.png", "/uploads/tops2.png"],
+    "landingShot": "/uploads/tops1.png",
     "blurb": "A feature-rich educational game for high-school students — a fully complex, high-tech service built on AI and microservices that scales past 5M users. Its unique AI engine recommends the best course for each pupil from their data.",
     "desc": [
       "Tops Game is a feature-rich educational game for high-school students — a fully complex project and high-tech service that includes AI and microservices technology.",
@@ -20,19 +21,21 @@
   },
   {
     "id": 2,
-    "title": "Air Properties",
-    "year": "2024",
+    "title": "Snapp Carfix",
+    "year": "2025",
     "category": "App / PWA",
-    "tech": "React · Node.js · Python · AI",
+    "tech": "Next · Node.js",
     "tone": "azure",
     "featured": true,
-    "banner": "/uploads/air-banner.png",
-    "shots": ["/uploads/air-ui1.png", "/uploads/air-ui2.png"],
-    "blurb": "An LLM-powered platform reinventing the real-estate experience. Users chat with the AI about listings, get personalized home recommendations tuned to their preferences, and book a viewing with an agent — all seamlessly.",
+    "banner": "/snapp/snapp-main.png",
+    "shots": ["/snapp/snapp-main.png"],
+    "landingShot": "/snapp/snapp-main.png",
+    "blurb": "A complete car maintenance and repair hub within the Snapp ecosystem. Browse and buy spare parts, tools and accessories, then connect with trusted mechanics nearby for repairs, pickup or delivery.",
     "desc": [
-      "Air Properties is an innovative project powered by LLMs and advanced AI, designed to revolutionize the real-estate experience.",
-      "The platform provides personalized home recommendations tailored to user preferences. Users can chat with the AI about various properties, receive smart suggestions based on their interests, and even schedule a viewing with an agent seamlessly.",
-      "Its intelligent algorithms understand user preferences deeply, offering homes that align perfectly with their needs and lifestyle."
+      "Snapp Carfix is a complete destination for car maintenance and repair, seamlessly connected to the Snapp ecosystem.",
+      "Explore and purchase a wide range of essential car products — from spare parts and maintenance tools to accessories — selected to match your vehicle’s needs.",
+      "More than an online shop, Snapp Carfix helps car owners easily connect with trusted mechanics and service providers nearby, whether for part replacement, pickup, delivery, or on-site repair support.",
+      "It is designed to make car care faster, simpler, and more reliable, giving drivers a smooth experience from product selection to service completion."
     ]
   },
   {
@@ -44,7 +47,12 @@
     "tone": "gold",
     "featured": true,
     "banner": "/uploads/garage-banner.png",
-    "shots": ["/uploads/garage-ui1.png", "/uploads/garage-ui2.png", "/uploads/garage-ui3.png"],
+    "shots": [
+      "/uploads/garage-ui1.png",
+      "/uploads/garage-ui2.png",
+      "/uploads/garage-ui3.png"
+    ],
+    "landingShot": "./tapsi/tapsi-main.png",
     "blurb": "The ultimate hub for car maintenance inside the Tapsi super-app. Browse and buy spare parts, tools and accessories, then connect with professional mechanics nearby for repairs, pickup or delivery.",
     "desc": [
       "Tapsi Garage is the ultimate hub for car maintenance and repair, seamlessly integrated into the Tapsi super-app.",
@@ -63,6 +71,7 @@
     "featured": true,
     "banner": "/uploads/nabz-banner.jpg",
     "shots": ["/uploads/nabz-ui1.jpg", "/uploads/nabz-ui2.png"],
+    "landingShot": "/uploads/nabz-ui1.jpg",
     "blurb": "A platform that nudges people to cut gas and electricity use through awareness and gamification. AI-driven reports, challenges, points and rewards make sustainable habits engaging — and measurable.",
     "desc": [
       "Nabz Energy encourages users to reduce their gas and electricity consumption through awareness-building and gamification.",
@@ -81,6 +90,7 @@
     "featured": false,
     "banner": "/uploads/legal-banner.png",
     "shots": [],
+    "landingShot": null,
     "blurb": "A centralized platform that streamlines legal and contractual processes for Tapsi's subsidiaries.",
     "desc": [
       "Tapsi Legal streamlines all legal and contractual processes for Tapsi's subsidiaries.",
@@ -98,6 +108,7 @@
     "featured": false,
     "banner": "/uploads/stonade-banner.png",
     "shots": ["/uploads/stonade-ui1.png", "/uploads/stonade-ui2.png"],
+    "landingShot": "/uploads/stonade-ui1.png",
     "blurb": "A modern marketplace for buying and selling stone products in London, across iOS, Android and web.",
     "desc": [
       "Stonade is a modern marketplace for buying and selling stone products in London.",
@@ -115,6 +126,7 @@
     "featured": false,
     "banner": null,
     "shots": [],
+    "landingShot": null,
     "blurb": "A versatile HR panel with a powerful form builder and editor for end-to-end HR operations.",
     "desc": [
       "A versatile HR panel for companies, akin to SharePoint, built with React and Node.js.",
@@ -132,6 +144,7 @@
     "featured": false,
     "banner": "/uploads/wigo-banner1.png",
     "shots": ["/uploads/wigo1.png"],
+    "landingShot": "/uploads/wigo1.png",
     "blurb": "An advanced car-tracking app delivering real-time location, speed, route history and stops.",
     "desc": [
       "An advanced car-tracking app delivering accurate information about your vehicle's whereabouts and performance.",
@@ -149,7 +162,13 @@
     "featured": false,
     "website": "https://app.iranairshow.app/",
     "banner": "/uploads/airshow-banner1.png",
-    "shots": ["/uploads/airshow-ui1.png", "/uploads/airshow-ui2.png", "/uploads/airshow-ui3.png", "/uploads/airshow-ui4.png"],
+    "shots": [
+      "/uploads/airshow-ui1.png",
+      "/uploads/airshow-ui2.png",
+      "/uploads/airshow-ui3.png",
+      "/uploads/airshow-ui4.png"
+    ],
+    "landingShot": "/uploads/airshow-ui1.png",
     "blurb": "A one-stop exhibition app for visitors and exhibitors — live schedules, in-venue routing and direct contact.",
     "desc": [
       "An exhibition application offering a one-stop experience for visitors and exhibitors alike.",
@@ -167,7 +186,14 @@
     "tone": "azure",
     "featured": false,
     "banner": "/uploads/ilnkard-banner1.png",
-    "shots": ["/uploads/ilenkard-ui1.png", "/uploads/ilenkard-ui2.png", "/uploads/ilenkard-ui3.png", "/uploads/ilenkard-ui5.png", "/uploads/ilenkard-ui6.png"],
+    "shots": [
+      "/uploads/ilenkard-ui1.png",
+      "/uploads/ilenkard-ui2.png",
+      "/uploads/ilenkard-ui3.png",
+      "/uploads/ilenkard-ui5.png",
+      "/uploads/ilenkard-ui6.png"
+    ],
+    "landingShot": "/uploads/ilenkard-ui1.png",
     "blurb": "A state-of-the-art car-tracking app: real-time tracking, routing management and history-data analysis.",
     "desc": [
       "A state-of-the-art car-tracking app for a hassle-free, safe driving experience: real-time tracking, routing management and history-data analysis.",
@@ -185,7 +211,15 @@
     "tone": "gold",
     "featured": false,
     "banner": "/uploads/charb-banner11.png",
-    "shots": ["/uploads/charb-ui11.png", "/uploads/charb-ui222.png", "/uploads/charb-ui333.png", "/uploads/charb-ui44.png", "/uploads/charb-ui555.png", "/uploads/charb-ui66.png"],
+    "shots": [
+      "/uploads/charb-ui11.png",
+      "/uploads/charb-ui222.png",
+      "/uploads/charb-ui333.png",
+      "/uploads/charb-ui44.png",
+      "/uploads/charb-ui555.png",
+      "/uploads/charb-ui66.png"
+    ],
+    "landingShot": "/uploads/charb-ui11.png",
     "blurb": "A web panel for an oleic factory — salary slips, schedules, internal chat and a built-in LMS.",
     "desc": [
       "A web panel for an oleic factory that manages employee information efficiently and effectively.",

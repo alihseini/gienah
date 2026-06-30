@@ -373,7 +373,7 @@ function PhoneFrame({ p }: { p: Product }) {
     ? "linear-gradient(160deg, #fdf6e6, #f4d485 55%, #e2aa3b)"
     : "linear-gradient(160deg, #ecf6fc, #a7d8f1 55%, #2a92cc)";
   const fg = tone === "gold" ? "var(--gold-800)" : "var(--accent-800)";
-  const shot = p.shots[0];
+  const shot = p.landingShot ?? p.shots[0];
   return (
     <div className={s.device} data-pj-mockup="">
       <div className={s.deviceScreen} style={{ background: bg, padding: shot ? 0 : undefined }}>

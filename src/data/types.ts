@@ -12,6 +12,8 @@ export type Product = {
   download?: string;
   banner: string | null;
   shots: string[];
+  /** Image shown inside the phone mockup in the products section. */
+  landingShot: string | null;
   blurb: string;
   desc: string[];
   /** Optional case-study extras. When absent, the detail page derives sensible
