@@ -65,7 +65,7 @@ function finalize(start: Pt, segs: Seg[], nodeBoundary: number[]): { d: string; 
 // mockup), curves into a sway point sitting in the empty inter-row gap; the second
 // leaves that gap point and arrives at the next node straight DOWN its gutter. All
 // curves, no corners; a small alternating sway keeps it asymmetric/organic.
-function buildDesktop(start: Pt, nodes: Pt[], mockHalf: number, h: number): { d: string; nodeFracs: number[] } {
+function buildDesktop(start: Pt, nodes: Pt[], mockHalf: number, h: number, bridge: Pt | null): { d: string; nodeFracs: number[] } {
   const segs: Seg[] = [];
   const hv = mockHalf + 30;               // vertical hug past a mockup before curving
   const n0 = nodes[0];
@@ -91,17 +91,31 @@ function buildDesktop(start: Pt, nodes: Pt[], mockHalf: number, h: number): { d:
     nodeBoundary.push(segs.length); // node i+1 reached
   }
   const nl = nodes[nodes.length - 1];
-  const tailY = Math.min(h, nl.y + 110);
-  segs.push({ p0: nl, c1: { x: nl.x, y: nl.y + 50 }, c2: { x: nl.x + 8, y: tailY - 24 }, p3: { x: nl.x, y: tailY } });
+  if (bridge) {
+    // hand-off: flow from the last node, curve through the empty space below the
+    // last row, and arrive (vertically) at the next section's entry lane on the
+    // section's bottom edge — so the Products wire continues seamlessly into the
+    // "More from the studio" connector, which enters that exact lane.
+    const dx = bridge.x - nl.x;
+    const gm: Pt = { x: (nl.x + bridge.x) / 2 + (nodes.length % 2 ? -1 : 1) * Math.min(46, Math.abs(dx) * 0.05), y: nl.y + mockHalf + 44 };
+    segs.push({ p0: nl, c1: { x: nl.x, y: nl.y + hv }, c2: { x: gm.x - dx * 0.16, y: gm.y - 6 }, p3: gm });
+    segs.push({ p0: gm, c1: { x: gm.x + dx * 0.16, y: gm.y + 6 }, c2: { x: bridge.x, y: bridge.y - (bridge.y - gm.y) * 0.4 }, p3: bridge });
+  } else {
+    const tailY = Math.min(h, nl.y + 110);
+    segs.push({ p0: nl, c1: { x: nl.x, y: nl.y + 50 }, c2: { x: nl.x + 8, y: tailY - 24 }, p3: { x: nl.x, y: tailY } });
+  }
   return finalize(start, segs, nodeBoundary);
 }
 
-// Mobile left-lane line: a gentle organic vertical bow through the nodes.
-function buildMobile(nodes: Pt[], h: number): { d: string; nodeFracs: number[] } {
+// Mobile left-lane line: a gentle organic vertical bow through the nodes, then a
+// soft curve out to the next section's entry lane (bridge) so the wire continues
+// off the left edge into the studio connector exactly as on desktop.
+function buildMobile(nodes: Pt[], h: number, bridge: Pt | null): { d: string; nodeFracs: number[] } {
+  const end: Pt = bridge ?? { x: nodes[nodes.length - 1].x, y: Math.min(h, nodes[nodes.length - 1].y + 80) };
   const pts: Pt[] = [
     { x: nodes[0].x, y: Math.max(0, nodes[0].y - 80) },
     ...nodes,
-    { x: nodes[nodes.length - 1].x, y: Math.min(h, nodes[nodes.length - 1].y + 80) },
+    end,
   ];
   const segs: Seg[] = [];
   for (let i = 1; i < pts.length; i++) {
@@ -128,11 +142,35 @@ export function ProductStoryline({ count }: { count: number }) {
     if (!rows.length) return;
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
     const mob = w < 768;
+    const docPos = (el: HTMLElement) => {
+      let x = 0, y = 0, n: HTMLElement | null = el;
+      while (n) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      return { x, y };
+    };
+    const lp = docPos(list);
+
+    // Hand-off point into the next section ("More from the studio"). That section's
+    // connector enters on the LEFT lane at its top edge; sections are flush, so its
+    // top edge IS this section's bottom edge. End the wire at that same lane x on
+    // this section's bottom edge so the two read as one continuous line. laneL
+    // mirrors SectionConnector.laneX('l') (incl. the off-screen mobile lane);
+    // offL/secBottom convert section coords into the storyline SVG's (pjList) space.
+    const section = list.closest("section") as HTMLElement | null;
+    let bridge: Pt | null = null;
+    if (section) {
+      const sp = docPos(section);
+      const secW = section.offsetWidth;
+      const inset = secW >= 1440 ? 0.07 : secW >= 1024 ? 0.085 : 0.1;
+      const laneL = secW < 768 ? -0.1 * secW : Math.max(34, inset * secW);
+      const offL = lp.x - sp.x;
+      const secBottomLocal = sp.y + section.offsetHeight - lp.y;
+      bridge = { x: laneL - offL, y: secBottomLocal + 2 };
+    }
 
     if (mob) {
       const cx = Math.max(13, w * 0.045);
       const nodes: Pt[] = rows.map((row, i) => ({ x: cx + (i % 2 ? 6 : -6), y: row.offsetTop + row.offsetHeight / 2 }));
-      const { d, nodeFracs } = buildMobile(nodes, h);
+      const { d, nodeFracs } = buildMobile(nodes, h, bridge);
       setGeo({ w, h, d, nodeFracs, nodes });
       return;
     }
@@ -140,12 +178,6 @@ export function ProductStoryline({ count }: { count: number }) {
     // node sits just OUTSIDE each mockup, on the side away from the text — measured
     // from the mockup box in transform-independent layout space (offset chain) so
     // the rows' reveal transforms never shift the line off a node.
-    const docPos = (el: HTMLElement) => {
-      let x = 0, y = 0, n: HTMLElement | null = el;
-      while (n) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
-      return { x, y };
-    };
-    const lp = docPos(list);
     const GAP = 28;
     let mockHalf = 200;
     const nodes: Pt[] = rows.map((row, i) => {
@@ -165,7 +197,7 @@ export function ProductStoryline({ count }: { count: number }) {
       ? { x: docPos(tl).x + tl.offsetWidth / 2 - lp.x, y: docPos(tl).y + tl.offsetHeight / 2 - lp.y }
       : { x: nodes[0].x, y: -70 };
 
-    const { d, nodeFracs } = buildDesktop(start, nodes, mockHalf, h);
+    const { d, nodeFracs } = buildDesktop(start, nodes, mockHalf, h, bridge);
     setGeo({ w, h, d, nodeFracs, nodes });
   }, []);
 
@@ -238,10 +270,12 @@ export function ProductStoryline({ count }: { count: number }) {
       {geo.d && (
         <>
           <defs>
+            {/* blue gradient matching the global journey connector so the Products
+                wire and the next section's connector read as ONE continuous line */}
             <linearGradient id="pj-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#58abce" />
-              <stop offset="0.55" stopColor="#7cc3ee" />
-              <stop offset="1" stopColor="#e2aa3b" />
+              <stop offset="0" stopColor="#7cc3ee" />
+              <stop offset="0.55" stopColor="#58abce" />
+              <stop offset="1" stopColor="#5ab0d0" />
             </linearGradient>
           </defs>
           {reduce ? (
