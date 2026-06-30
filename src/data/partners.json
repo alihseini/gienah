@@ -1,10 +1,35 @@
 [
-  { "id": "tapsi", "name": "Tapsi", "logo": "/logos/tapsi.png", "url": "https://tapsi.ir" },
-  { "id": "iran-airshow", "name": "Iran Airshow", "logo": "/logos/airshow.png", "url": "https://app.iranairshow.app/" },
-  { "id": "charb-chimie", "name": "Charb Chimie", "logo": "/logos/charb.png", "url": null },
+  {
+    "id": "tapsi",
+    "name": "Tapsi",
+    "logo": "/logos/tapsi.avif",
+    "url": "https://tapsi.ir"
+  },
+  {
+    "id": "iran-airshow",
+    "name": "Iran Airshow",
+    "logo": "/logos/airshow.avif",
+    "url": "https://app.iranairshow.app/"
+  },
+  {
+    "id": "charb-chimie",
+    "name": "Charb Chimie",
+    "logo": "/logos/charb.avif",
+    "url": null
+  },
   { "id": "tops", "name": "Tops", "logo": null, "url": "https://topsapp.net/" },
-  { "id": "air-properties", "name": "Air Properties", "logo": null, "url": null },
-  { "id": "nabz-energy", "name": "Nabz Energy", "logo": null, "url": null },
+  {
+    "id": "air-properties",
+    "name": "Air Properties",
+    "logo": null,
+    "url": null
+  },
+  {
+    "id": "nabz-energy",
+    "name": "Nabz Energy",
+    "logo": "/logos/fav.png",
+    "url": null
+  },
   { "id": "stonade", "name": "Stonade", "logo": null, "url": null },
   { "id": "wigo", "name": "Wigo", "logo": null, "url": null },
   { "id": "ilnekrad", "name": "iLnekrad", "logo": null, "url": null }

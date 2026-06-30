@@ -28,13 +28,12 @@
   align-items: center;
   justify-content: center;
   padding: 0 clamp(22px, 4vw, 48px);
-  height: 40px;
   flex: none;
 }
 .logo {
-  height: 30px;
+  height: 70px;
   width: auto;
-  max-width: 150px;
+  max-width: 240px;
   object-fit: contain;
   opacity: 0.55;
   filter: grayscale(1) brightness(1.7);
@@ -51,7 +50,10 @@
 }
 .item:hover .wordmark { color: #fff; }
 @media (max-width: 760px) {
-  .logo { height: 24px; }
+  .logo {
+    height: 52px;
+    max-width: 190px;
+  }
   .wordmark { font-size: 16px; }
   .item { padding: 0 22px; }
 }
