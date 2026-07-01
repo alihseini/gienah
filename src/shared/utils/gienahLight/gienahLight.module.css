@@ -103,7 +103,8 @@
 /* off-centre safe corner (Hero) — a star tucked away from the headline/CTA */
 .posCorner {
   --x: 14%;
-  --y: 70%;
+  /* Keep the Hero halo anchored to the viewport, not to the settling Hero height. */
+  --y: clamp(470px, calc(70svh + 100px), 720px);
 }
 
 /* ---- halo: the soft cyan wash that locally brightens the section ---- */
