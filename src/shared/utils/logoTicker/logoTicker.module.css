@@ -31,13 +31,10 @@
   flex: none;
 }
 .logo {
-  height: 70px;
+  height: 110px;
   width: auto;
   max-width: 150px;
   object-fit: contain;
-  opacity: 0.55;
-  filter: grayscale(1) brightness(1.7);
-  transition: opacity 0.3s var(--ease-out), filter 0.3s var(--ease-out);
 }
 .item:hover .logo { opacity: 1; filter: grayscale(0) brightness(1); }
 .wordmark {
