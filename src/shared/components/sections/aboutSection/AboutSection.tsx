@@ -1,8 +1,7 @@
 "use client";
 import React from "react";
 import { Button, Card, Icon } from "@/shared/components";
-import { Reveal, ScrollParallax, siteStyles as s, go } from "@/shared/utils/helpers";
-import { BackgroundBeams } from "@/shared/utils/bgbeams/BackgroundBeams";
+import { Reveal, siteStyles as s, go } from "@/shared/utils/helpers";
 import { HeadingReveal } from "@/shared/utils/headingReveal/HeadingReveal";
 import { TypingAnimation } from "@/shared/utils/typing/TypingAnimation";
 import { Stagger, Lift } from "@/shared/utils/motion/motion";
@@ -16,7 +15,6 @@ export function About() {
   return (
     <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" data-anim-pause style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
       <SectionStars />
-      <ScrollParallax max={52}><BackgroundBeams /></ScrollParallax>
       {/* About is a real stop on the journey: the line comes down the left lane,
           lands on the About node, then continues down the same lane to Contact —
           so it never crosses About's two-column content */}
