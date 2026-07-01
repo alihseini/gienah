@@ -15,18 +15,25 @@ export function HeadingReveal({
   className = "",
   style,
   stagger = 75,
+  lcpSafe = false,
 }: {
   segments: HeadingSeg[];
   as?: React.ElementType;
   className?: string;
   style?: React.CSSProperties;
   stagger?: number;
+  lcpSafe?: boolean;
 }) {
   const ref = React.useRef<HTMLElement>(null);
-  const [shown, setShown] = React.useState(false);
+  const [shown, setShown] = React.useState(lcpSafe);
+  const [accentReady, setAccentReady] = React.useState(false);
   const ready = useJourneyReady();
 
   React.useEffect(() => {
+    if (lcpSafe) {
+      const t = window.setTimeout(() => setAccentReady(true), 1200);
+      return () => window.clearTimeout(t);
+    }
     const el = ref.current;
     if (!el) return;
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -51,7 +58,7 @@ export function HeadingReveal({
       setShown(true);
     }
     return () => { if (io) io.disconnect(); };
-  }, [ready]);
+  }, [ready, lcpSafe]);
 
   const tokens = React.useMemo(() => {
     const out: ({ type: "word"; w: string; accent: boolean } | { type: "br" })[] = [];
@@ -64,7 +71,7 @@ export function HeadingReveal({
 
   let wi = 0;
   return (
-    <Tag ref={ref} className={[shown ? s.revealed : "", className].filter(Boolean).join(" ")} style={style}>
+    <Tag ref={ref} className={[lcpSafe ? s.lcpSafe : "", shown ? s.revealed : "", accentReady ? s.accentReady : "", className].filter(Boolean).join(" ")} style={style}>
       {tokens.map((t, i) => {
         if (t.type === "br") return <br key={i} />;
         const delay = wi * stagger;

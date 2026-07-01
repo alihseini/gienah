@@ -85,6 +85,7 @@ export function Hero() {
         </FadeIn>
         <HeadingReveal
           as="h1"
+          lcpSafe
           style={{ fontSize: "clamp(40px, 7vw, 82px)", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-0.04em", margin: "0 auto", maxWidth: 980, color: "#fff" }}
           segments={[{ text: site.hero.titleLead }, { text: site.hero.titleAccent, accent: true }]}
         />

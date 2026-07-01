@@ -13,6 +13,12 @@
   opacity: 1;
   transform: none;
 }
+.lcpSafe .word {
+  opacity: 1;
+  transform: none;
+  transition: none;
+  will-change: auto;
+}
 .accent {
   display: inline-block;
   background-image: linear-gradient(90deg, #58abce, #2a92cc, #f4c65f, #e2aa3b, #58abce);
@@ -22,6 +28,13 @@
   color: transparent;
   -webkit-text-fill-color: transparent;
   animation: diaFlow 7s linear infinite;
+}
+.lcpSafe .accent {
+  animation: none;
+  background-position: 0 0;
+}
+.lcpSafe.accentReady .accent {
+  animation: diaFlow 9s linear infinite;
 }
 @keyframes diaFlow {
   to { background-position: 200% 0; }
