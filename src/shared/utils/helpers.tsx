@@ -23,6 +23,16 @@ export function go(id: string) {
 const reduceMotion = () =>
   typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+const safariScrollLayerLock = () => {
+  if (typeof window === "undefined") return false;
+  const touchSafari = CSS.supports("-webkit-touch-callout", "none");
+  const desktopSafari =
+    navigator.vendor === "Apple Computer, Inc." &&
+    /Safari/.test(navigator.userAgent) &&
+    !/(Chrome|Chromium|CriOS|FxiOS|Edg|OPR)/.test(navigator.userAgent);
+  return touchSafari || desktopSafari;
+};
+
 /* ---------------- Reveal ---------------- */
 const VARIANT_CLASS: Record<string, string> = {
   up: "",
@@ -125,6 +135,7 @@ const PARALLAX_PRESETS: Record<string, { y: number; scale: number }> = {
 export function useParallax() {
   React.useEffect(() => {
     if (reduceMotion()) return;
+    const lockSafariBackgrounds = safariScrollLayerLock();
     const mobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
     const factor = mobile ? 0.5 : 1; // mobile: ~half the movement
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
@@ -141,13 +152,18 @@ export function useParallax() {
       return t;
     };
     const collect = () => {
-      items = Array.from(document.querySelectorAll<HTMLElement>("[data-parallax]")).map((el) => {
+      items = Array.from(document.querySelectorAll<HTMLElement>("[data-parallax]")).flatMap((el) => {
+        if (lockSafariBackgrounds && el.dataset.parallaxLock === "safari") {
+          el.style.transform = "";
+          el.style.willChange = "auto";
+          return [];
+        }
         const raw = el.dataset.parallax || "medium";
         const preset = PARALLAX_PRESETS[raw];
         const y = (preset ? preset.y : parseFloat(raw) || 0) * factor;
         const scaleAttr = el.dataset.parallaxScale ? parseFloat(el.dataset.parallaxScale) : preset ? preset.scale : 0;
         el.style.willChange = "transform";
-        return { el, y, scale: (scaleAttr || 0) * factor, top: docTop(el), h: el.offsetHeight, last: "" };
+        return [{ el, y, scale: (scaleAttr || 0) * factor, top: docTop(el), h: el.offsetHeight, last: "" }];
       });
     };
     collect();
@@ -193,17 +209,20 @@ export function ScrollParallax({
   children,
   style,
   className = "",
+  safariLock = true,
 }: {
   max?: number;
   scale?: number;
   children: React.ReactNode;
   style?: React.CSSProperties;
   className?: string;
+  safariLock?: boolean;
 }) {
   return (
     <div
       aria-hidden="true"
       data-parallax={String(max)}
+      {...(safariLock ? { "data-parallax-lock": "safari" } : {})}
       {...(scale ? { "data-parallax-scale": String(scale) } : {})}
       className={[s.parallax, className].filter(Boolean).join(" ")}
       style={{ position: "absolute", inset: -Math.abs(max), zIndex: 0, pointerEvents: "none", ...style }}
