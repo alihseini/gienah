@@ -1,33 +1,5 @@
 [
   {
-    "id": 1,
-    "title": "Tops",
-    "year": "2020",
-    "category": "App / iOS & Android",
-    "tech": "React Native · Node.js · Golang · AI",
-    "tone": "gold",
-    "featured": true,
-    "website": "https://topsapp.net/",
-    "download": "https://play.google.com/store/apps/details?id=net.topsapp.app",
-    "banner": "/banners/tops-banner.avif",
-    "shots": [
-      "/tops/tops-screens/tops-screen1.avif",
-      "/tops/tops-screens/tops-screen2.avif",
-      "/tops/tops-screens/tops-screen3.avif",
-      "/tops/tops-screens/tops-screen4.avif",
-      "/tops/tops-screens/tops-screen5.avif",
-      "/tops/tops-screens/tops-screen6.avif",
-      "/tops/tops-screens/tops-screen7.avif"
-    ],
-    "landingShot": "/tops/tops-main.avif",
-    "blurb": "A feature-rich educational game for high-school students — a fully complex, high-tech service built on AI and microservices that scales past 5M users. Its unique AI engine recommends the best course for each pupil from their data.",
-    "desc": [
-      "Tops Game is a feature-rich educational game for high-school students — a fully complex project and high-tech service that includes AI and microservices technology.",
-      "This platform can tolerate more than 5M users. It connects different students with the same characteristics to each other, then evaluates them.",
-      "Tops also has a unique AI engine that recommends the best course for each pupil based on their data."
-    ]
-  },
-  {
     "id": 2,
     "title": "Snapp Carfix",
     "year": "2025",
@@ -72,6 +44,50 @@
       "Browse and purchase a wide range of essential car products — spare parts, maintenance tools and accessories — all tailored to your needs.",
       "Beyond shopping, Tapsi Garage offers a smart, convenient way to connect with professional mechanics near you: replacing a part, picking up your items, or arranging delivery directly to your location.",
       "It's built to save time, reduce hassle and deliver a smooth experience for car owners."
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Air Properties",
+    "year": "2024",
+    "category": "App / PWA",
+    "tech": "React · Node.js · Python · Ai",
+    "tone": "azure",
+    "featured": true,
+    "banner": "/banners/air-banner.avif",
+    "shots": ["/air/air-ui/air-ui1.avif", "/air/air-ui/air-ui2.avif"],
+    "landingShot": null,
+    "blurb": "Air Properties is an AI-powered real estate platform that delivers personalized home recommendations, smart property chat, and seamless scheduling with agents.",
+    "desc": [
+      "Air Properties is an innovative project powered by LLMs and advanced AI, designed to revolutionize the real estate experience. This platform provides personalized home recommendations tailored to user preferences. Users can chat with the AI about various properties, receive smart suggestions based on their interests, and even schedule a viewing with an agent seamlessly. The AI’s intelligent algorithms ensure it understands user preferences deeply, offering homes that align perfectly with their needs and lifestyle."
+    ]
+  },
+  {
+    "id": 1,
+    "title": "Tops",
+    "year": "2020",
+    "category": "App / iOS & Android",
+    "tech": "React Native · Node.js · Golang · AI",
+    "tone": "gold",
+    "featured": true,
+    "website": "https://topsapp.net/",
+    "download": "https://play.google.com/store/apps/details?id=net.topsapp.app",
+    "banner": "/banners/tops-banner.avif",
+    "shots": [
+      "/tops/tops-screens/tops-screen1.avif",
+      "/tops/tops-screens/tops-screen2.avif",
+      "/tops/tops-screens/tops-screen3.avif",
+      "/tops/tops-screens/tops-screen4.avif",
+      "/tops/tops-screens/tops-screen5.avif",
+      "/tops/tops-screens/tops-screen6.avif",
+      "/tops/tops-screens/tops-screen7.avif"
+    ],
+    "landingShot": "/tops/tops-main.avif",
+    "blurb": "A feature-rich educational game for high-school students — a fully complex, high-tech service built on AI and microservices that scales past 5M users. Its unique AI engine recommends the best course for each pupil from their data.",
+    "desc": [
+      "Tops Game is a feature-rich educational game for high-school students — a fully complex project and high-tech service that includes AI and microservices technology.",
+      "This platform can tolerate more than 5M users. It connects different students with the same characteristics to each other, then evaluates them.",
+      "Tops also has a unique AI engine that recommends the best course for each pupil based on their data."
     ]
   },
   {
@@ -164,22 +180,6 @@
       "A versatile HR panel for companies, akin to SharePoint, built with React and Node.js.",
       "Central to the platform is an HR-focused form builder enabling effortless creation of diverse forms, plus an interactive form editor crucial for HR operations.",
       "The system includes a comprehensive employee list for form assignment. Employees complete forms in the panel, with results shared among managers and team members — streamlining HR processes end to end."
-    ]
-  },
-  {
-    "id": 8,
-    "title": "Air Properties",
-    "year": "2024",
-    "category": "App / PWA",
-    "tech": "React · Node.js · Python · Ai",
-    "tone": "azure",
-    "featured": false,
-    "banner": "/banners/air-banner.avif",
-    "shots": ["/air/air-ui/air-ui1.avif", "/air/air-ui/air-ui2.avif"],
-    "landingShot": null,
-    "blurb": "Air Properties is an AI-powered real estate platform that delivers personalized home recommendations, smart property chat, and seamless scheduling with agents.",
-    "desc": [
-      "Air Properties is an innovative project powered by LLMs and advanced AI, designed to revolutionize the real estate experience. This platform provides personalized home recommendations tailored to user preferences. Users can chat with the AI about various properties, receive smart suggestions based on their interests, and even schedule a viewing with an agent seamlessly. The AI’s intelligent algorithms ensure it understands user preferences deeply, offering homes that align perfectly with their needs and lifestyle."
     ]
   },
   {
