@@ -5,6 +5,7 @@ import { HeadingReveal } from "./headingReveal/HeadingReveal";
 import { TypingAnimation } from "./typing/TypingAnimation";
 import { useJourneyReady } from "./journeyGate/JourneyGate";
 import { TitleNodes } from "./titleNodes/TitleNodes";
+import { stableViewportHeight } from "./viewport";
 
 /* ---------------- brand colors + helpers ---------------- */
 export const C = { blue1: "#58ABCE", blue2: "#2A92CC", gold1: "#F4C65F", gold2: "#E2AA3B" };
@@ -65,7 +66,7 @@ export function Reveal({
     };
     const inView = () => {
       const r = el.getBoundingClientRect();
-      return r.top < window.innerHeight && r.bottom > 0;
+      return r.top < stableViewportHeight() && r.bottom > 0;
     };
     let io: IntersectionObserver | undefined;
     if (inView()) {
@@ -153,7 +154,7 @@ export function useParallax() {
     let raf = 0;
     const update = () => {
       raf = 0;
-      const vh = window.innerHeight || 1;
+      const vh = stableViewportHeight();
       const sy = window.scrollY || window.pageYOffset || 0;
       for (const item of items) {
         const { el, y, scale, top, h } = item;
@@ -237,7 +238,7 @@ export function CountUp({ value }: { value: string }) {
       };
       raf = requestAnimationFrame(tick);
     };
-    const inView = () => { const r = el.getBoundingClientRect(); return r.top < window.innerHeight && r.bottom > 0; };
+    const inView = () => { const r = el.getBoundingClientRect(); return r.top < stableViewportHeight() && r.bottom > 0; };
     if (inView()) { run(); return; }
     let io: IntersectionObserver | undefined;
     try { io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { run(); io && io.disconnect(); } }, { threshold: 0.6 }); io.observe(el); }
@@ -252,7 +253,7 @@ export function CountUp({ value }: { value: string }) {
 export function ScrollProgress() {
   const [p, setP] = React.useState(0);
   React.useEffect(() => {
-    const onS = () => { const h = document.documentElement.scrollHeight - window.innerHeight; setP(h > 0 ? Math.min(1, window.scrollY / h) : 0); };
+    const onS = () => { const h = document.documentElement.scrollHeight - stableViewportHeight(); setP(h > 0 ? Math.min(1, window.scrollY / h) : 0); };
     window.addEventListener("scroll", onS, { passive: true });
     onS();
     return () => window.removeEventListener("scroll", onS);
@@ -304,7 +305,7 @@ export function useLayerChoreography() {
     let raf = 0;
     const update = () => {
       raf = 0;
-      const H = window.innerHeight || 1;
+      const H = stableViewportHeight();
       const sy = window.scrollY || window.pageYOffset || 0;
       for (const item of els) {
         const { el, depth, top, h } = item;
@@ -352,7 +353,7 @@ export function useSectionEntrance() {
     }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
     document.querySelectorAll<HTMLElement>("[data-sx]").forEach((el) => {
       const r = el.getBoundingClientRect();
-      if (r.top < window.innerHeight * 0.86 && r.bottom > 0) el.dataset.shown = "";
+      if (r.top < stableViewportHeight() * 0.86 && r.bottom > 0) el.dataset.shown = "";
       else io.observe(el);
     });
     return () => io.disconnect();

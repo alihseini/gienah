@@ -2,6 +2,7 @@
 import React from "react";
 import s from "./headingReveal.module.css";
 import { useJourneyReady } from "../journeyGate/JourneyGate";
+import { stableViewportHeight } from "../viewport";
 
 /* Word-by-word heading reveal: each word fades up sequentially when the heading
    enters the viewport (IntersectionObserver, runs once). Words flagged `accent`
@@ -43,7 +44,7 @@ export function HeadingReveal({
     // gated sections wait for the connector to arrive (ready) before revealing
     if (!ready) return;
     const r = el.getBoundingClientRect();
-    if (r.top < window.innerHeight * 0.92 && r.bottom > 0) {
+    if (r.top < stableViewportHeight() * 0.92 && r.bottom > 0) {
       setShown(true);
       return;
     }

@@ -12,6 +12,7 @@ import { SectionConnector } from "@/shared/utils/sectionConnector/SectionConnect
 import c from "./constellationJourney.module.css";
 import site from "@/shared/data/site.json";
 import { reduceMotion } from "../sectionUtils";
+import { stableViewportHeight } from "@/shared/utils/viewport";
 
 /* ---------------- hero ---------------- */
 export function Hero() {
@@ -42,7 +43,7 @@ export function Hero() {
     const onMove = (e: MouseEvent) => {
       if (!visible) return;
       tx = e.clientX / window.innerWidth - 0.5;
-      ty = e.clientY / window.innerHeight - 0.5;
+      ty = e.clientY / stableViewportHeight() - 0.5;
       if (!raf) raf = requestAnimationFrame(tick);
     };
     const io = new IntersectionObserver(([entry]) => {

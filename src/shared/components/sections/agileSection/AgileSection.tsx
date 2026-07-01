@@ -8,6 +8,7 @@ import ag from "./agileStage.module.css";
 import agileData from "@/shared/data/agile.json";
 import type { AgileStage } from "@/shared/data/types";
 import { reduceMotion } from "../sectionUtils";
+import { stableViewportHeight } from "@/shared/utils/viewport";
 
 const AGILE = agileData as AgileStage[];
 
@@ -62,7 +63,7 @@ export function Agile() {
     );
     slots.forEach((el) => {
       const r = el.getBoundingClientRect();
-      if (r.top < window.innerHeight * 0.85 && r.bottom > 0) el.dataset.shown = "";
+      if (r.top < stableViewportHeight() * 0.85 && r.bottom > 0) el.dataset.shown = "";
       else io.observe(el);
     });
     return () => io.disconnect();
@@ -122,7 +123,7 @@ export function Agile() {
     const update = () => {
       raf = 0;
       const r = root.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
+      const vh = stableViewportHeight();
       if (r.bottom < -vh * 0.2) {
         if (lastP !== "1") {
           root.style.setProperty("--p", "1");

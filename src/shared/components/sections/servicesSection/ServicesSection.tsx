@@ -7,6 +7,7 @@ import { SectionStars } from "@/shared/utils/sectionStars/SectionStars";
 import servicesData from "@/shared/data/services.json";
 import type { Service } from "@/shared/data/types";
 import { reduceMotion, _clamp, _lerp, easeOutCubic, smoothstep } from "../sectionUtils";
+import { stableViewportHeight } from "@/shared/utils/viewport";
 
 const SERVICES = servicesData as Service[];
 
@@ -156,7 +157,7 @@ export function Services() {
       raf = 0;
       const el = trackRef.current; if (!el) return;
       const r = el.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
+      const vh = stableViewportHeight();
       if (r.bottom < -vh * 0.2 || r.top > vh * 1.2) return;
       const dist = el.offsetHeight - vh;
       const scrolled = _clamp(-r.top, 0, dist);
@@ -200,7 +201,7 @@ export function Services() {
 
   return (
     <section id="services" className={s.panel} data-anim-pause style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2 }}>
-      <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
+      <div ref={trackRef} className={s.svcTrack} style={{ position: "relative", zIndex: 1, ["--svc-count" as string]: N }}>
         <div className={s.svcStage} style={{ position: "sticky", top: 0, display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
           <SectionStars />
           {/* connector lives inside the pinned stage so it never drifts from the
@@ -226,7 +227,6 @@ export function Services() {
                     zIndex: i + 1,
                     transformOrigin: "center top",
                     pointerEvents: i === active ? "auto" : "none",
-                    willChange: "transform, opacity",
                     backfaceVisibility: "hidden",
                   }}
                 >

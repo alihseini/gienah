@@ -877,6 +877,10 @@
   height: 100vh;
   height: 100svh;
 }
+.svcTrack {
+  height: calc(var(--svc-count) * 88vh);
+  height: calc(var(--svc-count) * 88svh);
+}
 .svcStage {
   padding: 100px 0 52px;
 }
@@ -895,10 +899,14 @@
 .svcCard {
   opacity: 0;
   transform: translate3d(0, 100%, 0) scale(0.96);
+  will-change: transform, opacity;
 }
 .svcCard:first-child {
   opacity: 1;
   transform: none;
+}
+.svcCard[aria-hidden="true"] {
+  will-change: auto;
 }
 @media (max-height: 820px) {
   .svcStage {

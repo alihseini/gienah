@@ -2,6 +2,7 @@
 import React from "react";
 import t from "./typing.module.css";
 import { useJourneyReady } from "../journeyGate/JourneyGate";
+import { stableViewportHeight } from "../viewport";
 
 /* ---------------- Magic UI–style Typing Animation ----------------
  * Reveals `text` character by character when the element scrolls into view.
@@ -80,7 +81,7 @@ export function TypingAnimation({
 
     const inView = () => {
       const r = el.getBoundingClientRect();
-      return r.top < window.innerHeight && r.bottom > 0;
+      return r.top < stableViewportHeight() && r.bottom > 0;
     };
 
     let io: IntersectionObserver | undefined;

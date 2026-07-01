@@ -2,6 +2,7 @@
 import * as React from "react";
 import { motion, useMotionValue, useReducedMotion } from "motion/react";
 import st from "./productStoryline.module.css";
+import { stableViewportHeight } from "../viewport";
 
 /* ProductStoryline
  *
@@ -264,7 +265,7 @@ export function ProductStoryline({ count }: { count: number }) {
     const update = () => {
       raf = 0;
       const r = svg.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
+      const vh = stableViewportHeight();
       if (r.bottom < -vh * 0.2) {
         applyFraction(1);
         return;

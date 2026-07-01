@@ -3,6 +3,7 @@ import * as React from "react";
 import { motion, useMotionValue, useReducedMotion } from "motion/react";
 import c from "../../components/sections/heroSection/constellationJourney.module.css";
 import { useJourneyActivate } from "../journeyGate/JourneyGate";
+import { stableViewportHeight } from "../viewport";
 
 /* SectionConnector
  *
@@ -274,7 +275,7 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
     const update = () => {
       raf = 0;
       const r = svg.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
+      const vh = stableViewportHeight();
       if (r.bottom < -vh * 0.2) {
         draw.set(1);
         draw2.set(1);
