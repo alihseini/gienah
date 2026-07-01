@@ -27,14 +27,14 @@
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  animation: diaFlow 7s linear infinite;
+  animation: diaFlow 14s linear 0.8s infinite;
 }
 .lcpSafe .accent {
   animation: none;
   background-position: 0 0;
 }
 .lcpSafe.accentReady .accent {
-  animation: diaFlow 9s linear infinite;
+  animation: diaFlow 16s linear infinite;
 }
 @keyframes diaFlow {
   to { background-position: 200% 0; }

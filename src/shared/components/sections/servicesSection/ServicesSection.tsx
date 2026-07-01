@@ -65,9 +65,9 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
  * For each card we work in `rel = head - i` (negative = still to come, 0 = active,
  * positive = already passed):
  *   - rel < -1  : waiting below the fold — peeks a sliver at the BOTTOM of the deck
- *                 (soft, blurred, dim), the immediate-next one fading up as it nears.
+ *                 (soft and dim), the immediate-next one fading up as it nears.
  *   - -1 → 0    : ENTERING — slides UP from that bottom-peek to fill the deck, fading
- *                 in + de-blurring with a premium ease. It rides on top (z = i+1), so
+ *                 in with a premium ease. It rides on top (z = i+1), so
  *                 it covers the previous card as it rises ("comes from down, goes on
  *                 top of the previous card").
  *   - rel > 0   : PASSED — it does NOT recede/shrink away; it stays put and only
@@ -76,13 +76,13 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
  * The three phases are continuous at rel = -1 and rel = 0, so the whole thing is one
  * smooth scroll-linked curve — never jumpy. `H` is the live deck height, so the rise
  * distance and bottom-peek scale with the actual card size at every breakpoint. */
-type CardStyle = { transform: string; opacity: number; filter: string };
+type CardStyle = { transform: string; opacity: number };
 const CARD_STYLE_CACHE = new WeakMap<HTMLElement, CardStyle>();
 function computeCardStyle(i: number, head: number, mobile: boolean, H: number): CardStyle {
   const rel = head - i;
   const ENTER = Math.max(220, H * 0.88);        // rise distance ⇒ ~12% bottom-peek
   const PEEK_TOP = mobile ? 0 : 18;             // header sliver each passed card shows
-  let y: number, opacity: number, blur: number, scale: number, bright: number;
+  let y: number, opacity: number, scale: number;
 
   if (rel >= 0) {
     // passed/active: stays in place, only eases up to peek above the new top card.
@@ -92,34 +92,23 @@ function computeCardStyle(i: number, head: number, mobile: boolean, H: number): 
     y = -PEEK_TOP * d;
     scale = 1 - 0.018 * d;
     opacity = Math.max(0.5, 1 - 0.14 * d);
-    blur = 1.1 * d;                              // subtle, just pushes it back
-    bright = Math.max(0.72, 1 - 0.09 * d);
   } else if (rel >= -1) {
-    // entering: rise from the bottom-peek up to active, fading in + de-blurring.
+    // entering: rise from the bottom-peek up to active, fading in.
     const t = easeOutCubic(rel + 1);            // 0 at rel=-1 → 1 at rel=0
     y = _lerp(ENTER, 0, t);
     scale = _lerp(0.96, 1, t);
     opacity = _lerp(0.35, 1, smoothstep(rel + 1));
-    blur = _lerp(8, 0, t);
-    bright = _lerp(0.85, 1, t);
   } else {
     // waiting below: the immediate-next card peeks a sliver at the bottom, the rest
     // stay hidden until they're next (opacity fades 0 → 0.35 as rel climbs -2 → -1).
     y = ENTER;
     scale = 0.96;
     opacity = _lerp(0, 0.35, _clamp(rel + 2, 0, 1));
-    blur = 8;
-    bright = 0.85;
   }
-
-  const parts: string[] = [];
-  if (blur > 0.12) parts.push(`blur(${blur.toFixed(2)}px)`);
-  if (bright < 0.999) parts.push(`brightness(${bright.toFixed(3)})`);
 
   return {
     transform: `translate3d(0, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`,
     opacity: Number(opacity.toFixed(3)),
-    filter: parts.length ? parts.join(" ") : "none",
   };
 }
 
@@ -127,7 +116,6 @@ function writeCardStyle(el: HTMLElement, st: CardStyle) {
   const prev = CARD_STYLE_CACHE.get(el);
   if (prev?.transform !== st.transform) el.style.transform = st.transform;
   if (prev?.opacity !== st.opacity) el.style.opacity = String(st.opacity);
-  if (prev?.filter !== st.filter) el.style.filter = st.filter;
   CARD_STYLE_CACHE.set(el, st);
 }
 
@@ -139,7 +127,7 @@ export function Services() {
   // `active` is the rounded playhead — used ONLY for the discrete bits (dots, aria,
   // pointer-events, dimmed ring). It changes a handful of times across the whole
   // scroll, so it never drives a per-frame re-render. The continuous transform /
-  // opacity / blur are written straight to each card's DOM node in rAF (below),
+  // opacity is written straight to each card's DOM node in rAF (below),
   // never through React state, so scrolling costs zero React work.
   const [active, setActive] = React.useState(0);
   // reduced-motion is detected AFTER mount so the server and the first client
@@ -222,7 +210,7 @@ export function Services() {
             {Header}
             {/* The deck. Every card is absolutely stacked (inset:0); z-index = i+1 so
                 each new card layers ABOVE the previous one (newest in front, earlier
-                ones peeking behind). transform/opacity/filter start from CSS (.svcCard
+                ones peeking behind). transform/opacity start from CSS (.svcCard
                 defaults = the head===0 resting state, so no pre-JS flash) and are then
                 owned by the rAF writer. They're intentionally NOT in this JSX style so
                 an `active` re-render can't clobber the live scroll values. */}
@@ -238,7 +226,7 @@ export function Services() {
                     zIndex: i + 1,
                     transformOrigin: "center top",
                     pointerEvents: i === active ? "auto" : "none",
-                    willChange: "transform, opacity, filter",
+                    willChange: "transform, opacity",
                     backfaceVisibility: "hidden",
                   }}
                 >

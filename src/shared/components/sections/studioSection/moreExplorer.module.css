@@ -108,6 +108,7 @@
   );
   transform: skewX(-16deg);
   opacity: 0;
+  will-change: transform, opacity;
 }
 .row:hover::before,
 .row:focus-visible::before,
@@ -211,11 +212,11 @@
 
 @keyframes shine {
   from {
-    left: -60%;
+    transform: translateX(0) skewX(-16deg);
     opacity: 0.9;
   }
   to {
-    left: 110%;
+    transform: translateX(380%) skewX(-16deg);
     opacity: 0;
   }
 }

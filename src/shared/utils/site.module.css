@@ -887,7 +887,7 @@
 }
 /* Resting state for the scroll-progress deck cards = computeCardStyle(i, head:0).
    These defaults paint the correct first frame (card 1 active, the rest waiting
-   fully below the deck, blurred + transparent) before JS hydrates; the rAF writer
+   fully below the deck and transparent) before JS hydrates; the rAF writer
    then owns these three properties imperatively. Inline JSX intentionally omits
    them so a re-render can't reset the live scroll values. translateY(100%) is
    relative to the card's own height, so the waiting cards sit just below the fold
@@ -895,12 +895,10 @@
 .svcCard {
   opacity: 0;
   transform: translate3d(0, 100%, 0) scale(0.96);
-  filter: blur(8px);
 }
 .svcCard:first-child {
   opacity: 1;
   transform: none;
-  filter: none;
 }
 @media (max-height: 820px) {
   .svcStage {
