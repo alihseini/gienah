@@ -18,6 +18,12 @@
     "url": "https://app.iranairshow.app/"
   },
   {
+    "id": "air",
+    "name": "Air",
+    "logo": "/logos/air.avif",
+    "url": null
+  },
+  {
     "id": "charb-chimie",
     "name": "Charb Chimie",
     "logo": "/logos/charb.avif",
