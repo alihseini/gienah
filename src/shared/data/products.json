@@ -9,9 +9,17 @@
     "featured": true,
     "website": "https://topsapp.net/",
     "download": "https://play.google.com/store/apps/details?id=net.topsapp.app",
-    "banner": "/tops/tops-main.png",
-    "shots": ["/tops/tops-main.png"],
-    "landingShot": "/tops/tops-main.png",
+    "banner": "/banners/tops-banner.avif",
+    "shots": [
+      "/tops/tops-screens/tops-screen1.avif",
+      "/tops/tops-screens/tops-screen2.avif",
+      "/tops/tops-screens/tops-screen3.avif",
+      "/tops/tops-screens/tops-screen4.avif",
+      "/tops/tops-screens/tops-screen5.avif",
+      "/tops/tops-screens/tops-screen6.avif",
+      "/tops/tops-screens/tops-screen7.avif"
+    ],
+    "landingShot": "/tops/tops-main.avif",
     "blurb": "A feature-rich educational game for high-school students — a fully complex, high-tech service built on AI and microservices that scales past 5M users. Its unique AI engine recommends the best course for each pupil from their data.",
     "desc": [
       "Tops Game is a feature-rich educational game for high-school students — a fully complex project and high-tech service that includes AI and microservices technology.",
@@ -27,8 +35,13 @@
     "tech": "Next · Node.js",
     "tone": "azure",
     "featured": true,
-    "banner": "/snapp/snapp-main.avif",
-    "shots": ["/snapp/snapp-main.avif"],
+    "banner": "/banners/snapp-banner.avif",
+    "shots": [
+      "/snapp/snapp-screens/snapp-screen-1.avif",
+      "/snapp/snapp-screens/snapp-screen-2.avif",
+      "/snapp/snapp-screens/snapp-screen-3.avif",
+      "/snapp/snapp-screens/snapp-screen-4.avif"
+    ],
     "landingShot": "/snapp/snapp-main.avif",
     "blurb": "A complete car maintenance and repair hub within the Snapp ecosystem. Browse and buy spare parts, tools and accessories, then connect with trusted mechanics nearby for repairs, pickup or delivery.",
     "desc": [
@@ -46,9 +59,13 @@
     "tech": "React · Node.js",
     "tone": "gold",
     "featured": true,
-    "banner": "/tapsi/tapsi-main.avif",
-    "shots": ["/tapsi/tapsi-main.avif"],
-    "landingShot": "/tapsi/tapsi-main.avif",
+    "banner": "/banners/garage-banner.avif",
+    "shots": [
+      "/garage/garage-ui/garage-ui1.avif",
+      "/garage/garage-ui/garage-ui2.avif",
+      "/garage/garage-ui/garage-ui3.avif"
+    ],
+    "landingShot": "/garage/garage-main.avif",
     "blurb": "The ultimate hub for car maintenance inside the Tapsi super-app. Browse and buy spare parts, tools and accessories, then connect with professional mechanics nearby for repairs, pickup or delivery.",
     "desc": [
       "Tapsi Garage is the ultimate hub for car maintenance and repair, seamlessly integrated into the Tapsi super-app.",
@@ -65,8 +82,14 @@
     "tech": "React · Node.js · Microservices",
     "tone": "azure",
     "featured": true,
-    "banner": "/nabz/nabz-main.avif",
-    "shots": ["/nabz/nabz-main.avif"],
+    "banner": "/banners/nabz-banner.avif",
+    "shots": [
+      "/nabz/nabz-screens/nabz-screen1.avif",
+      "/nabz/nabz-screens/nabz-screen2.avif",
+      "/nabz/nabz-screens/nabz-screen3.avif",
+      "/nabz/nabz-screens/nabz-screen4.avif",
+      "/nabz/nabz-screens/nabz-screen5.avif"
+    ],
     "landingShot": "/nabz/nabz-main.avif",
     "blurb": "A platform that nudges people to cut gas and electricity use through awareness and gamification. AI-driven reports, challenges, points and rewards make sustainable habits engaging — and measurable.",
     "desc": [
@@ -84,8 +107,11 @@
     "tech": "React · Node.js",
     "tone": "gold",
     "featured": false,
-    "banner": null,
-    "shots": [],
+    "banner": "/banners/legal-banner.avif",
+    "shots": [
+      "/legal/legal-ui/legal-ui1.avif",
+      "/legal/legal-ui/legal-ui2.avif"
+    ],
     "landingShot": null,
     "blurb": "A centralized platform that streamlines legal and contractual processes for Tapsi's subsidiaries.",
     "desc": [
@@ -102,8 +128,11 @@
     "tech": "React Native · React",
     "tone": "azure",
     "featured": false,
-    "banner": null,
-    "shots": [],
+    "banner": "/banners/stonade-banner.avif",
+    "shots": [
+      "/stonade/stonade-ui/stonade-ui1.avif",
+      "/stonade/stonade-ui/stonade-ui2.avif"
+    ],
     "landingShot": null,
     "blurb": "A modern marketplace for buying and selling stone products in London, across iOS, Android and web.",
     "desc": [
@@ -120,8 +149,15 @@
     "tech": "React · Node.js · PWA",
     "tone": "gold",
     "featured": false,
-    "banner": null,
-    "shots": [],
+    "banner": "/banners/hr-banner.avif",
+    "shots": [
+      "/hr/hr-ui/tapsi-ui1.avif",
+      "/hr/hr-ui/tapsi-ui2.avif",
+      "/hr/hr-ui/tapsi-ui3.avif",
+      "/hr/hr-ui/tapsi-ui4.avif",
+      "/hr/hr-ui/tapsi-ui5.avif",
+      "/hr/hr-ui/tapsi-ui6.avif"
+    ],
     "landingShot": null,
     "blurb": "A versatile HR panel with a powerful form builder and editor for end-to-end HR operations.",
     "desc": [
@@ -132,14 +168,35 @@
   },
   {
     "id": 8,
+    "title": "Air Properties",
+    "year": "2024",
+    "category": "App / PWA",
+    "tech": "React · Node.js · Python · Ai",
+    "tone": "azure",
+    "featured": false,
+    "banner": "/banners/air-banner.avif",
+    "shots": ["/air/air-ui/air-ui1.avif", "/air/air-ui/air-ui2.avif"],
+    "landingShot": null,
+    "blurb": "Air Properties is an AI-powered real estate platform that delivers personalized home recommendations, smart property chat, and seamless scheduling with agents.",
+    "desc": [
+      "Air Properties is an innovative project powered by LLMs and advanced AI, designed to revolutionize the real estate experience. This platform provides personalized home recommendations tailored to user preferences. Users can chat with the AI about various properties, receive smart suggestions based on their interests, and even schedule a viewing with an agent seamlessly. The AI’s intelligent algorithms ensure it understands user preferences deeply, offering homes that align perfectly with their needs and lifestyle."
+    ]
+  },
+  {
+    "id": 9,
     "title": "Wigo",
     "year": "2021",
     "category": "App",
     "tech": "React · PWA · Node.js",
     "tone": "azure",
     "featured": false,
-    "banner": null,
-    "shots": [],
+    "banner": "/banners/wigo-banner.avif",
+    "shots": [
+      "/wigo/wigo-ui/wigo-ui1.avif",
+      "/wigo/wigo-ui/wigo-ui2.avif",
+      "/wigo/wigo-ui/wigo-ui3.avif",
+      "/wigo/wigo-ui/wigo-ui4.avif"
+    ],
     "landingShot": null,
     "blurb": "An advanced car-tracking app delivering real-time location, speed, route history and stops.",
     "desc": [
@@ -149,7 +206,7 @@
     ]
   },
   {
-    "id": 9,
+    "id": 10,
     "title": "Airshow 2022",
     "year": "2022",
     "category": "App / UI & UX",
@@ -157,8 +214,16 @@
     "tone": "gold",
     "featured": false,
     "website": "https://app.iranairshow.app/",
-    "banner": null,
-    "shots": [],
+    "banner": "/banners/airshow-banner.avif",
+    "shots": [
+      "/airshow/airshow-ui/airshow-ui1.avif",
+      "/airshow/airshow-ui/airshow-ui2.avif",
+      "/airshow/airshow-ui/airshow-ui3.avif",
+      "/airshow/airshow-ui/airshow-ui4.avif",
+      "/airshow/airshow-ui/airshow-ui5.avif",
+      "/airshow/airshow-ui/airshow-ui11.avif",
+      "/airshow/airshow-ui/airshow-ui22.avif"
+    ],
     "landingShot": null,
     "blurb": "A one-stop exhibition app for visitors and exhibitors — live schedules, in-venue routing and direct contact.",
     "desc": [
@@ -169,15 +234,21 @@
     ]
   },
   {
-    "id": 10,
-    "title": "iLnekrad",
+    "id": 11,
+    "title": "ILenkrad",
     "year": "2022",
     "category": "App",
     "tech": "React · PWA · Golang",
     "tone": "azure",
     "featured": false,
-    "banner": null,
-    "shots": [],
+    "banner": "/banners/ilnkard-banner.avif",
+    "shots": [
+      "/ilnekrad/ilenkard-ui/ilenkard-ui1.avif",
+      "/ilnekrad/ilenkard-ui/ilenkard-ui2.avif",
+      "/ilnekrad/ilenkard-ui/ilenkard-ui3.avif",
+      "/ilnekrad/ilenkard-ui/ilenkard-ui5.avif",
+      "/ilnekrad/ilenkard-ui/ilenkard-ui6.avif"
+    ],
     "landingShot": null,
     "blurb": "A state-of-the-art car-tracking app: real-time tracking, routing management and history-data analysis.",
     "desc": [
@@ -188,15 +259,22 @@
     ]
   },
   {
-    "id": 11,
+    "id": 12,
     "title": "Charb Chimie",
     "year": "2023",
     "category": "App / UI & UX",
     "tech": "React · PWA · Node.js",
     "tone": "gold",
     "featured": false,
-    "banner": null,
-    "shots": [],
+    "banner": "/banners/charb-banner.avif",
+    "shots": [
+      "/charb/charb-ui/charb-ui11.avif",
+      "/charb/charb-ui/charb-ui44.avif",
+      "/charb/charb-ui/charb-ui66.avif",
+      "/charb/charb-ui/charb-ui222.avif",
+      "/charb/charb-ui/charb-ui333.avif",
+      "/charb/charb-ui/charb-ui555.avif"
+    ],
     "landingShot": null,
     "blurb": "A web panel for an oleic factory — salary slips, schedules, internal chat and a built-in LMS.",
     "desc": [
