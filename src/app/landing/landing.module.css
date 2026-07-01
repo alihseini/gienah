@@ -1,4 +1,4 @@
-/* Gienah product console — light theme (default tokens). */
+/* Gienah product landing — light theme (default tokens). */
 .root { background: var(--bg-subtle); color: var(--text-primary); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 .loginBg { min-height: 100vh; display: grid; place-items: center; background: var(--bg-subtle); position: relative; overflow: hidden; }
 .loginGlow { position: absolute; inset: 0; background: radial-gradient(560px 300px at 32% -5%, var(--gold-50), transparent 66%), radial-gradient(640px 320px at 68% -5%, var(--accent-50), transparent 70%); }

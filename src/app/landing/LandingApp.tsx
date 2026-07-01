@@ -3,8 +3,8 @@ import React from "react";
 import {
   Button, IconButton, Input, Badge, Card, Tabs, Avatar, Switch, Toast, Tag, Tooltip, Select, Dialog, Icon,
 } from "@/components";
-import data from "@/data/console.json";
-import c from "./console.module.css";
+import data from "@/data/landing.json";
+import l from "./landing.module.css";
 
 const NAV = data.nav;
 const DEPLOYS = data.deploys;
@@ -12,8 +12,8 @@ const DEPLOYS = data.deploys;
 /* ---------------- Login ---------------- */
 function Login({ onAuth }: { onAuth: () => void }) {
   return (
-    <div className={c.loginBg}>
-      <div className={c.loginGlow} />
+    <div className={l.loginBg}>
+      <div className={l.loginGlow} />
       <div style={{ position: "relative", width: 392 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 24 }}>
           <img src="/assets/logo-mark.png" alt="" style={{ height: 44, width: "auto" }} />
@@ -42,9 +42,9 @@ function Login({ onAuth }: { onAuth: () => void }) {
 /* ---------------- Shell ---------------- */
 function Sidebar({ view, setView }: { view: string; setView: (v: string) => void }) {
   return (
-    <aside className={c.sidebar}>
+    <aside className={l.sidebar}>
       <div style={{ padding: "16px 14px" }}>
-        <button className={c.orgBtn}>
+        <button className={l.orgBtn}>
           <span style={{ width: 28, height: 28, display: "grid", placeItems: "center", flex: "none" }}>
             <img src="/assets/logo-mark.png" alt="" style={{ height: 26, width: "auto" }} />
           </span>
@@ -55,9 +55,9 @@ function Sidebar({ view, setView }: { view: string; setView: (v: string) => void
           <Icon name="chevrons-up-down" size={15} color="var(--text-tertiary)" />
         </button>
       </div>
-      <nav className={c.nav}>
+      <nav className={l.nav}>
         {NAV.map((n) => (
-          <button key={n.id} onClick={() => setView(n.id)} className={[c.navBtn, view === n.id ? c.navBtnActive : ""].filter(Boolean).join(" ")}>
+          <button key={n.id} onClick={() => setView(n.id)} className={[l.navBtn, view === n.id ? l.navBtnActive : ""].filter(Boolean).join(" ")}>
             <Icon name={n.icon} size={17} /> {n.label}
           </button>
         ))}
@@ -79,7 +79,7 @@ function Sidebar({ view, setView }: { view: string; setView: (v: string) => void
 function Header({ view, onDeploy }: { view: string; onDeploy: () => void }) {
   const title = NAV.find((n) => n.id === view)?.label || "";
   return (
-    <header className={c.header}>
+    <header className={l.header}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
         <span style={{ color: "var(--text-tertiary)" }}>{data.org.name}</span>
         <Icon name="chevron-right" size={15} color="var(--gray-300)" />
@@ -137,7 +137,7 @@ function Sparkbars({ data: bars, color = "var(--accent-400)" }: { data: number[]
 type Deploy = (typeof DEPLOYS)[number];
 function DeployRow({ d }: { d: Deploy }) {
   return (
-    <div className={c.deployRow}>
+    <div className={l.deployRow}>
       <span style={{ width: 34, height: 34, borderRadius: 9, background: "var(--accent-50)", color: "var(--accent-600)", display: "grid", placeItems: "center", flex: "none" }}><Icon name="box" size={17} /></span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 600 }}>{d.name}</div>
@@ -318,7 +318,7 @@ function Settings() {
 }
 
 /* ---------------- App ---------------- */
-function Console() {
+function Landing() {
   const [view, setView] = React.useState("overview");
   const [toasts, setToasts] = React.useState<number[]>([]);
   const deploy = () => {
@@ -334,7 +334,7 @@ function Console() {
     settings: <Settings />,
   };
   return (
-    <div className={c.shell}>
+    <div className={l.shell}>
       <Sidebar view={view} setView={setView} />
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
         <Header view={view} onDeploy={deploy} />
@@ -349,7 +349,7 @@ function Console() {
   );
 }
 
-export function ConsoleApp() {
+export function LandingApp() {
   const [authed, setAuthed] = React.useState(false);
-  return <div className={c.root}>{authed ? <Console /> : <Login onAuth={() => setAuthed(true)} />}</div>;
+  return <div className={l.root}>{authed ? <Landing /> : <Login onAuth={() => setAuthed(true)} />}</div>;
 }

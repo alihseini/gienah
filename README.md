@@ -11,7 +11,7 @@ the three surfaces the design was iterated into:
    section with a brand particle-halo canvas and scroll-linked scale reveal.
 2. **Case-study detail pages** (`/projects/[id]`) — banner, overview, at-a-glance, and a
    screenshot grid, wired with the real project screenshots.
-3. **Product console** (`/console`) — login → dashboard (overview, deployments,
+3. **Product landing** (`/landing`) — login → dashboard (overview, deployments,
    observability, storage, settings) composed from the design-system primitives.
 
 ## Getting started
@@ -32,7 +32,7 @@ All copy, data, and image mappings live in editable JSON under `src/data/`:
 | `services.json` | The four Services scroll-stack panels. |
 | `agile.json` | Agile methodology stages. |
 | `site.json` | Brand name, contact email, nav links, marquee items, hero copy + stats, open roles, About copy + stats. |
-| `console.json` | Console org/user, deployments, metrics, charts, storage, settings toggles. |
+| `landing.json` | Landing org/user, deployments, metrics, charts, storage, settings toggles. |
 
 Images live in `public/uploads/` and `public/assets/logo-mark.png`. Drop new screenshots
 in `public/uploads/` and reference them from `products.json`.
@@ -45,7 +45,7 @@ src/
     globals.css            # imports tokens + fonts (global); global @keyframes
     layout.tsx, page.tsx   # root layout + marketing home
     projects/[id]/         # case-study route (SSG via generateStaticParams)
-    console/               # product console route
+    landing/               # product landing route
   components/              # 17 design-system primitives (.tsx) + ds.module.css
   site/                    # marketing-site pieces (sections, Nav, LightPillar,
                            #   ParticleField, helpers/hooks) + site.module.css
@@ -62,7 +62,7 @@ src/
   the marketing site's section/animation styling lives in `site/site.module.css`; each route
   has its own `*.module.css`.
 - The marketing site re-themes the design tokens to its dark cinematic palette by scoping the
-  overrides to the `.site` wrapper class — the same primitives render light in the console and
+  overrides to the `.site` wrapper class — the same primitives render light in the landing and
   on the case-study pages.
 - JS-driven scroll state (section entrance, off-screen animation pausing) uses **data
   attributes** (`data-sx`, `data-shown`, `data-paused`) so it survives CSS-module class hashing.

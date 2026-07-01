@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { ConsoleApp } from "./ConsoleApp";
+import { LandingApp } from "./LandingApp";
 
 export const metadata: Metadata = {
-  title: "Gienah Console",
+  title: "Gienah Landing",
   description: "Login → dashboard, deployments, usage.",
 };
 
-export default function ConsolePage() {
-  return <ConsoleApp />;
+export default function LandingPage() {
+  return <LandingApp />;
 }

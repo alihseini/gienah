@@ -3,7 +3,7 @@
 Live repo: **alihseini/gienah** (branch `main`). The Next.js app lives in **`gienah/`**.
 
 ## What this is
-A **Next.js 15 (App Router) + TypeScript + CSS Modules** marketing site + product console for **Gienah**, a digital‑product studio. Dark, cinematic, premium. Recreated from a Claude Design handoff bundle (the original HTML/CSS prototypes are in the repo root under `project/`, and the design chat in `chats/`).
+A **Next.js 15 (App Router) + TypeScript + CSS Modules** marketing site + product landing for **Gienah**, a digital‑product studio. Dark, cinematic, premium. Recreated from a Claude Design handoff bundle (the original HTML/CSS prototypes are in the repo root under `project/`, and the design chat in `chats/`).
 
 ## Run it
 ```bash
@@ -18,7 +18,7 @@ Node 18.18+ (built on Node 22).
 - `/` — the marketing site (one-page scroll).
 - `/projects/[id]` — case-study detail pages (SSG, 11 products). Dark themed.
 - `/careers` — Job Opportunities (its own page; distinct gradient + animations).
-- `/console` — product console (login → dashboard).
+- `/landing` — product landing (login → dashboard).
 
 ## Structure
 ```
@@ -28,7 +28,7 @@ gienah/src/
     layout.tsx, page.tsx   # root + marketing home (renders <SiteApp/>)
     projects/[id]/         # case-study route (ProjectDetail + module css)
     careers/               # careers route
-    console/               # console route
+    landing/               # landing route
   components/              # 17 design-system primitives (.tsx) + ds.module.css (shared)
   site/                    # ALL marketing-site pieces:
     SiteApp.tsx            # composition + scroll-choreography hooks
@@ -52,7 +52,7 @@ gienah/src/
 
 ## Editable data (no code changes needed)
 - `data/products.json` — products (homepage carousel via `featured: true`, case studies, image paths under `/public/uploads`).
-- `data/services.json`, `data/agile.json`, `data/site.json` (nav/hero/about/roles/marquee), `data/console.json`, `data/partners.json` (logo ticker — logos in `/public/logos`).
+- `data/services.json`, `data/agile.json`, `data/site.json` (nav/hero/about/roles/marquee), `data/landing.json`, `data/partners.json` (logo ticker — logos in `/public/logos`).
 
 ## Conventions / gotchas (important for the next session)
 - **CSS Modules everywhere.** Tokens + fonts + a few global `@keyframes` are global (in `globals.css`); everything else is a `*.module.css`.
