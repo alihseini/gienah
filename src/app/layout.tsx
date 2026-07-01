@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "./styles/globals.css";
 
 /* Self-hosted at build time (no runtime Google Fonts CDN request) and shipped
    with an auto-generated, metric-matched fallback so there is no font-swap

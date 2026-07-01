@@ -1,6 +1,6 @@
-import { ProjectDetail } from "./ProjectDetail";
-import productsData from "@/data/products.json";
-import type { Product } from "@/data/types";
+import { ProjectDetail } from "./components/ProjectDetail";
+import productsData from "@/shared/data/products.json";
+import type { Product } from "@/shared/data/types";
 
 const PRODUCTS = productsData as Product[];
 
