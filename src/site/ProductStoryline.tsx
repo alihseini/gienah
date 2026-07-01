@@ -10,11 +10,11 @@ import st from "./productStoryline.module.css";
  * scroll, exactly like the rest of Gienah's journey connectors.
  *
  * Route: it starts AT the title's left constellation node, curves down into the
- * first product's node (which sits just outside that mockup, on the side away from
+ * first product's node (which sits just outside that visual, on the side away from
  * the text), then flows in alternating S-curves to each next product's node on the
  * opposite side. Every node is a point ON the path. The wire only travels
- * vertically in the empty outer gutter beside a mockup and curves across the empty
- * gap between two rows, so it never crosses a mockup, text or buttons.
+ * vertically in the empty outer gutter beside a product visual and curves across
+ * the empty gap between two rows, so it never crosses a visual, text or buttons.
  *
  * Timing: draw is a single MotionValue mapped LINEARLY to scroll (not to the head's
  * y), so each path segment — including the long side-to-side curves — gets scroll
@@ -62,15 +62,15 @@ function finalize(start: Pt, segs: Seg[], nodeBoundary: number[]): { d: string; 
 
 // Desktop/tablet alternating timeline. Two cubics per node→node move: the first
 // leaves the node straight DOWN (a long vertical handle hugs the gutter past the
-// mockup), curves into a sway point sitting in the empty inter-row gap; the second
+// visual), curves into a sway point sitting in the empty inter-row gap; the second
 // leaves that gap point and arrives at the next node straight DOWN its gutter. All
 // curves, no corners; a small alternating sway keeps it asymmetric/organic.
 function buildDesktop(start: Pt, nodes: Pt[], mockHalf: number, h: number, bridge: Pt | null): { d: string; nodeFracs: number[] } {
   const segs: Seg[] = [];
-  const hv = mockHalf + 30;               // vertical hug past a mockup before curving
+  const hv = mockHalf + 30;               // vertical hug past a visual before curving
   const n0 = nodes[0];
   // lead-in from the title node: pull into node 0's lane while descending so it
-  // clears the first mockup, landing vertically on the node.
+  // clears the first visual, landing vertically on the node.
   segs.push({
     p0: start,
     c1: { x: n0.x, y: start.y + (n0.y - start.y) * 0.5 },
@@ -189,17 +189,17 @@ export function ProductStoryline({ count }: { count: number }) {
       return;
     }
 
-    // node sits just OUTSIDE each mockup, on the side away from the text — measured
-    // from the mockup box in transform-independent layout space (offset chain) so
+    // node sits just outside each product visual, on the side away from the text,
+    // measured from the visual box in transform-independent layout space so
     // the rows' reveal transforms never shift the line off a node.
     const GAP = 28;
     let mockHalf = 200;
     const nodes: Pt[] = rows.map((row, i) => {
-      const m = (row.querySelector<HTMLElement>("[data-pj-mockup]") ?? row);
+      const m = (row.querySelector<HTMLElement>("[data-pj-media]") ?? row);
       const mp = docPos(m);
       const mx = mp.x - lp.x, my = mp.y - lp.y;
       mockHalf = m.offsetHeight / 2;
-      const reverse = i % 2 === 1; // mockup on the right
+      const reverse = i % 2 === 1; // visual on the right
       const nx = reverse ? mx + m.offsetWidth + GAP : mx - GAP;
       return { x: clamp(nx, 16, w - 16), y: my + m.offsetHeight / 2 };
     });

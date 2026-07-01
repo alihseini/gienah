@@ -367,7 +367,7 @@ export function Services() {
 }
 
 /* ---------------- products ---------------- */
-function PhoneFrame({ p }: { p: Product }) {
+function ProductImage({ p }: { p: Product }) {
   const tone = p.tone;
   const bg = tone === "gold"
     ? "linear-gradient(160deg, #fdf6e6, #f4d485 55%, #e2aa3b)"
@@ -375,18 +375,16 @@ function PhoneFrame({ p }: { p: Product }) {
   const fg = tone === "gold" ? "var(--gold-800)" : "var(--accent-800)";
   const shot = p.landingShot;
   return (
-    <div className={s.device} data-pj-mockup="">
-      <div className={s.deviceScreen} style={{ background: bg, padding: shot ? 0 : undefined }}>
-        {shot ? (
-          <img src={shot} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        ) : (
-          <>
-            <img src="/assets/logo-mark.png" alt="" style={{ height: 44, width: "auto", opacity: 0.92 }} />
-            <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", color: fg }}>{p.title}</div>
-            <div className={s.deviceTag} style={{ color: fg, opacity: 0.7 }}>App preview</div>
-          </>
-        )}
-      </div>
+    <div className={s.device} data-pj-media="">
+      {shot ? (
+        <img className={s.productShot} src={shot} alt={p.title} />
+      ) : (
+        <div className={s.productFallback} style={{ background: bg }}>
+          <img src="/assets/logo-mark.png" alt="" style={{ height: 44, width: "auto", opacity: 0.92 }} />
+          <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", color: fg }}>{p.title}</div>
+          <div className={s.deviceTag} style={{ color: fg, opacity: 0.7 }}>App preview</div>
+        </div>
+      )}
     </div>
   );
 }
@@ -395,14 +393,14 @@ function PhoneFrame({ p }: { p: Product }) {
    (.pjRow in the CSS: opacity 0, translateY + slight scale + blur) and animates in
    once ProductStoryline flips its data-revealed (when the storyline head reaches
    this row's node). Alternation is data-reverse → CSS grid order, so odd rows put
-   the mockup on the right. Mockup + content reuse the existing product visuals. */
+   the image on the right. Product visual + content reuse the existing product data. */
 function ProductRow({ p, i }: { p: Product; i: number }) {
   const reverse = i % 2 === 1;
   return (
     <article className={s.pjRow} data-pj-row={i} data-reverse={reverse ? "" : undefined}>
       <div className={s.pjMedia}>
         <span className={s.pjMediaGlow} aria-hidden="true" data-tone={p.tone} />
-        <PhoneFrame p={p} />
+        <ProductImage p={p} />
       </div>
       <div className={s.pjBody}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>

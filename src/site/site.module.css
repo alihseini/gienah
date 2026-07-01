@@ -344,22 +344,17 @@
   );
 }
 
-/* ===== devices (product phone frames) ===== */
+/* ===== product visuals ===== */
 .device {
-  /* every internal dimension is derived from --dw so the phone scales without
-     deforming — change only --dw and the radius / padding / notch stay in ratio.
-     Desktop deck: width is clamped so it stays 270px on tall windows (unchanged
-     local look) but caps at 30vh on short windows, so the phone height (≈61vh)
-     can never exceed the 62vh deck and clip at the bottom. Carousel phones set a
-     fixed --dw via higher specificity, so they're unaffected. */
+  /* Keep the old phone footprint so product rows and connector nodes stay in the
+     same places, while the image asset supplies any mockup/chrome itself. */
   --dw: clamp(210px, 30vh, 270px);
   position: relative;
   width: var(--dw);
   height: calc(var(--dw) * 2.044);
-  border-radius: calc(var(--dw) * 0.148);
-  background: #14171c;
-  padding: calc(var(--dw) * 0.041);
-  box-shadow: var(--shadow-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex: none;
   /* product visual floats a little more + breathes in scale, so it feels alive */
   animation: deviceFloat 7s var(--ease-in-out) infinite;
@@ -377,19 +372,13 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-9px); }
 }
-.device::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(var(--dw) * 0.437);
-  height: calc(var(--dw) * 0.096);
-  background: #14171c;
-  border-radius: 0 0 calc(var(--dw) * 0.059) calc(var(--dw) * 0.059);
-  z-index: 2;
+.productShot {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
-.deviceScreen {
+.productFallback {
   position: relative;
   width: 100%;
   height: 100%;
@@ -402,9 +391,7 @@
   gap: 14px;
   text-align: center;
   padding: calc(var(--dw) * 0.089);
-}
-.deviceScreen img {
-  object-fit: cover;
+  box-shadow: var(--shadow-xl);
 }
 .deviceTag {
   font-family: var(--font-mono);
@@ -454,7 +441,7 @@
   transform: none;
   filter: none;
 }
-/* alternation: odd rows put the mockup on the right via grid order */
+/* alternation: odd rows put the visual on the right via grid order */
 .pjRow[data-reverse] .pjMedia { order: 2; }
 .pjRow[data-reverse] .pjBody { order: 1; }
 .pjMedia {
@@ -463,7 +450,7 @@
   justify-content: center;
   align-items: center;
 }
-/* soft brand glow behind the mockup (layer 3: above the storyline path) */
+/* soft brand glow behind the product visual (layer 3: above the storyline path) */
 .pjMediaGlow {
   position: absolute;
   width: 68%;
@@ -485,7 +472,7 @@
   .pjList { gap: clamp(60px, 9vh, 120px); }
   .pjRow { column-gap: clamp(26px, 4vw, 56px); }
 }
-/* phones: single column, mockup ALWAYS above the text; the storyline drops into a
+/* phones: single column, product visual ALWAYS above the text; the storyline drops into a
    thin left lane, so rows are padded left to clear the line + nodes — no overlap,
    no horizontal overflow. */
 @media (max-width: 767px) {

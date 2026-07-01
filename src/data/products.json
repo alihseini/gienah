@@ -11,7 +11,7 @@
     "download": "https://play.google.com/store/apps/details?id=net.topsapp.app",
     "banner": "/uploads/tops-banner1.png",
     "shots": ["/uploads/tops1.png", "/uploads/tops2.png"],
-    "landingShot": "/uploads/tops1.png",
+    "landingShot": "/tops/tops-main.png",
     "blurb": "A feature-rich educational game for high-school students — a fully complex, high-tech service built on AI and microservices that scales past 5M users. Its unique AI engine recommends the best course for each pupil from their data.",
     "desc": [
       "Tops Game is a feature-rich educational game for high-school students — a fully complex project and high-tech service that includes AI and microservices technology.",
