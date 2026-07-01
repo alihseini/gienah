@@ -16,9 +16,13 @@
 .sig {
   position: absolute;
   inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
   z-index: 0;
   pointer-events: none;
-  overflow: hidden;
+  overflow: clip;
+  contain: layout paint style;
   opacity: var(--min);
   transition: opacity 1.1s var(--ease-out);
 
@@ -109,6 +113,9 @@
   top: var(--y);
   width: var(--halo);
   height: var(--halo);
+  max-width: none;
+  max-height: none;
+  flex: none;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   background:
