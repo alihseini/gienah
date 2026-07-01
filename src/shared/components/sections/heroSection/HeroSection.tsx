@@ -15,6 +15,7 @@ import { reduceMotion } from "../sectionUtils";
 
 /* ---------------- hero ---------------- */
 export function Hero() {
+  const sectionRef = React.useRef<HTMLElement>(null);
   const atmoRef = React.useRef<HTMLDivElement>(null);
 
   // very subtle pointer parallax on the background layers only (text stays still).
@@ -23,25 +24,41 @@ export function Hero() {
     if (reduceMotion()) return;
     if (window.matchMedia && !window.matchMedia("(pointer: fine)").matches) return;
     let raf = 0;
+    let visible = true;
     let x = 0, y = 0, tx = 0, ty = 0;
+    let lastTransform = "";
     const tick = () => {
       raf = 0;
+      if (!visible) return;
       x += (tx - x) * 0.08; y += (ty - y) * 0.08;
       const a = atmoRef.current;
-      if (a) a.style.transform = `translate3d(${(-x * 10).toFixed(2)}px, ${(-y * 8).toFixed(2)}px, 0)`;
+      const nextTransform = `translate3d(${(-x * 10).toFixed(2)}px, ${(-y * 8).toFixed(2)}px, 0)`;
+      if (a && nextTransform !== lastTransform) {
+        a.style.transform = nextTransform;
+        lastTransform = nextTransform;
+      }
       if (Math.abs(tx - x) > 0.001 || Math.abs(ty - y) > 0.001) raf = requestAnimationFrame(tick);
     };
     const onMove = (e: MouseEvent) => {
+      if (!visible) return;
       tx = e.clientX / window.innerWidth - 0.5;
       ty = e.clientY / window.innerHeight - 0.5;
       if (!raf) raf = requestAnimationFrame(tick);
     };
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (!visible && raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    }, { rootMargin: "160px" });
+    if (sectionRef.current) io.observe(sectionRef.current);
     window.addEventListener("mousemove", onMove, { passive: true });
-    return () => { window.removeEventListener("mousemove", onMove); if (raf) cancelAnimationFrame(raf); };
+    return () => { io.disconnect(); window.removeEventListener("mousemove", onMove); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
   return (
-    <section id="top" className={s.page} style={{ overflow: "hidden", padding: "172px 0 110px", position: "relative", zIndex: 0 }}>
+    <section ref={sectionRef} id="top" className={s.page} data-anim-pause style={{ overflow: "hidden", padding: "172px 0 110px", position: "relative", zIndex: 0 }}>
       {/* layered background, all behind content & with different scroll speeds for depth:
           atmosphere (slowest glow) → stars (medium) → main constellation (fastest).
           Each keeps its existing pointer-parallax / float; the wrappers only add the

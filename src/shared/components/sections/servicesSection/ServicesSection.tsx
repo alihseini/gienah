@@ -78,6 +78,7 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
  * smooth scroll-linked curve — never jumpy. `H` is the live deck height, so the rise
  * distance and bottom-peek scale with the actual card size at every breakpoint. */
 type CardStyle = { transform: string; opacity: number; filter: string };
+const CARD_STYLE_CACHE = new WeakMap<HTMLElement, CardStyle>();
 function computeCardStyle(i: number, head: number, mobile: boolean, H: number): CardStyle {
   const rel = head - i;
   const ENTER = Math.max(220, H * 0.88);        // rise distance ⇒ ~12% bottom-peek
@@ -124,9 +125,11 @@ function computeCardStyle(i: number, head: number, mobile: boolean, H: number): 
 }
 
 function writeCardStyle(el: HTMLElement, st: CardStyle) {
-  el.style.transform = st.transform;
-  el.style.opacity = String(st.opacity);
-  el.style.filter = st.filter;
+  const prev = CARD_STYLE_CACHE.get(el);
+  if (prev?.transform !== st.transform) el.style.transform = st.transform;
+  if (prev?.opacity !== st.opacity) el.style.opacity = String(st.opacity);
+  if (prev?.filter !== st.filter) el.style.filter = st.filter;
+  CARD_STYLE_CACHE.set(el, st);
 }
 
 export function Services() {
@@ -167,6 +170,7 @@ export function Services() {
       const el = trackRef.current; if (!el) return;
       const r = el.getBoundingClientRect();
       const vh = window.innerHeight || 1;
+      if (r.bottom < -vh * 0.2 || r.top > vh * 1.2) return;
       const dist = el.offsetHeight - vh;
       const scrolled = _clamp(-r.top, 0, dist);
       // complete the reveal at 90% of the travel, leaving a brief "hold" on the last
@@ -194,7 +198,7 @@ export function Services() {
 
   if (reduce) {
     return (
-      <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
+      <section id="services" className={s.panel} data-anim-pause style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
         <SectionStars />
         <Meteors />
         <SectionConnector sectionKey="services" enter="l" exit="r" />
@@ -209,7 +213,7 @@ export function Services() {
   }
 
   return (
-    <section id="services" className={s.panel} style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2 }}>
+    <section id="services" className={s.panel} data-anim-pause style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2 }}>
       <div ref={trackRef} style={{ position: "relative", zIndex: 1, height: `${N * 88}vh` }}>
         <div className={s.svcStage} style={{ position: "sticky", top: 0, display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
           <SectionStars />

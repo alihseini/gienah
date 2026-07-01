@@ -73,7 +73,7 @@ function ProductRow({ p, i }: { p: Product; i: number }) {
    the section's JourneyGate. */
 export function Featured() {
   return (
-    <section id="products" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3, padding: "120px 0 130px" }}>
+    <section id="products" className={[s.panel, s.overlap].join(" ")} data-anim-pause style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3, padding: "120px 0 130px" }}>
       <SectionStars />
       {/* Global journey: arrive at the title (right node), bow OVER the title to the
           left node like every other section — then stop. No exit leg down: the

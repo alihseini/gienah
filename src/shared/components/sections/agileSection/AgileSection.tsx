@@ -118,12 +118,31 @@ export function Agile() {
     if (!root) return;
     if (reduceMotion()) { root.style.setProperty("--p", "1"); return; }
     let raf = 0;
+    let lastP = "";
     const update = () => {
       raf = 0;
       const r = root.getBoundingClientRect();
       const vh = window.innerHeight || 1;
+      if (r.bottom < -vh * 0.2) {
+        if (lastP !== "1") {
+          root.style.setProperty("--p", "1");
+          lastP = "1";
+        }
+        return;
+      }
+      if (r.top > vh * 1.2) {
+        if (lastP !== "0") {
+          root.style.setProperty("--p", "0");
+          lastP = "0";
+        }
+        return;
+      }
       const p = Math.max(0, Math.min(1, (vh * 0.6 - r.top) / (r.height || 1)));
-      root.style.setProperty("--p", String(p));
+      const next = p.toFixed(3);
+      if (next !== lastP) {
+        root.style.setProperty("--p", next);
+        lastP = next;
+      }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -133,7 +152,7 @@ export function Agile() {
   }, []);
 
   return (
-    <section id="agile" className={[s.panel, s.overlap].join(" ")} style={{ background: "var(--page-bg)", color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative", zIndex: 5 }}>
+    <section id="agile" className={[s.panel, s.overlap].join(" ")} data-anim-pause style={{ background: "var(--page-bg)", color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative", zIndex: 5 }}>
       {/* Hero-style atmosphere: subtle star field + a very soft brand glow (no logo
           constellation, no fog/topology/meteors/aurora) — keeps Agile visually
           connected to the Hero but simpler. Both sit behind the content (z-index 1). */}

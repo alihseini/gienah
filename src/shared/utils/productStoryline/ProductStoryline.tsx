@@ -246,24 +246,35 @@ export function ProductStoryline({ count }: { count: number }) {
     const list = svg?.parentElement as HTMLElement | null;
     if (!svg || !list || !geo.nodeFracs.length) return;
     const tlNode = document.querySelector<HTMLElement>('[data-node="products:l"]');
+    const rows = Array.from(list.querySelectorAll<HTMLElement>("[data-pj-row]"));
+    const dots = Array.from(svg.querySelectorAll<SVGGElement>("[data-pj-node]"));
     let raf = 0;
     const REF = 0.58;                       // line begins drawing as the list top passes here
     const SPAN = Math.max(1, geo.h * 0.92); // scroll distance that draws the whole path
-    const update = () => {
-      raf = 0;
-      const r = svg.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
-      const frac = clamp01((vh * REF - r.top) / SPAN);
+    const applyFraction = (frac: number) => {
       draw.set(frac);
       if (frac > 0.003 && tlNode && !tlNode.hasAttribute("data-active")) tlNode.setAttribute("data-active", "");
-      const rows = list.querySelectorAll<HTMLElement>("[data-pj-row]");
-      const dots = svg.querySelectorAll<SVGGElement>("[data-pj-node]");
       for (let i = 0; i < geo.nodeFracs.length; i++) {
         if (frac >= geo.nodeFracs[i]) {
           if (dots[i] && !dots[i].hasAttribute("data-active")) dots[i].setAttribute("data-active", "");
           if (rows[i] && !rows[i].hasAttribute("data-revealed")) rows[i].setAttribute("data-revealed", "");
         }
       }
+    };
+    const update = () => {
+      raf = 0;
+      const r = svg.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      if (r.bottom < -vh * 0.2) {
+        applyFraction(1);
+        return;
+      }
+      if (r.top > vh * 1.2) {
+        draw.set(0);
+        return;
+      }
+      const frac = clamp01((vh * REF - r.top) / SPAN);
+      applyFraction(frac);
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
     window.addEventListener("scroll", onScroll, { passive: true });

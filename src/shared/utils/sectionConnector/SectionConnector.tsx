@@ -275,6 +275,17 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
       raf = 0;
       const r = svg.getBoundingClientRect();
       const vh = window.innerHeight || 1;
+      if (r.bottom < -vh * 0.2) {
+        draw.set(1);
+        draw2.set(1);
+        fire();
+        return;
+      }
+      if (r.top > vh * 1.2) {
+        draw.set(0);
+        draw2.set(0);
+        return;
+      }
       const q = vh * REF - r.top;
       // draw each stroke up to the path point sitting at the reference line — the
       // head's VERTICAL position tracks the scroll, so it lands on each node exactly

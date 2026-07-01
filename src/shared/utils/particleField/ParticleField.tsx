@@ -62,10 +62,17 @@ export function ParticleField({ progressRef }: { progressRef: React.MutableRefOb
     let raf = 0;
     const t0 = performance.now();
     let vis = true;
-    const io = new IntersectionObserver(([e]) => { vis = e.isIntersecting; }, { threshold: 0 });
-    io.observe(canvas);
+    const stop = () => {
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    };
     const frame = (now: number) => {
-      if (!vis) { raf = requestAnimationFrame(frame); return; }
+      if (!vis) {
+        raf = 0;
+        return;
+      }
       const t = (now - t0) / 1000;
       const prog = progressRef && progressRef.current != null ? progressRef.current : 1;
       ctx.clearRect(0, 0, w, h);
@@ -113,8 +120,18 @@ export function ParticleField({ progressRef }: { progressRef: React.MutableRefOb
       ctx.globalCompositeOperation = "source-over";
       raf = requestAnimationFrame(frame);
     };
+    const start = () => {
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+    const io = new IntersectionObserver(([e]) => {
+      vis = e.isIntersecting;
+      if (vis) start();
+      else stop();
+    }, { threshold: 0, rootMargin: "160px" });
+    io.observe(canvas);
 
     const toLocal = (e: PointerEvent) => {
+      if (!vis) return;
       const r = canvas.getBoundingClientRect();
       mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
       mouse.on = mouse.x >= -RAD && mouse.x <= w + RAD && mouse.y >= -RAD && mouse.y <= h + RAD;
@@ -122,7 +139,7 @@ export function ParticleField({ progressRef }: { progressRef: React.MutableRefOb
     const onLeave = () => { mouse.on = false; mouse.x = mouse.y = -9999; };
 
     build();
-    raf = requestAnimationFrame(frame);
+    start();
     const onResize = () => build();
     window.addEventListener("resize", onResize);
     if (!reduce) {
@@ -130,7 +147,7 @@ export function ParticleField({ progressRef }: { progressRef: React.MutableRefOb
       window.addEventListener("pointerleave", onLeave);
     }
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
       io.disconnect();
       window.removeEventListener("resize", onResize);
       window.removeEventListener("pointermove", toLocal);

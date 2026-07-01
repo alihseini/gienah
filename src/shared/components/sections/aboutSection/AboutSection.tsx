@@ -14,7 +14,7 @@ import site from "@/shared/data/site.json";
 /* ---------------- about ---------------- */
 export function About() {
   return (
-    <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
+    <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" data-anim-pause style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
       <SectionStars />
       <ScrollParallax max={52}><BackgroundBeams /></ScrollParallax>
       {/* About is a real stop on the journey: the line comes down the left lane,

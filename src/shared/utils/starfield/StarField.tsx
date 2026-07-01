@@ -86,8 +86,12 @@ export function StarField({
     let last = t0;
     let vis = true;
     let nextShoot = t0 + rand(14000, 22000);
-    const io = new IntersectionObserver(([e]) => { vis = e.isIntersecting; }, { threshold: 0 });
-    io.observe(canvas);
+    const stop = () => {
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    };
 
     const smooth = (p: number) => p * p * (3 - 2 * p);
 
@@ -167,16 +171,30 @@ export function StarField({
     };
 
     const loop = (now: number) => {
-      if (vis) render(now); else last = now;
+      if (!vis) {
+        raf = 0;
+        last = now;
+        return;
+      }
+      render(now);
       raf = requestAnimationFrame(loop);
     };
+    const start = () => {
+      if (!raf) raf = requestAnimationFrame(loop);
+    };
+    const io = new IntersectionObserver(([e]) => {
+      vis = e.isIntersecting;
+      if (vis) start();
+      else stop();
+    }, { threshold: 0, rootMargin: "160px" });
+    io.observe(canvas);
 
     build();
     if (reduce) render(t0);
-    else raf = requestAnimationFrame(loop);
+    else start();
     const onResize = () => build();
     window.addEventListener("resize", onResize);
-    return () => { cancelAnimationFrame(raf); io.disconnect(); window.removeEventListener("resize", onResize); };
+    return () => { stop(); io.disconnect(); window.removeEventListener("resize", onResize); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

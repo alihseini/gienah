@@ -92,7 +92,7 @@ export function MoreProducts() {
     return () => mq.removeEventListener("change", apply);
   }, []);
   return (
-    <section id="studio" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
+    <section id="studio" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" data-anim-pause style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
       {/* base color → continuous stars only (the moving topology/triangle network
           was removed — keeps the same calm cosmic base as every other section) */}
       <SectionStars />

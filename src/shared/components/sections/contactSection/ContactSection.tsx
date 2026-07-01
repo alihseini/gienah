@@ -21,11 +21,13 @@ export function Contact() {
     const el = ref.current; if (!el) return;
     if (reduceMotion()) { progRef.current = 1; return; }
     let raf = 0;
+    let lastBgTransform = "";
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
     const apply = () => {
       raf = 0;
       const r = el.getBoundingClientRect();
       const vh = window.innerHeight || 1;
+      if (r.bottom < -vh * 0.2 || r.top > vh * 1.2) return;
       const total = r.height + vh;
       const p = clamp((vh - r.top) / total, 0, 1);
       const e = p * p * (3 - 2 * p);
@@ -37,7 +39,11 @@ export function Contact() {
       // background still drifts (it carries no connector anchor).
       const bg = bgRef.current;
       // background lights drift slower than the content + breathe in scale (decorative depth)
-      if (bg) bg.style.transform = `translate3d(0, ${((0.5 - e) * 46).toFixed(1)}px, 0) scale(${(1 + e * 0.1).toFixed(4)})`;
+      const nextBgTransform = `translate3d(0, ${((0.5 - e) * 46).toFixed(1)}px, 0) scale(${(1 + e * 0.1).toFixed(4)})`;
+      if (bg && nextBgTransform !== lastBgTransform) {
+        bg.style.transform = nextBgTransform;
+        lastBgTransform = nextBgTransform;
+      }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(apply); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -47,7 +53,7 @@ export function Contact() {
   }, []);
   const [sent, setSent] = React.useState(false);
   return (
-    <section id="contact" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 7 }}>
+    <section id="contact" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" data-anim-pause style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 7 }}>
       {/* overscan (inset:-90) so the scroll translate/scale can never expose a bare
           strip — the layer always covers the section; the section clips the excess. */}
       <SectionStars />

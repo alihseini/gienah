@@ -127,7 +127,7 @@ export function useParallax() {
     const mobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
     const factor = mobile ? 0.5 : 1; // mobile: ~half the movement
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-    type Item = { el: HTMLElement; y: number; scale: number; top: number; h: number };
+    type Item = { el: HTMLElement; y: number; scale: number; top: number; h: number; last: string };
     let items: Item[] = [];
     // layout position (document-space), measured WITHOUT transforms via the
     // offsetTop chain — so the element's own transform and any ancestor reveal /
@@ -146,7 +146,7 @@ export function useParallax() {
         const y = (preset ? preset.y : parseFloat(raw) || 0) * factor;
         const scaleAttr = el.dataset.parallaxScale ? parseFloat(el.dataset.parallaxScale) : preset ? preset.scale : 0;
         el.style.willChange = "transform";
-        return { el, y, scale: (scaleAttr || 0) * factor, top: docTop(el), h: el.offsetHeight };
+        return { el, y, scale: (scaleAttr || 0) * factor, top: docTop(el), h: el.offsetHeight, last: "" };
       });
     };
     collect();
@@ -155,14 +155,20 @@ export function useParallax() {
       raf = 0;
       const vh = window.innerHeight || 1;
       const sy = window.scrollY || window.pageYOffset || 0;
-      for (const { el, y, scale, top, h } of items) {
+      for (const item of items) {
+        const { el, y, scale, top, h } = item;
         if (h === 0) continue; // hidden (e.g. responsive display:none) — skip
+        if (top > sy + vh * 1.4 || top + h < sy - vh * 0.4) continue;
         // viewport-centred progress from LAYOUT position only: -1 below → 0 centred → 1 above
         const p = clamp((top + h / 2 - sy - vh / 2) / vh, -1, 1);
         const ty = (-p * y).toFixed(1);
         // scale peaks when centred and never drops below 1 (so content can't shrink into a collision)
         const sc = scale ? (1 + (1 - Math.abs(p)) * scale).toFixed(4) : null;
-        el.style.transform = sc ? `translate3d(0, ${ty}px, 0) scale(${sc})` : `translate3d(0, ${ty}px, 0)`;
+        const next = sc ? `translate3d(0, ${ty}px, 0) scale(${sc})` : `translate3d(0, ${ty}px, 0)`;
+        if (next !== item.last) {
+          el.style.transform = next;
+          item.last = next;
+        }
       }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
@@ -219,6 +225,7 @@ export function CountUp({ value }: { value: string }) {
     if (!el) return;
     let started = false;
     let t: ReturnType<typeof setTimeout>;
+    let raf = 0;
     const run = () => {
       if (started) return;
       started = true;
@@ -226,9 +233,9 @@ export function CountUp({ value }: { value: string }) {
       const tick = (ti: number) => {
         const p = Math.min(1, (ti - t0) / dur);
         setN(Math.round(target * (1 - Math.pow(1 - p, 3))));
-        if (p < 1) requestAnimationFrame(tick);
+        if (p < 1) raf = requestAnimationFrame(tick);
       };
-      requestAnimationFrame(tick);
+      raf = requestAnimationFrame(tick);
     };
     const inView = () => { const r = el.getBoundingClientRect(); return r.top < window.innerHeight && r.bottom > 0; };
     if (inView()) { run(); return; }
@@ -236,7 +243,7 @@ export function CountUp({ value }: { value: string }) {
     try { io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { run(); io && io.disconnect(); } }, { threshold: 0.6 }); io.observe(el); }
     catch { run(); }
     t = setTimeout(run, 1600);
-    return () => { if (io) io.disconnect(); clearTimeout(t); };
+    return () => { if (io) io.disconnect(); clearTimeout(t); if (raf) cancelAnimationFrame(raf); };
   }, [target]);
   return <span ref={ref}>{pre}{n}{suf}</span>;
 }
@@ -261,7 +268,7 @@ export function ScrollProgress() {
 export function useOffscreenPause() {
   React.useEffect(() => {
     if (reduceMotion()) return;
-    const els = document.querySelectorAll<HTMLElement>("[data-abg], [data-marquee]");
+    const els = document.querySelectorAll<HTMLElement>("[data-abg], [data-marquee], [data-anim-pause]");
     if (!els.length) return;
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
@@ -269,7 +276,7 @@ export function useOffscreenPause() {
         if (e.isIntersecting) delete el.dataset.paused;
         else el.dataset.paused = "";
       });
-    }, { rootMargin: "120px" });
+    }, { rootMargin: "160px" });
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, []);
@@ -286,11 +293,11 @@ export function useLayerChoreography() {
       while (n) { t += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
       return t;
     };
-    type L = { el: HTMLElement; depth: string | null; top: number; h: number };
+    type L = { el: HTMLElement; depth: string | null; top: number; h: number; lastTransform: string; lastOpacity: string };
     let els: L[] = [];
     const collect = () => {
       els = Array.from(document.querySelectorAll<HTMLElement>("[data-layer]")).map((el) => ({
-        el, depth: el.getAttribute("data-layer"), top: docTop(el), h: el.offsetHeight,
+        el, depth: el.getAttribute("data-layer"), top: docTop(el), h: el.offsetHeight, lastTransform: "", lastOpacity: "",
       }));
     };
     collect();
@@ -299,8 +306,10 @@ export function useLayerChoreography() {
       raf = 0;
       const H = window.innerHeight || 1;
       const sy = window.scrollY || window.pageYOffset || 0;
-      for (const { el, depth, top, h } of els) {
+      for (const item of els) {
+        const { el, depth, top, h } = item;
         if (h === 0) continue;
+        if (top > sy + H * 1.35 || top + h < sy - H * 0.35) continue;
         const rTop = top - sy;
         const rBottom = top + h - sy;
         const enter = clamp((H - rTop) / (0.62 * H), 0, 1);
@@ -308,8 +317,16 @@ export function useLayerChoreography() {
         const emerge = depth === "back" ? 40 : 16;
         const push = depth === "back" ? 20 : 32;
         const y = emerge * (1 - enter) + push * leave;
-        el.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0)`;
-        el.style.opacity = (1 - 0.08 * leave).toFixed(3);
+        const nextTransform = `translate3d(0, ${y.toFixed(1)}px, 0)`;
+        const nextOpacity = (1 - 0.08 * leave).toFixed(3);
+        if (nextTransform !== item.lastTransform) {
+          el.style.transform = nextTransform;
+          item.lastTransform = nextTransform;
+        }
+        if (nextOpacity !== item.lastOpacity) {
+          el.style.opacity = nextOpacity;
+          item.lastOpacity = nextOpacity;
+        }
       }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };

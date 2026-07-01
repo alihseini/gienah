@@ -12,7 +12,7 @@ const PARTNERS = partners as Partner[];
 export function LogoTicker() {
   const row = [...PARTNERS, ...PARTNERS];
   return (
-    <div style={{ position: "relative", zIndex: 0 }}>
+    <div data-anim-pause style={{ position: "relative", zIndex: 0 }}>
       {/* the journey passes straight down the left lane behind the (transparent)
           ticker, bridging Hero → Services without a break. zIndex:0 makes this a
           stacking context so the z-index:-1 connector sits above the page
