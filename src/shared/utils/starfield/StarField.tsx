@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { safariScrollLayerLock } from "../viewport";
 
 /* Dense premium hero star field (canvas): many twinkling stars across three
    depth layers (far→near) with parallax drift, soft glow halos on a few brighter
@@ -51,15 +52,25 @@ export function StarField({
     const canvas = ref.current;
     if (!canvas) return;
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const lockSafariBackground = safariScrollLayerLock();
     const ctx = canvas.getContext("2d")!;
     let w = 0, h = 0, dpr = 1;
+    let cssW = 0, cssH = 0;
     let stars: Star[] = [];
     let shooters: Shooter[] = [];
     const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
-    const build = () => {
+    const build = (force = false) => {
       const rect = canvas.getBoundingClientRect();
-      w = rect.width; h = rect.height;
+      const nextW = rect.width;
+      const nextH = rect.height;
+      const widthChanged = Math.abs(nextW - cssW) > 1;
+      const heightChanged = Math.abs(nextH - cssH) > 1;
+      // iOS Safari fires resize as browser chrome shows/hides during touch scroll.
+      // Keep the document-locked star map stable unless the width actually changes.
+      if (!force && (lockSafariBackground ? !widthChanged : !widthChanged && !heightChanged)) return;
+      cssW = nextW; cssH = nextH;
+      w = nextW; h = nextH;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -102,8 +113,8 @@ export function StarField({
       // soft fade-in of the whole field on load
       const intro = reduce ? 1 : smooth(Math.min(1, t / 1.4));
       ctx.clearRect(0, 0, w, h);
-      const dx = [Math.sin(t * 0.04) * 6, Math.sin(t * 0.035) * 13, Math.sin(t * 0.028) * 22];
-      const dy = [Math.cos(t * 0.04) * 4, Math.cos(t * 0.035) * 8, Math.cos(t * 0.028) * 14];
+      const dx = lockSafariBackground ? [0, 0, 0] : [Math.sin(t * 0.04) * 6, Math.sin(t * 0.035) * 13, Math.sin(t * 0.028) * 22];
+      const dy = lockSafariBackground ? [0, 0, 0] : [Math.cos(t * 0.04) * 4, Math.cos(t * 0.035) * 8, Math.cos(t * 0.028) * 14];
 
       // secondary constellation accents (very faint, edge-tucked)
       ctx.lineWidth = 1;
@@ -145,7 +156,7 @@ export function StarField({
       ctx.shadowBlur = 0; ctx.globalAlpha = 1;
 
       // a single, very rare and subtle shooting star
-      if (shooting && !reduce && intro > 0.99) {
+      if (shooting && !reduce && !lockSafariBackground && intro > 0.99) {
         if (now > nextShoot && shooters.length < 1) {
           const ang = rand(Math.PI * 0.12, Math.PI * 0.26);
           const sp = rand(0.36, 0.55);
@@ -189,7 +200,7 @@ export function StarField({
     }, { threshold: 0, rootMargin: "160px" });
     io.observe(canvas);
 
-    build();
+    build(true);
     if (reduce) render(t0);
     else start();
     const onResize = () => build();

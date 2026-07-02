@@ -5,7 +5,7 @@ import { HeadingReveal } from "./headingReveal/HeadingReveal";
 import { TypingAnimation } from "./typing/TypingAnimation";
 import { useJourneyReady } from "./journeyGate/JourneyGate";
 import { TitleNodes } from "./titleNodes/TitleNodes";
-import { stableViewportHeight } from "./viewport";
+import { safariScrollLayerLock, stableViewportHeight } from "./viewport";
 
 /* ---------------- brand colors + helpers ---------------- */
 export const C = { blue1: "#58ABCE", blue2: "#2A92CC", gold1: "#F4C65F", gold2: "#E2AA3B" };
@@ -22,16 +22,6 @@ export function go(id: string) {
 
 const reduceMotion = () =>
   typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-const safariScrollLayerLock = () => {
-  if (typeof window === "undefined") return false;
-  const touchSafari = CSS.supports("-webkit-touch-callout", "none");
-  const desktopSafari =
-    navigator.vendor === "Apple Computer, Inc." &&
-    /Safari/.test(navigator.userAgent) &&
-    !/(Chrome|Chromium|CriOS|FxiOS|Edg|OPR)/.test(navigator.userAgent);
-  return touchSafari || desktopSafari;
-};
 
 /* ---------------- Reveal ---------------- */
 const VARIANT_CLASS: Record<string, string> = {
