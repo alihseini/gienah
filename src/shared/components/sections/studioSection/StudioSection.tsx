@@ -25,10 +25,10 @@ function PreviewLayer({ p, body, incoming }: { p: Product; body: boolean; incomi
     <div className={[m.layer, incoming ? m.layerIn : ""].filter(Boolean).join(" ")}>
       <div className={m.media}>
         {media ? (
-          <img src={media} alt={p.title} />
+          <img src={media} alt={p.title} loading="lazy" decoding="async" />
         ) : (
           <div className={m.placeholder} style={{ background: toneBg }}>
-            <img src="/assets/logo-mark.png" alt="" style={{ height: 56, width: "auto", opacity: 0.92 }} />
+            <img src="/assets/logo-mark.png" alt="" loading="lazy" decoding="async" style={{ height: 56, width: "auto", opacity: 0.92 }} />
           </div>
         )}
       </div>

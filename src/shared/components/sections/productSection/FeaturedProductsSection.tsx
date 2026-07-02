@@ -22,10 +22,10 @@ function ProductImage({ p }: { p: Product }) {
   return (
     <div className={s.device} data-pj-media="">
       {shot ? (
-        <img className={s.productShot} src={shot} alt={p.title} />
+        <img className={s.productShot} src={shot} alt={p.title} loading="lazy" decoding="async" />
       ) : (
         <div className={s.productFallback} style={{ background: bg }}>
-          <img src="/assets/logo-mark.png" alt="" style={{ height: 44, width: "auto", opacity: 0.92 }} />
+          <img src="/assets/logo-mark.png" alt="" loading="lazy" decoding="async" style={{ height: 44, width: "auto", opacity: 0.92 }} />
           <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", color: fg }}>{p.title}</div>
           <div className={s.deviceTag} style={{ color: fg, opacity: 0.7 }}>App preview</div>
         </div>

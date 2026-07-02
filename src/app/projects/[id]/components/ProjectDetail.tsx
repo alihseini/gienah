@@ -231,10 +231,10 @@ export function ProjectDetail({ id }: { id: number }) {
             <Lift asItem key={i} className={d.gItem}>
               <div className={d.gShot} style={{ background: src ? "var(--bg-subtle)" : toneBg(p.tone, i % 2 === 0) }}>
                 {src ? (
-                  <img src={src} alt={`${p.title} screen ${i + 1}`} />
+                  <img src={src} alt={`${p.title} screen ${i + 1}`} loading="lazy" decoding="async" />
                 ) : (
                   <div className={d.showPlaceholder}>
-                    <img src="/assets/logo-mark.png" alt="" style={{ height: 34, width: "auto", opacity: 0.9 }} />
+                    <img src="/assets/logo-mark.png" alt="" loading="lazy" decoding="async" style={{ height: 34, width: "auto", opacity: 0.9 }} />
                     <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".08em", opacity: 0.82 }}>Screen {i + 1}</div>
                   </div>
                 )}

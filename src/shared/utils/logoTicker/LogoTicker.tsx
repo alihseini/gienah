@@ -23,7 +23,7 @@ export function LogoTicker() {
         {row.map((p, i) => {
           const dup = i >= PARTNERS.length;
           const inner = p.logo ? (
-            <img className={t.logo} src={p.logo} alt={p.name} />
+            <img className={t.logo} src={p.logo} alt={p.name} loading="lazy" decoding="async" />
           ) : (
             <span className={t.wordmark}>{p.name}</span>
           );

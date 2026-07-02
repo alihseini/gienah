@@ -1,12 +1,21 @@
 "use client";
 import React from "react";
+import dynamic from "next/dynamic";
 import {
   ScrollProgress, useOffscreenPause, useLayerChoreography, useSectionEntrance, useParallax, siteStyles as s,
 } from "./helpers";
 import { Nav } from "./nav/Nav";
 import { LogoTicker } from "./logoTicker/LogoTicker";
 import { JourneyGate, JourneyActivateProvider } from "./journeyGate/JourneyGate";
-import { Hero, Services, Featured, MoreProducts, Agile, About, Contact, Footer } from "../components/sections";
+import { Hero } from "../components/sections/heroSection/HeroSection";
+
+const Services = dynamic(() => import("../components/sections/servicesSection/ServicesSection").then((m) => m.Services));
+const Featured = dynamic(() => import("../components/sections/productSection/FeaturedProductsSection").then((m) => m.Featured));
+const MoreProducts = dynamic(() => import("../components/sections/studioSection/StudioSection").then((m) => m.MoreProducts));
+const Agile = dynamic(() => import("../components/sections/agileSection/AgileSection").then((m) => m.Agile));
+const About = dynamic(() => import("../components/sections/aboutSection/AboutSection").then((m) => m.About));
+const Contact = dynamic(() => import("../components/sections/contactSection/ContactSection").then((m) => m.Contact));
+const Footer = dynamic(() => import("../components/sections/footerSection/FooterSection").then((m) => m.Footer));
 
 /* Constellation journey — now PER SECTION (no page-wide overlay). Each section
    mounts its own SectionConnector that draws its slice of the line behind that
