@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Button, Badge, Icon } from "@/shared/components";
+import { Button, Badge, Icon, ImageLazy } from "@/shared/components";
 import { SectionHead, siteStyles as s } from "@/shared/utils/helpers";
 import { SectionConnector } from "@/shared/utils/sectionConnector/SectionConnector";
 import { ProductStoryline } from "@/shared/utils/productStoryline/ProductStoryline";
@@ -22,10 +22,10 @@ function ProductImage({ p }: { p: Product }) {
   return (
     <div className={s.device} data-pj-media="">
       {shot ? (
-        <img className={s.productShot} src={shot} alt={p.title} loading="lazy" decoding="async" />
+        <ImageLazy className={s.productShot} src={shot} alt={p.title} />
       ) : (
         <div className={s.productFallback} style={{ background: bg }}>
-          <img src="/assets/logo-mark.png" alt="" loading="lazy" decoding="async" style={{ height: 44, width: "auto", opacity: 0.92 }} />
+          <ImageLazy src="/assets/logo-mark.png" alt="" style={{ height: 44, width: "auto", opacity: 0.92 }} />
           <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", color: fg }}>{p.title}</div>
           <div className={s.deviceTag} style={{ color: fg, opacity: 0.7 }}>App preview</div>
         </div>

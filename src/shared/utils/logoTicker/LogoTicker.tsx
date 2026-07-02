@@ -1,4 +1,5 @@
 import React from "react";
+import { ImageLazy } from "@/shared/components";
 import partners from "@/shared/data/partners.json";
 import t from "./logoTicker.module.css";
 import { SectionConnector } from "../sectionConnector/SectionConnector";
@@ -23,7 +24,7 @@ export function LogoTicker() {
         {row.map((p, i) => {
           const dup = i >= PARTNERS.length;
           const inner = p.logo ? (
-            <img className={t.logo} src={p.logo} alt={p.name} loading="lazy" decoding="async" />
+            <ImageLazy className={t.logo} src={p.logo} alt={p.name} />
           ) : (
             <span className={t.wordmark}>{p.name}</span>
           );

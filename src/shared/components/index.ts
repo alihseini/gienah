@@ -12,3 +12,4 @@ export { Tooltip } from "./tooltip/Tooltip";
 export { Toast } from "./toast/Toast";
 export { Dialog } from "./dialog/Dialog";
 export { Icon } from "./icon/Icon";
+export { ImageLazy } from "./imageLazy/ImageLazy";
