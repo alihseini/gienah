@@ -58,9 +58,12 @@ export function Reveal({
     // gated sections wait for the connector to arrive before revealing
     if (!ready) return;
     let done = false;
-    let t: ReturnType<typeof setTimeout>;
+    let cancelled = false;
+    let raf1 = 0;
+    let raf2 = 0;
+    let t: ReturnType<typeof setTimeout> | undefined;
     const show = () => {
-      if (done) return;
+      if (done || cancelled) return;
       done = true;
       setVis(true);
     };
@@ -70,7 +73,13 @@ export function Reveal({
     };
     let io: IntersectionObserver | undefined;
     if (inView()) {
-      requestAnimationFrame(() => requestAnimationFrame(show));
+      raf1 = requestAnimationFrame(() => {
+        raf1 = 0;
+        raf2 = requestAnimationFrame(() => {
+          raf2 = 0;
+          show();
+        });
+      });
       t = setTimeout(show, 90);
     } else {
       try {
@@ -79,7 +88,13 @@ export function Reveal({
       } catch { show(); }
       t = setTimeout(show, 1500);
     }
-    return () => { if (io) io.disconnect(); clearTimeout(t); };
+    return () => {
+      cancelled = true;
+      if (io) io.disconnect();
+      if (t) clearTimeout(t);
+      if (raf1) cancelAnimationFrame(raf1);
+      if (raf2) cancelAnimationFrame(raf2);
+    };
   }, [ready]);
   React.useEffect(() => {
     if (!vis) return;
@@ -234,26 +249,37 @@ export function CountUp({ value }: { value: string }) {
     const el = ref.current;
     if (!el) return;
     let started = false;
-    let t: ReturnType<typeof setTimeout>;
+    let cancelled = false;
+    let t: ReturnType<typeof setTimeout> | undefined;
     let raf = 0;
     const run = () => {
-      if (started) return;
+      if (started || cancelled) return;
       started = true;
       const dur = 1300, t0 = performance.now();
       const tick = (ti: number) => {
+        if (cancelled) return;
         const p = Math.min(1, (ti - t0) / dur);
         setN(Math.round(target * (1 - Math.pow(1 - p, 3))));
         if (p < 1) raf = requestAnimationFrame(tick);
+        else raf = 0;
       };
       raf = requestAnimationFrame(tick);
     };
     const inView = () => { const r = el.getBoundingClientRect(); return r.top < stableViewportHeight() && r.bottom > 0; };
-    if (inView()) { run(); return; }
     let io: IntersectionObserver | undefined;
-    try { io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { run(); io && io.disconnect(); } }, { threshold: 0.6 }); io.observe(el); }
-    catch { run(); }
-    t = setTimeout(run, 1600);
-    return () => { if (io) io.disconnect(); clearTimeout(t); if (raf) cancelAnimationFrame(raf); };
+    if (inView()) {
+      run();
+    } else {
+      try { io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { run(); io && io.disconnect(); } }, { threshold: 0.6 }); io.observe(el); }
+      catch { run(); }
+      t = setTimeout(run, 1600);
+    }
+    return () => {
+      cancelled = true;
+      if (io) io.disconnect();
+      if (t) clearTimeout(t);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, [target]);
   return <span ref={ref}>{pre}{n}{suf}</span>;
 }

@@ -321,10 +321,21 @@ function Settings() {
 function Landing() {
   const [view, setView] = React.useState("overview");
   const [toasts, setToasts] = React.useState<number[]>([]);
+  const toastTimers = React.useRef<ReturnType<typeof setTimeout>[]>([]);
+  React.useEffect(() => {
+    return () => {
+      toastTimers.current.forEach((timer) => clearTimeout(timer));
+      toastTimers.current = [];
+    };
+  }, []);
   const deploy = () => {
     const id = Date.now();
     setToasts((t) => [...t, id]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x !== id)), 3800);
+    const timer = setTimeout(() => {
+      setToasts((t) => t.filter((x) => x !== id));
+      toastTimers.current = toastTimers.current.filter((item) => item !== timer);
+    }, 3800);
+    toastTimers.current.push(timer);
   };
   const views: Record<string, React.ReactNode> = {
     overview: <Overview />,
