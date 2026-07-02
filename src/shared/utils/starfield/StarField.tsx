@@ -24,6 +24,9 @@ const CONSTELLATIONS: [number, number][][] = [
   [[0.4, 0.9], [0.5, 0.84], [0.6, 0.9]],
 ];
 
+const CANVAS_PIXEL_BUDGET = 2_250_000;
+const REDUCED_CANVAS_PIXEL_BUDGET = 1_250_000;
+
 export function StarField({
   density = 4200,
   maxCount = 460,
@@ -74,7 +77,12 @@ export function StarField({
       if (!force && (lockSafariBackground ? !widthChanged : !widthChanged && !heightChanged)) return;
       cssW = nextW; cssH = nextH;
       w = nextW; h = nextH;
-      dpr = Math.min(window.devicePixelRatio || 1, lowEnd ? 1.5 : 2);
+      const maxPixels = reduce || lowEnd ? REDUCED_CANVAS_PIXEL_BUDGET : CANVAS_PIXEL_BUDGET;
+      const baseDpr = Math.min(window.devicePixelRatio || 1, lowEnd ? 1.25 : 1.5);
+      // Long section backgrounds can otherwise allocate multi-megapixel backing
+      // stores. Keep the CSS coverage identical, but lower raster DPR as needed.
+      const pixelBudgetDpr = Math.sqrt(maxPixels / Math.max(1, w * h));
+      dpr = Math.max(0.5, Math.min(baseDpr, pixelBudgetDpr));
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       // noticeably denser than before — clearly "star-driven", still controlled
@@ -224,7 +232,17 @@ export function StarField({
     };
     window.addEventListener("resize", onResize);
     document.addEventListener("visibilitychange", onVisibility);
-    return () => { stop(); io.disconnect(); window.removeEventListener("resize", onResize); document.removeEventListener("visibilitychange", onVisibility); };
+    return () => {
+      stop();
+      io.disconnect();
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibility);
+      ctx.clearRect(0, 0, w, h);
+      stars = [];
+      shooters = [];
+      canvas.width = 0;
+      canvas.height = 0;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
