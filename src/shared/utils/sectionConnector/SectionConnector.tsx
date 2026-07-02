@@ -271,20 +271,31 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
     const svg = svgRef.current;
     if (!svg) return;
     let raf = 0;
+    let active = true;
+    let last1 = -1;
+    let last2 = -1;
     const REF = 0.62; // viewport reference line the line "draws to"
+    const setDraw = (next1: number, next2: number) => {
+      if (Math.abs(next1 - last1) > 0.001) {
+        draw.set(next1);
+        last1 = next1;
+      }
+      if (Math.abs(next2 - last2) > 0.001) {
+        draw2.set(next2);
+        last2 = next2;
+      }
+    };
     const update = () => {
       raf = 0;
       const r = svg.getBoundingClientRect();
       const vh = stableViewportHeight();
       if (r.bottom < -vh * 0.2) {
-        draw.set(1);
-        draw2.set(1);
+        setDraw(1, 1);
         fire();
         return;
       }
       if (r.top > vh * 1.2) {
-        draw.set(0);
-        draw2.set(0);
+        setDraw(0, 0);
         return;
       }
       const q = vh * REF - r.top;
@@ -292,17 +303,24 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
       // head's VERTICAL position tracks the scroll, so it lands on each node exactly
       // when you reach it and never overshoots/pre-draws. Stroke 1 (Agile's outgoing
       // leg) starts at the LAST node, so it only begins once you scroll to it.
-      if (geo.strokes[0]) draw.set(interpKeys(geo.strokes[0].keys, q));
-      if (geo.strokes[1]) draw2.set(interpKeys(geo.strokes[1].keys, q));
+      setDraw(
+        geo.strokes[0] ? interpKeys(geo.strokes[0].keys, q) : last1,
+        geo.strokes[1] ? interpKeys(geo.strokes[1].keys, q) : last2
+      );
       // arrival fires on the ENTRY NODE's own screen position — robust for the tall
       // sticky decks where the title is pinned.
       if (geo.nodeY != null && r.top + geo.nodeY <= vh * REF) fire();
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    const onScroll = () => { if (active && !raf) raf = requestAnimationFrame(update); };
+    const io = new IntersectionObserver(([entry]) => {
+      active = entry.isIntersecting;
+      if (active) onScroll();
+    }, { rootMargin: "120% 0px" });
+    io.observe(svg);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     update();
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
   }, [reduce, draw, draw2, geo.strokes, geo.nodeY, fire]);
 
   return (

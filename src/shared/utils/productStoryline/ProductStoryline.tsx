@@ -250,10 +250,15 @@ export function ProductStoryline({ count }: { count: number }) {
     const rows = Array.from(list.querySelectorAll<HTMLElement>("[data-pj-row]"));
     const dots = Array.from(svg.querySelectorAll<SVGGElement>("[data-pj-node]"));
     let raf = 0;
+    let active = true;
+    let lastFrac = -1;
     const REF = 0.58;                       // line begins drawing as the list top passes here
     const SPAN = Math.max(1, geo.h * 0.92); // scroll distance that draws the whole path
     const applyFraction = (frac: number) => {
-      draw.set(frac);
+      if (Math.abs(frac - lastFrac) > 0.001) {
+        draw.set(frac);
+        lastFrac = frac;
+      }
       if (frac > 0.003 && tlNode && !tlNode.hasAttribute("data-active")) tlNode.setAttribute("data-active", "");
       for (let i = 0; i < geo.nodeFracs.length; i++) {
         if (frac >= geo.nodeFracs[i]) {
@@ -277,11 +282,16 @@ export function ProductStoryline({ count }: { count: number }) {
       const frac = clamp01((vh * REF - r.top) / SPAN);
       applyFraction(frac);
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    const onScroll = () => { if (active && !raf) raf = requestAnimationFrame(update); };
+    const io = new IntersectionObserver(([entry]) => {
+      active = entry.isIntersecting;
+      if (active) onScroll();
+    }, { rootMargin: "120% 0px" });
+    io.observe(svg);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     update();
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
   }, [reduce, draw, geo.nodeFracs, geo.h]);
 
   return (

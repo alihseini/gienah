@@ -153,6 +153,7 @@ export function Services() {
   React.useEffect(() => {
     if (reduce) return;
     let raf = 0;
+    let active = true;
     const update = () => {
       raf = 0;
       const el = trackRef.current; if (!el) return;
@@ -173,11 +174,16 @@ export function Services() {
       const ni = _clamp(Math.round(head), 0, N - 1);
       if (ni !== idxRef.current) { idxRef.current = ni; setActive(ni); }
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    const onScroll = () => { if (active && !raf) raf = requestAnimationFrame(update); };
+    const io = new IntersectionObserver(([entry]) => {
+      active = entry.isIntersecting;
+      if (active) onScroll();
+    }, { rootMargin: "120% 0px" });
+    if (trackRef.current) io.observe(trackRef.current);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     update();
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
   }, [reduce, N]);
 
   const Header = (

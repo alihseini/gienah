@@ -119,6 +119,7 @@ export function Agile() {
     if (!root) return;
     if (reduceMotion()) { root.style.setProperty("--p", "1"); return; }
     let raf = 0;
+    let active = true;
     let lastP = "";
     const update = () => {
       raf = 0;
@@ -145,11 +146,16 @@ export function Agile() {
         lastP = next;
       }
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    const onScroll = () => { if (active && !raf) raf = requestAnimationFrame(update); };
+    const io = new IntersectionObserver(([entry]) => {
+      active = entry.isIntersecting;
+      if (active) onScroll();
+    }, { rootMargin: "120% 0px" });
+    io.observe(root);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     update();
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
   return (

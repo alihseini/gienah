@@ -14,3 +14,12 @@ export function safariScrollLayerLock() {
     !/(Chrome|Chromium|CriOS|FxiOS|Edg|OPR)/.test(navigator.userAgent);
   return touchSafari || desktopSafari;
 }
+
+export function lowEndMotionDevice() {
+  if (typeof window === "undefined") return false;
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  const narrow = window.matchMedia?.("(max-width: 760px)").matches ?? false;
+  const lowCore = typeof navigator.hardwareConcurrency === "number" && navigator.hardwareConcurrency <= 4;
+  const lowMemory = typeof nav.deviceMemory === "number" && nav.deviceMemory <= 4;
+  return narrow || lowCore || lowMemory;
+}

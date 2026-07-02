@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { safariScrollLayerLock } from "../viewport";
+import { lowEndMotionDevice, safariScrollLayerLock } from "../viewport";
 
 /* Dense premium hero star field (canvas): many twinkling stars across three
    depth layers (far→near) with parallax drift, soft glow halos on a few brighter
@@ -53,6 +53,9 @@ export function StarField({
     if (!canvas) return;
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const lockSafariBackground = safariScrollLayerLock();
+    const lowEnd = lowEndMotionDevice();
+    const quality = reduce ? 0.35 : lowEnd ? 0.58 : 1;
+    const frameInterval = lowEnd ? 1000 / 30 : 0;
     const ctx = canvas.getContext("2d")!;
     let w = 0, h = 0, dpr = 1;
     let cssW = 0, cssH = 0;
@@ -71,11 +74,11 @@ export function StarField({
       if (!force && (lockSafariBackground ? !widthChanged : !widthChanged && !heightChanged)) return;
       cssW = nextW; cssH = nextH;
       w = nextW; h = nextH;
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, lowEnd ? 1.5 : 2);
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       // noticeably denser than before — clearly "star-driven", still controlled
-      const count = Math.round(Math.min((w * h) / density, reduce ? reducedMax : maxCount));
+      const count = Math.round(Math.min((w * h) / (density / quality), reduce ? reducedMax : maxCount * quality));
       stars = Array.from({ length: count }, () => {
         const layer = Math.random() < 0.5 ? 0 : Math.random() < 0.55 ? 1 : 2; // 0 far … 2 near
         const gold = Math.random() < goldRatio;
@@ -95,6 +98,7 @@ export function StarField({
     let raf = 0;
     const t0 = performance.now();
     let last = t0;
+    let lastFrame = 0;
     let vis = true;
     let nextShoot = t0 + rand(14000, 22000);
     const stop = () => {
@@ -187,6 +191,16 @@ export function StarField({
         last = now;
         return;
       }
+      if (document.hidden) {
+        raf = 0;
+        last = now;
+        return;
+      }
+      if (frameInterval && now - lastFrame < frameInterval) {
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+      lastFrame = now;
       render(now);
       raf = requestAnimationFrame(loop);
     };
@@ -204,8 +218,13 @@ export function StarField({
     if (reduce) render(t0);
     else start();
     const onResize = () => build();
+    const onVisibility = () => {
+      if (document.hidden) stop();
+      else if (vis && !reduce) start();
+    };
     window.addEventListener("resize", onResize);
-    return () => { stop(); io.disconnect(); window.removeEventListener("resize", onResize); };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => { stop(); io.disconnect(); window.removeEventListener("resize", onResize); document.removeEventListener("visibilitychange", onVisibility); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
