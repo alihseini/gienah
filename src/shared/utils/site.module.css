@@ -473,6 +473,34 @@
 .pjBody {
   min-width: 0;
 }
+/* desktop: keep every Products row inside one consistent invisible content rail.
+   The storyline measures this list, so narrowing/centering the rail also keeps the
+   connector tied to the same product bounds without changing its geometry logic. */
+@media (min-width: 1024px) {
+  .pjList {
+    width: min(100%, 1040px);
+    margin: 10px auto 0;
+  }
+  .pjRow {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: clamp(64px, 7vw, 104px);
+  }
+  .pjMedia,
+  .pjBody {
+    width: 100%;
+    max-width: 440px;
+  }
+  .pjMedia {
+    justify-self: center;
+  }
+  .pjBody {
+    justify-self: start;
+  }
+  .pjRow[data-reverse] .pjBody {
+    justify-self: end;
+  }
+}
 /* tablet: keep the two-column alternation, tighten the gutter */
 @media (max-width: 1023px) and (min-width: 768px) {
   .pjList { gap: clamp(60px, 9vh, 120px); }
