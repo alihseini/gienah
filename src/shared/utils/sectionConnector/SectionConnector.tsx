@@ -72,6 +72,7 @@ function interpKeys(keys: Key[], y: number): number {
 // empty margin (on-screen); mobile pushes past the edge so the line exits/re-enters.
 function laneX(side: Side, w: number): number {
   if (w < 768) return side === "l" ? -0.1 * w : 1.1 * w; // off the narrow edge (clipped)
+  if (w < 1036) return side === "l" ? -0.08 * w : 1.08 * w; // tablet/small desktop: keep long runs out of content
   const inset = w >= 1440 ? 0.07 : w >= 1024 ? 0.085 : 0.1;
   return side === "l" ? Math.max(34, inset * w) : Math.min(w - 34, (1 - inset) * w);
 }
@@ -170,7 +171,7 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
     // node's level, then a short horizontal stub into the node (and the reverse on
     // exit) — the on-screen part is only the stub, in the empty margin beside the
     // title, never over the text. Desktop (>= 1024) keeps the original diagonal.
-    const mob = w < 1024;
+    const mob = w < 1036;
     const arc = mob ? 54 : 42; // over-title bow (taller below desktop to clear the title)
     let nodeY: number | null = null; // entry-node local y (arrival timing)
 

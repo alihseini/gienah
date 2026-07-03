@@ -467,10 +467,73 @@
 .pjBody {
   min-width: 0;
 }
-/* tablet: keep the two-column alternation, tighten the gutter */
-@media (max-width: 1023px) and (min-width: 768px) {
+@media (max-width: 1035px) {
+  .pjList {
+    --pj-guide-x: clamp(28px, 11vw, 86px);
+    padding-inline: calc(var(--pj-guide-x) + 22px);
+  }
+  .pjList::before,
+  .pjList::after {
+    content: "";
+    position: absolute;
+    top: -18px;
+    bottom: -18px;
+    z-index: 0;
+    width: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      rgba(88, 171, 206, 0),
+      rgba(124, 195, 238, 0.62) 16%,
+      rgba(88, 171, 206, 0.42) 84%,
+      rgba(88, 171, 206, 0)
+    );
+    box-shadow: 0 0 16px rgba(88, 171, 206, 0.22);
+  }
+  .pjList::before {
+    left: var(--pj-guide-x);
+  }
+  .pjList::after {
+    right: var(--pj-guide-x);
+  }
+  .pjRow {
+    justify-items: center;
+    text-align: center;
+  }
+  .pjBody {
+    width: min(100%, 620px);
+  }
+  .pjBody p {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .pjBody > div {
+    justify-content: center;
+  }
+  .pjMediaGlow {
+    width: 58%;
+    height: 48%;
+  }
+}
+@media (max-width: 767px) {
+  .pjList {
+    --pj-guide-x: clamp(18px, 7vw, 30px);
+  }
+}
+/* tablet/small desktop: keep the one-column product journey, tighten the gap */
+@media (max-width: 1035px) and (min-width: 768px) {
   .pjList { gap: clamp(60px, 9vh, 120px); }
-  .pjRow { column-gap: clamp(26px, 4vw, 56px); }
+  .pjRow {
+    grid-template-columns: 1fr;
+    row-gap: clamp(24px, 4vw, 30px);
+    justify-items: center;
+    text-align: center;
+    transform: translateY(48px) scale(0.98);
+  }
+  .pjRow .pjMedia,
+  .pjRow[data-reverse] .pjMedia { order: 1; }
+  .pjRow .pjBody,
+  .pjRow[data-reverse] .pjBody { order: 2; }
 }
 /* phones: single column, product visual ALWAYS above the text; the storyline drops into a
    thin left lane, so rows are padded left to clear the line + nodes — no overlap,
@@ -478,7 +541,7 @@
 @media (max-width: 767px) {
   .pjList {
     gap: 60px;
-    padding-left: 30px;
+    padding-inline: calc(clamp(18px, 7vw, 30px) + 18px);
   }
   .pjRow {
     grid-template-columns: 1fr;
@@ -878,8 +941,8 @@
   height: 100svh;
 }
 .svcTrack {
-  height: calc(var(--svc-count) * 88vh);
-  height: calc(var(--svc-count) * 88svh);
+  height: calc(var(--svc-count) * 118vh);
+  height: calc(var(--svc-count) * 118svh);
 }
 .svcStage {
   padding: 100px 0 52px;

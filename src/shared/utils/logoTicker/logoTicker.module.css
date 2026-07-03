@@ -1,12 +1,18 @@
 /* Logo ticker — seamless right-to-left marquee of partner logos. Keyframes are
    defined in this module so the animation reference resolves (CSS Modules scope
    animation names). Edge fade masks, grayscale→full-color on hover, pause on hover. */
+.shell {
+  position: relative;
+  z-index: 0;
+  background: var(--page-bg);
+  overflow: clip;
+}
 .wrap {
   position: relative;
   overflow: hidden;
   /* transparent: blends into the continuous cosmic base instead of being a
      lighter opaque strip with hard top/bottom border lines */
-  background: transparent;
+  background: var(--page-bg);
   padding: 28px 0;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);

@@ -81,7 +81,7 @@ type CardStyle = { transform: string; opacity: number };
 const CARD_STYLE_CACHE = new WeakMap<HTMLElement, CardStyle>();
 function computeCardStyle(i: number, head: number, mobile: boolean, H: number): CardStyle {
   const rel = head - i;
-  const ENTER = Math.max(220, H * 0.88);        // rise distance ⇒ ~12% bottom-peek
+  const ENTER = Math.max(300, H * 1.16);        // larger rise distance leaves more air between cards
   const PEEK_TOP = mobile ? 0 : 18;             // header sliver each passed card shows
   let y: number, opacity: number, scale: number;
 
@@ -164,7 +164,7 @@ export function Services() {
       const scrolled = _clamp(-r.top, 0, dist);
       // complete the reveal at 90% of the travel, leaving a brief "hold" on the last
       // card before the section unpins — feels deliberate rather than abrupt.
-      const progress = dist > 0 ? _clamp(scrolled / (dist * 0.9), 0, 1) : 0;
+      const progress = dist > 0 ? _clamp(scrolled / (dist * 0.94), 0, 1) : 0;
       const head = progress * (N - 1);          // continuous playhead across the deck
       const H = deckRef.current?.offsetHeight || vh * 0.5;   // live card height
       for (let i = 0; i < N; i++) {

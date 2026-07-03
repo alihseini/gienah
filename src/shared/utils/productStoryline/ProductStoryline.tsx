@@ -119,10 +119,10 @@ function buildDesktop(start: Pt, nodes: Pt[], mockHalf: number, h: number, bridg
 // Mobile left-lane line: a gentle organic vertical bow through the nodes, then a
 // soft curve out to the next section's entry lane (bridge) so the wire continues
 // off the left edge into the studio connector exactly as on desktop.
-function buildMobile(nodes: Pt[], h: number, bridge: Pt | null): { d: string; nodeFracs: number[] } {
+function buildMobile(start: Pt, nodes: Pt[], h: number, bridge: Pt | null): { d: string; nodeFracs: number[] } {
   const end: Pt = bridge ?? { x: nodes[nodes.length - 1].x, y: Math.min(h, nodes[nodes.length - 1].y + 80) };
   const pts: Pt[] = [
-    { x: nodes[0].x, y: Math.max(0, nodes[0].y - 80) },
+    start,
     ...nodes,
     end,
   ];
@@ -150,7 +150,7 @@ export function ProductStoryline({ count }: { count: number }) {
     const rows = Array.from(list.querySelectorAll<HTMLElement>("[data-pj-row]"));
     if (!rows.length) return;
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-    const mob = w < 768;
+    const column = w < 1036;
     const docPos = (el: HTMLElement) => {
       let x = 0, y = 0, n: HTMLElement | null = el;
       while (n) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
@@ -174,18 +174,24 @@ export function ProductStoryline({ count }: { count: number }) {
       const inset = secW >= 1440 ? 0.07 : secW >= 1024 ? 0.085 : 0.1;
       const secBottomLocal = sp.y + section.offsetHeight - lp.y;
       const studioL = document.querySelector<HTMLElement>('[data-node="studio:l"]');
-      if (!mob && studioL) {
+      if (!column && studioL) {
         bridge = { x: docPos(studioL).x + studioL.offsetWidth / 2 - lp.x, y: secBottomLocal + 2 };
       } else {
-        const laneL = secW < 768 ? -0.1 * secW : Math.max(34, inset * secW);
+        const laneL = secW < 1036 ? Math.max(28, Math.min(86, secW * 0.11)) : Math.max(34, inset * secW);
         bridge = { x: laneL - (lp.x - sp.x), y: secBottomLocal + 2 };
       }
     }
 
-    if (mob) {
-      const cx = Math.max(13, w * 0.045);
-      const nodes: Pt[] = rows.map((row, i) => ({ x: cx + (i % 2 ? 6 : -6), y: row.offsetTop + row.offsetHeight / 2 }));
-      const { d, nodeFracs } = buildMobile(nodes, h, bridge);
+    const tl = document.querySelector<HTMLElement>('[data-node="products:l"]');
+    const titleStart: Pt | null = tl
+      ? { x: docPos(tl).x + tl.offsetWidth / 2 - lp.x, y: docPos(tl).y + tl.offsetHeight / 2 - lp.y }
+      : null;
+
+    if (column) {
+      const leftGuide = Math.max(28, Math.min(86, w * 0.11));
+      const nodes: Pt[] = rows.map((row, i) => ({ x: leftGuide + (i % 2 ? 5 : -5), y: row.offsetTop + row.offsetHeight / 2 }));
+      const start = titleStart ?? { x: leftGuide, y: Math.max(0, nodes[0].y - 80) };
+      const { d, nodeFracs } = buildMobile(start, nodes, h, bridge);
       setGeo({ w, h, d, nodeFracs, nodes });
       return;
     }
@@ -207,10 +213,7 @@ export function ProductStoryline({ count }: { count: number }) {
 
     // start EXACTLY at the title's left node centre, so the path originates from
     // the real anchor (not offset beside the heading).
-    const tl = document.querySelector<HTMLElement>('[data-node="products:l"]');
-    const start: Pt = tl
-      ? { x: docPos(tl).x + tl.offsetWidth / 2 - lp.x, y: docPos(tl).y + tl.offsetHeight / 2 - lp.y }
-      : { x: nodes[0].x, y: -70 };
+    const start: Pt = titleStart ?? { x: nodes[0].x, y: -70 };
 
     const { d, nodeFracs } = buildDesktop(start, nodes, mockHalf, h, bridge);
     setGeo({ w, h, d, nodeFracs, nodes });
