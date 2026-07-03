@@ -485,33 +485,44 @@
     width: 100%;
     max-width: 1040px;
     margin-inline: auto;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    display: grid;
+    justify-content: center;
+    grid-template-columns: minmax(260px, 400px) minmax(0, 540px);
     grid-template-areas: "media content";
     column-gap: clamp(64px, 7vw, 104px);
   }
-  .pjMedia,
-  .pjBody {
-    width: 100%;
-    max-width: 440px;
+  .pjRow[data-reverse] {
+    grid-template-columns: minmax(0, 540px) minmax(260px, 400px);
+    grid-template-areas: "content media";
   }
   .pjMedia {
     grid-area: media;
-    justify-self: end;
+    justify-self: stretch;
+    width: 100%;
+    max-width: none;
+    display: flex;
+    justify-content: center;
     order: initial;
   }
   .pjBody {
     grid-area: content;
-    justify-self: start;
+    justify-self: stretch;
+    width: 100%;
+    max-width: none;
+    padding-inline-end: clamp(24px, 3.2vw, 48px);
+    box-sizing: border-box;
     order: initial;
   }
-  .pjRow[data-reverse] {
-    grid-template-areas: "content media";
+  .pjRow[data-reverse] .pjMedia,
+  .pjRow[data-reverse] .pjBody {
+    justify-self: stretch;
   }
   .pjRow[data-reverse] .pjMedia {
-    justify-self: start;
+    order: initial;
   }
   .pjRow[data-reverse] .pjBody {
-    justify-self: end;
+    padding-inline: clamp(24px, 3.2vw, 48px) 0;
+    order: initial;
   }
 }
 /* tablet: keep the two-column alternation, tighten the gutter */
