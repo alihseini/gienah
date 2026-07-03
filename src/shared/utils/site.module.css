@@ -897,9 +897,9 @@
    relative to the card's own height, so the waiting cards sit just below the fold
    regardless of breakpoint. */
 .svcCard {
-  opacity: 0;
+  opacity: 1;
   transform: translate3d(0, 100%, 0) scale(0.96);
-  will-change: transform, opacity;
+  will-change: transform;
 }
 .svcCard:first-child {
   opacity: 1;

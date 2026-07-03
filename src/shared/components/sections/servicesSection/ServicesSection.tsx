@@ -6,13 +6,13 @@ import { SectionConnector } from "@/shared/utils/sectionConnector/SectionConnect
 import { SectionStars } from "@/shared/utils/sectionStars/SectionStars";
 import servicesData from "@/shared/data/services.json";
 import type { Service } from "@/shared/data/types";
-import { reduceMotion, _clamp, _lerp, easeOutCubic, smoothstep } from "../sectionUtils";
+import { reduceMotion, _clamp, _lerp, easeOutCubic } from "../sectionUtils";
 import { stableViewportHeight } from "@/shared/utils/viewport";
 
 const SERVICES = servicesData as Service[];
 
 /* ---------------- services ---------------- */
-function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
+function ServicePanel({ s: svc }: { s: Service }) {
   const gold = svc.tone === "gold";
   const glowA = gold ? "rgba(244,198,95,0.16)" : "rgba(88,171,206,0.16)";
   const glowB = gold ? "rgba(226,170,59,0.10)" : "rgba(42,146,204,0.12)";
@@ -32,7 +32,7 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
           display: "grid", gap: "clamp(28px, 4vw, 64px)", alignItems: "center",
         }}
       >
-        <span className={s.svcRing} aria-hidden="true" style={{ opacity: dim ? 0.35 : 1 }}><i /></span>
+        <span className={s.svcRing} aria-hidden="true"><i /></span>
         <div style={{ position: "relative", zIndex: 1 }}>
           <div className={s.svcIconRow} style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 22 }}>
             <span className={s.floatIcon} style={{ width: 64, height: 64, borderRadius: 18, background: "var(--brand-gradient-soft)", color: gold ? "var(--gold-700)" : "var(--accent-600)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", boxShadow: `0 10px 30px -10px ${glowA}` }}><Icon name={svc.icon} size={30} /></span>
@@ -77,13 +77,13 @@ function ServicePanel({ s: svc, dim }: { s: Service; dim?: boolean }) {
  * The three phases are continuous at rel = -1 and rel = 0, so the whole thing is one
  * smooth scroll-linked curve — never jumpy. `H` is the live deck height, so the rise
  * distance and bottom-peek scale with the actual card size at every breakpoint. */
-type CardStyle = { transform: string; opacity: number };
+type CardStyle = { transform: string };
 const CARD_STYLE_CACHE = new WeakMap<HTMLElement, CardStyle>();
 function computeCardStyle(i: number, head: number, mobile: boolean, H: number): CardStyle {
   const rel = head - i;
   const ENTER = Math.max(300, H * 1.16);        // larger rise distance leaves more air between cards
   const PEEK_TOP = mobile ? 0 : 18;             // header sliver each passed card shows
-  let y: number, opacity: number, scale: number;
+  let y: number, scale: number;
 
   if (rel >= 0) {
     // passed/active: stays in place, only eases up to peek above the new top card.
@@ -92,31 +92,27 @@ function computeCardStyle(i: number, head: number, mobile: boolean, H: number): 
     const d = Math.min(rel, 3);
     y = -PEEK_TOP * d;
     scale = 1 - 0.018 * d;
-    opacity = Math.max(0.5, 1 - 0.14 * d);
   } else if (rel >= -1) {
     // entering: rise from the bottom-peek up to active, fading in.
     const t = easeOutCubic(rel + 1);            // 0 at rel=-1 → 1 at rel=0
     y = _lerp(ENTER, 0, t);
     scale = _lerp(0.96, 1, t);
-    opacity = _lerp(0.35, 1, smoothstep(rel + 1));
   } else {
     // waiting below: the immediate-next card peeks a sliver at the bottom, the rest
     // stay hidden until they're next (opacity fades 0 → 0.35 as rel climbs -2 → -1).
     y = ENTER;
     scale = 0.96;
-    opacity = _lerp(0, 0.35, _clamp(rel + 2, 0, 1));
   }
 
   return {
     transform: `translate3d(0, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`,
-    opacity: Number(opacity.toFixed(3)),
   };
 }
 
 function writeCardStyle(el: HTMLElement, st: CardStyle) {
   const prev = CARD_STYLE_CACHE.get(el);
   if (prev?.transform !== st.transform) el.style.transform = st.transform;
-  if (prev?.opacity !== st.opacity) el.style.opacity = String(st.opacity);
+  if (el.style.opacity !== "1") el.style.opacity = "1";
   CARD_STYLE_CACHE.set(el, st);
 }
 
@@ -236,7 +232,7 @@ export function Services() {
                     backfaceVisibility: "hidden",
                   }}
                 >
-                  <ServicePanel s={svc} dim={i < active} />
+                  <ServicePanel s={svc} />
                 </div>
               ))}
             </div>
