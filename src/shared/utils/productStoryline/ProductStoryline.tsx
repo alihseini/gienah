@@ -196,19 +196,20 @@ export function ProductStoryline({ count }: { count: number }) {
       return;
     }
 
-    // node sits just outside each product visual, on the side away from the text,
-    // measured from the visual box in transform-independent layout space so
-    // the rows' reveal transforms never shift the line off a node.
+    // Desktop rows share one centered outer rail; their inner media/text order can
+    // alternate, while the storyline itself anchors to alternating row rails.
+    // Measurements stay transform-independent so reveal motion never shifts the
+    // path off its activation points.
     const GAP = 28;
     let mockHalf = 200;
     const nodes: Pt[] = rows.map((row, i) => {
       const m = (row.querySelector<HTMLElement>("[data-pj-media]") ?? row);
-      const mp = docPos(m);
-      const mx = mp.x - lp.x, my = mp.y - lp.y;
+      const rp = docPos(row);
+      const rx = rp.x - lp.x, ry = rp.y - lp.y;
       mockHalf = m.offsetHeight / 2;
-      const reverse = i % 2 === 1; // visual on the right
-      const nx = reverse ? mx + m.offsetWidth + GAP : mx - GAP;
-      return { x: clamp(nx, 16, w - 16), y: my + m.offsetHeight / 2 };
+      const reverse = i % 2 === 1;
+      const nx = reverse ? rx + row.offsetWidth - GAP : rx + GAP;
+      return { x: clamp(nx, 16, w - 16), y: ry + row.offsetHeight / 2 };
     });
 
     // start EXACTLY at the title's left node centre, so the path originates from
