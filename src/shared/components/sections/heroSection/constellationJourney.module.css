@@ -178,6 +178,10 @@
   .nodeR { right: -26px; }
 }
 @media (max-width: 767px) {
+  .heroStar {
+    top: clamp(570px, 82svh, 760px);
+    left: 5%;
+  }
   .node { width: 11px; height: 11px; margin-top: -5.5px; }
   .nodeL { left: -18px; }
   .nodeR { right: -18px; }

@@ -279,3 +279,12 @@
     transform: translate(-50%, -50%) scale(1);
   }
 }
+
+@media (max-width: 767px) {
+  .posCorner {
+    --x: 5%;
+    --y: clamp(570px, 82svh, 760px);
+    --core: 72px;
+    --halo: 430px;
+  }
+}

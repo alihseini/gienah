@@ -99,9 +99,9 @@ export function Hero() {
             <Press><Button size="lg" variant="secondary" trailingIcon={<Icon name="arrow-down" size={16} />} onClick={() => go("products")}>See our work</Button></Press>
           </div>
         </FadeIn>
-        <Stagger style={{ display: "flex", justifyContent: "center", gap: "clamp(28px,6vw,72px)", marginTop: 64, flexWrap: "wrap" }} gap={0.1} delayChildren={0.28} amount={0.4}>
+        <Stagger className={s.heroStats} style={{ display: "flex", justifyContent: "center", gap: "clamp(28px,6vw,72px)", marginTop: 64, flexWrap: "wrap" }} gap={0.1} delayChildren={0.28} amount={0.4}>
           {site.hero.stats.map(([n, l]) => (
-            <StaggerItem key={l} y={14} style={{ textAlign: "center" }}>
+            <StaggerItem key={l} className={s.heroStatItem} y={14} style={{ textAlign: "center" }}>
               <div className={s.heroStat} style={{ fontSize: 36, fontWeight: 700, letterSpacing: "-0.03em" }}><CountUp value={n} /></div>
               <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 2 }}>{l}</div>
             </StaggerItem>
