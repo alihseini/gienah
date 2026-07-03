@@ -13,6 +13,7 @@ import d from "../styles/projectDetail.module.css";
 const PRODUCTS = productsData as Product[];
 const ORDER = PRODUCTS.map((p) => p.id);
 const EASE = [0.22, 1, 0.36, 1] as const;
+type ShotOrientation = "unknown" | "portrait" | "landscape";
 
 function toneBg(tone: Tone, strong: boolean) {
   if (tone === "gold") return strong ? "linear-gradient(150deg, #f4d485, #e2aa3b 70%, #c68d28)" : "linear-gradient(150deg, #fdf6e6, #f4d485)";
@@ -69,6 +70,82 @@ function RevealScale({ children, className, style }: { children: React.ReactNode
     >
       {children}
     </motion.div>
+  );
+}
+
+function ScreensGallery({ shots, title, tone }: { shots: (string | null)[]; title: string; tone: Tone }) {
+  const [orientations, setOrientations] = React.useState<Record<string, ShotOrientation>>({});
+  const [openShot, setOpenShot] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!openShot) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpenShot(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [openShot]);
+
+  const updateOrientation = React.useCallback((src: string, img: HTMLImageElement) => {
+    const next: ShotOrientation = img.naturalWidth >= img.naturalHeight ? "landscape" : "portrait";
+    setOrientations((current) => (current[src] === next ? current : { ...current, [src]: next }));
+  }, []);
+
+  return (
+    <>
+      <Stagger className={d.gallery} gap={0.07}>
+        {shots.map((src, i) => {
+          const orientation = src ? orientations[src] ?? "unknown" : "portrait";
+          const itemStyle = {
+            "--shot-span": orientation === "landscape" ? "span 2" : "span 1",
+            "--shot-mobile-basis": orientation === "landscape" ? "86%" : "64%",
+          } as React.CSSProperties;
+
+          return (
+            <Lift asItem key={src ?? `placeholder-${i}`} className={d.gItem} style={itemStyle}>
+              <button
+                type="button"
+                className={d.gShot}
+                data-orientation={orientation}
+                style={{ background: src ? "var(--bg-subtle)" : toneBg(tone, i % 2 === 0) }}
+                onClick={() => src && setOpenShot(src)}
+                disabled={!src}
+                aria-label={src ? `Open ${title} screen ${i + 1}` : undefined}
+              >
+                {src ? (
+                  <ImageLazy
+                    src={src}
+                    alt={`${title} screen ${i + 1}`}
+                    onLoad={(event) => updateOrientation(src, event.currentTarget)}
+                  />
+                ) : (
+                  <div className={d.showPlaceholder}>
+                    <ImageLazy src="/assets/logo-mark.png" alt="" style={{ height: 34, width: "auto", opacity: 0.9 }} />
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".08em", opacity: 0.82 }}>Screen {i + 1}</div>
+                  </div>
+                )}
+              </button>
+            </Lift>
+          );
+        })}
+      </Stagger>
+
+      {openShot && (
+        <div className={d.lightbox} role="dialog" aria-modal="true" aria-label={`${title} screenshot preview`} onClick={() => setOpenShot(null)}>
+          <button type="button" className={d.lightboxClose} aria-label="Close screenshot preview" onClick={() => setOpenShot(null)}>
+            &times;
+          </button>
+          <div className={d.lightboxPanel} onClick={(event) => event.stopPropagation()}>
+            <img src={openShot} alt={`${title} enlarged screenshot`} loading="lazy" decoding="async" />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -226,22 +303,7 @@ export function ProjectDetail({ id }: { id: number }) {
       {/* ---------- screens gallery ---------- */}
       <section className={d.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 40, paddingBottom: 80 }}>
         <FadeIn><div className={d.eyebrow} style={{ marginBottom: 22 }}>Screens</div></FadeIn>
-        <Stagger className={d.gallery} gap={0.07}>
-          {shots.map((src, i) => (
-            <Lift asItem key={i} className={d.gItem}>
-              <div className={d.gShot} style={{ background: src ? "var(--bg-subtle)" : toneBg(p.tone, i % 2 === 0) }}>
-                {src ? (
-                  <ImageLazy src={src} alt={`${p.title} screen ${i + 1}`} />
-                ) : (
-                  <div className={d.showPlaceholder}>
-                    <ImageLazy src="/assets/logo-mark.png" alt="" style={{ height: 34, width: "auto", opacity: 0.9 }} />
-                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".08em", opacity: 0.82 }}>Screen {i + 1}</div>
-                  </div>
-                )}
-              </div>
-            </Lift>
-          ))}
-        </Stagger>
+        <ScreensGallery shots={shots} title={p.title} tone={p.tone} />
       </section>
 
       {/* ---------- cinematic outro / next + cta ---------- */}
