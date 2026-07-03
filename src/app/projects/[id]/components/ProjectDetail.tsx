@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { createPortal } from "react-dom";
 import { Button, Badge, Icon, ImageLazy } from "@/shared/components";
 import { ScrollProgress, siteStyles } from "@/shared/utils/helpers";
 import { HeadingReveal } from "@/shared/utils/headingReveal/HeadingReveal";
@@ -76,6 +77,9 @@ function RevealScale({ children, className, style }: { children: React.ReactNode
 function ScreensGallery({ shots, title, tone }: { shots: (string | null)[]; title: string; tone: Tone }) {
   const [orientations, setOrientations] = React.useState<Record<string, ShotOrientation>>({});
   const [openShot, setOpenShot] = React.useState<string | null>(null);
+  const portalAccentStyle = {
+    "--proj-rgb": tone === "gold" ? "244, 198, 95" : "88, 171, 206",
+  } as React.CSSProperties;
 
   React.useEffect(() => {
     if (!openShot) return;
@@ -135,16 +139,25 @@ function ScreensGallery({ shots, title, tone }: { shots: (string | null)[]; titl
         })}
       </Stagger>
 
-      {openShot && (
-        <div className={d.lightbox} role="dialog" aria-modal="true" aria-label={`${title} screenshot preview`} onClick={() => setOpenShot(null)}>
-          <button type="button" className={d.lightboxClose} aria-label="Close screenshot preview" onClick={() => setOpenShot(null)}>
-            &times;
-          </button>
-          <div className={d.lightboxPanel} onClick={(event) => event.stopPropagation()}>
-            <img src={openShot} alt={`${title} enlarged screenshot`} loading="lazy" decoding="async" />
-          </div>
-        </div>
-      )}
+      {openShot &&
+        createPortal(
+          <div
+            className={d.lightbox}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${title} screenshot preview`}
+            style={portalAccentStyle}
+            onClick={() => setOpenShot(null)}
+          >
+            <button type="button" className={d.lightboxClose} aria-label="Close screenshot preview" onClick={() => setOpenShot(null)}>
+              &times;
+            </button>
+            <div className={d.lightboxPanel} onClick={(event) => event.stopPropagation()}>
+              <img src={openShot} alt={`${title} enlarged screenshot`} loading="lazy" decoding="async" />
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
