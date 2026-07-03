@@ -4,15 +4,16 @@
 .shell {
   position: relative;
   z-index: 0;
-  background: var(--page-bg);
-  overflow: clip;
+  background: transparent;
+  overflow: hidden;
 }
 .wrap {
   position: relative;
+  z-index: 1;
   overflow: hidden;
   /* transparent: blends into the continuous cosmic base instead of being a
      lighter opaque strip with hard top/bottom border lines */
-  background: var(--page-bg);
+  background: transparent;
   padding: 28px 0;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
