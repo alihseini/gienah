@@ -1,9 +1,7 @@
 "use client";
 import React from "react";
 import { Button, Badge, Icon } from "@/shared/components";
-import { CountUp, ScrollParallax, siteStyles as s, go } from "@/shared/utils/helpers";
-import { StarField } from "@/shared/utils/starfield/StarField";
-import { HeroAtmosphere } from "@/shared/utils/heroAtmosphere/HeroAtmosphere";
+import { CountUp, siteStyles as s, go } from "@/shared/utils/helpers";
 import { HeadingReveal } from "@/shared/utils/headingReveal/HeadingReveal";
 import { TypingAnimation } from "@/shared/utils/typing/TypingAnimation";
 import { Stagger, StaggerItem, FadeIn, Press } from "@/shared/utils/motion/motion";
@@ -11,69 +9,12 @@ import { GienahLight } from "@/shared/utils/gienahLight/GienahLight";
 import { SectionConnector } from "@/shared/utils/sectionConnector/SectionConnector";
 import c from "./constellationJourney.module.css";
 import site from "@/shared/data/site.json";
-import { reduceMotion } from "../sectionUtils";
-import { stableViewportHeight } from "@/shared/utils/viewport";
 
 /* ---------------- hero ---------------- */
 export function Hero() {
-  const sectionRef = React.useRef<HTMLElement>(null);
-  const atmoRef = React.useRef<HTMLDivElement>(null);
-
-  // very subtle pointer parallax on the background layers only (text stays still).
-  // atmosphere drifts a little, the constellation a little more, for soft depth.
-  React.useEffect(() => {
-    if (reduceMotion()) return;
-    if (window.matchMedia && !window.matchMedia("(pointer: fine)").matches) return;
-    let raf = 0;
-    let visible = true;
-    let x = 0, y = 0, tx = 0, ty = 0;
-    let lastTransform = "";
-    const tick = () => {
-      raf = 0;
-      if (!visible) return;
-      x += (tx - x) * 0.08; y += (ty - y) * 0.08;
-      const a = atmoRef.current;
-      const nextTransform = `translate3d(${(-x * 10).toFixed(2)}px, ${(-y * 8).toFixed(2)}px, 0)`;
-      if (a && nextTransform !== lastTransform) {
-        a.style.transform = nextTransform;
-        lastTransform = nextTransform;
-      }
-      if (Math.abs(tx - x) > 0.001 || Math.abs(ty - y) > 0.001) raf = requestAnimationFrame(tick);
-    };
-    const onMove = (e: MouseEvent) => {
-      if (!visible) return;
-      tx = e.clientX / window.innerWidth - 0.5;
-      ty = e.clientY / stableViewportHeight() - 0.5;
-      if (!raf) raf = requestAnimationFrame(tick);
-    };
-    const io = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-      if (!visible && raf) {
-        cancelAnimationFrame(raf);
-        raf = 0;
-      }
-    }, { rootMargin: "160px" });
-    if (sectionRef.current) io.observe(sectionRef.current);
-    window.addEventListener("mousemove", onMove, { passive: true });
-    return () => { io.disconnect(); window.removeEventListener("mousemove", onMove); if (raf) cancelAnimationFrame(raf); };
-  }, []);
-
   return (
-    <section ref={sectionRef} id="top" className={s.page} data-anim-pause style={{ overflow: "hidden", padding: "172px 0 110px", position: "relative", zIndex: 0 }}>
-      {/* layered background, all behind content & with different scroll speeds for depth:
-          atmosphere (slowest glow) → stars (medium) → main constellation (fastest).
-          Each keeps its existing pointer-parallax / float; the wrappers only add the
-          scroll-linked drift on top, so text & buttons stay perfectly still.
-          The .heroBg wrapper masks the top so the starfield/constellation fades out
-          of the navbar zone (never sits behind the floating nav). */}
-      <div className={s.heroBg} aria-hidden="true">
-        <ScrollParallax max={30}><HeroAtmosphere ref={atmoRef} /></ScrollParallax>
-        <ScrollParallax max={48}><StarField /></ScrollParallax>
-        {/* Gienah light signature: a subtle off-centre star tucked into a safe
-            corner — never behind the headline/CTA; the hero star field stays the
-            main identity */}
-        <GienahLight pos="corner" tone="mixed" size="md" flare twinkle />
-      </div>
+    <section id="top" className={s.page} data-anim-pause style={{ overflow: "hidden", padding: "172px 0 110px", position: "relative", zIndex: 0 }}>
+      <GienahLight pos="corner" tone="mixed" size="md" flare twinkle />
       {/* the constellation journey begins from this Hero star, then this section's
           connector draws the first leg down toward Services (behind the content) */}
       <span data-node="hero:star" className={c.heroStar} aria-hidden="true" />

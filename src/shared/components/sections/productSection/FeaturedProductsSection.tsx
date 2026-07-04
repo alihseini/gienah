@@ -4,7 +4,6 @@ import { Button, Badge, Icon, ImageLazy } from "@/shared/components";
 import { SectionHead, siteStyles as s } from "@/shared/utils/helpers";
 import { SectionConnector } from "@/shared/utils/sectionConnector/SectionConnector";
 import { ProductStoryline } from "@/shared/utils/productStoryline/ProductStoryline";
-import { SectionStars } from "@/shared/utils/sectionStars/SectionStars";
 import productsData from "@/shared/data/products.json";
 import type { Product } from "@/shared/data/types";
 
@@ -73,8 +72,7 @@ function ProductRow({ p, i }: { p: Product; i: number }) {
    the section's JourneyGate. */
 export function Featured() {
   return (
-    <section id="products" className={[s.panel, s.overlap].join(" ")} data-anim-pause style={{ background: "var(--page-bg)", position: "relative", overflow: "clip", zIndex: 3, padding: "120px 0 130px" }}>
-      <SectionStars />
+    <section id="products" className={[s.panel, s.overlap].join(" ")} data-anim-pause style={{ background: "transparent", position: "relative", overflow: "clip", zIndex: 3, padding: "120px 0 130px" }}>
       {/* Global journey: arrive at the title (right node), bow OVER the title to the
           left node like every other section — then stop. No exit leg down: the
           alternating full-width rows leave no side lane, so the ProductStoryline

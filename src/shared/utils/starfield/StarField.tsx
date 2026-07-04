@@ -35,6 +35,7 @@ export function StarField({
   constellations: useConstellations = true,
   shooting = true,
   shadow = true,
+  scrollParallax = false,
   className,
   style,
 }: {
@@ -47,6 +48,7 @@ export function StarField({
   shooting?: boolean;
   /** per-star shadowBlur glow — turn OFF for dense fields to stay cheap. */
   shadow?: boolean;
+  scrollParallax?: boolean;
   className?: string;
   style?: React.CSSProperties;
 } = {}) {
@@ -59,6 +61,7 @@ export function StarField({
     const lowEnd = lowEndMotionDevice();
     const quality = reduce ? 0.35 : lowEnd ? 0.58 : 1;
     const frameInterval = lowEnd ? 1000 / 30 : 0;
+    const useScrollParallax = scrollParallax && !reduce && !lockSafariBackground;
     const ctx = canvas.getContext("2d")!;
     let w = 0, h = 0, dpr = 1;
     let cssW = 0, cssH = 0;
@@ -108,6 +111,8 @@ export function StarField({
     let last = t0;
     let lastFrame = 0;
     let vis = true;
+    let cameraX = 0;
+    let cameraY = 0;
     let nextShoot = t0 + rand(14000, 22000);
     const stop = () => {
       if (raf) {
@@ -117,6 +122,7 @@ export function StarField({
     };
 
     const smooth = (p: number) => p * p * (3 - 2 * p);
+    const wrap = (value: number, size: number) => ((value % size) + size) % size;
 
     const render = (now: number) => {
       const t = (now - t0) / 1000;
@@ -127,6 +133,16 @@ export function StarField({
       ctx.clearRect(0, 0, w, h);
       const dx = lockSafariBackground ? [0, 0, 0] : [Math.sin(t * 0.04) * 6, Math.sin(t * 0.035) * 13, Math.sin(t * 0.028) * 22];
       const dy = lockSafariBackground ? [0, 0, 0] : [Math.cos(t * 0.04) * 4, Math.cos(t * 0.035) * 8, Math.cos(t * 0.028) * 14];
+      if (useScrollParallax) {
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const targetY = scrollY * (lowEnd ? 0.014 : 0.026);
+        const targetX = Math.sin(scrollY * 0.0018) * (lowEnd ? 10 : 18);
+        cameraX += (targetX - cameraX) * 0.08;
+        cameraY += (targetY - cameraY) * 0.08;
+      } else {
+        cameraX += (0 - cameraX) * 0.08;
+        cameraY += (0 - cameraY) * 0.08;
+      }
 
       // secondary constellation accents (very faint, edge-tucked)
       ctx.lineWidth = 1;
@@ -134,13 +150,15 @@ export function StarField({
       if (useConstellations) for (const nodes of CONSTELLATIONS) {
         ctx.beginPath();
         nodes.forEach(([nx, ny], i) => {
-          const px = nx * w + dx[1], py = ny * h + dy[1];
+          const px = wrap(nx * w + dx[1] - cameraX * 0.34, w);
+          const py = wrap(ny * h + dy[1] - cameraY * 0.34, h);
           if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
         });
         ctx.strokeStyle = `rgba(${BLUE},${pulse})`;
         ctx.stroke();
         for (const [nx, ny] of nodes) {
-          const px = nx * w + dx[1], py = ny * h + dy[1];
+          const px = wrap(nx * w + dx[1] - cameraX * 0.34, w);
+          const py = wrap(ny * h + dy[1] - cameraY * 0.34, h);
           ctx.beginPath(); ctx.arc(px, py, 1.4, 0, 6.283);
           ctx.fillStyle = `rgba(170,210,240,${0.5 * intro})`; ctx.fill();
         }
@@ -148,7 +166,9 @@ export function StarField({
 
       // stars
       for (const st of stars) {
-        const px = st.x * w + dx[st.layer], py = st.y * h + dy[st.layer];
+        const layerDepth = st.layer === 0 ? 0.42 : st.layer === 1 ? 0.68 : 1;
+        const px = wrap(st.x * w + dx[st.layer] - cameraX * layerDepth, w);
+        const py = wrap(st.y * h + dy[st.layer] - cameraY * layerDepth, h);
         const tw = reduce ? 0.92 : 0.45 + 0.55 * Math.sin(t * st.sp + st.ph);
         const alpha = Math.max(0, st.a * tw) * intro;
         // soft glow halo on the brighter near stars

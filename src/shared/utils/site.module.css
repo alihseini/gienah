@@ -115,17 +115,14 @@
 .parallax {
   will-change: transform;
 }
-/* hero decorative background wrapper — fades the starfield/constellation out of
-   the top navbar zone so nothing glows behind the floating nav (navbar height +
-   breathing room). Layering only; does not touch the layers' own animations. */
-.heroBg {
-  position: absolute;
+.homeStarBackdrop {
+  position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, transparent 56px, #000 112px);
-  mask-image: linear-gradient(to bottom, transparent 0, transparent 56px, #000 112px);
+  opacity: 0.68;
+  contain: strict;
 }
 
 .site :global([data-paused]) * {

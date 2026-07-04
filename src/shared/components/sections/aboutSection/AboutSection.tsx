@@ -7,14 +7,12 @@ import { TypingAnimation } from "@/shared/utils/typing/TypingAnimation";
 import { Stagger, Lift } from "@/shared/utils/motion/motion";
 import { TitleNodes } from "@/shared/utils/titleNodes/TitleNodes";
 import { SectionConnector } from "@/shared/utils/sectionConnector/SectionConnector";
-import { SectionStars } from "@/shared/utils/sectionStars/SectionStars";
 import site from "@/shared/data/site.json";
 
 /* ---------------- about ---------------- */
 export function About() {
   return (
-    <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" data-anim-pause style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
-      <SectionStars />
+    <section id="about" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" data-anim-pause style={{ background: "transparent", overflow: "hidden", padding: "120px 0", zIndex: 6 }}>
       {/* About is a real stop on the journey: the line comes down the left lane,
           lands on the About node, then continues down the same lane to Contact —
           so it never crosses About's two-column content */}

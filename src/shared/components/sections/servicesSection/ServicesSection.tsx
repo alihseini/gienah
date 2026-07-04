@@ -3,7 +3,6 @@ import React from "react";
 import { Icon } from "@/shared/components";
 import { SectionHead, siteStyles as s } from "@/shared/utils/helpers";
 import { SectionConnector } from "@/shared/utils/sectionConnector/SectionConnector";
-import { SectionStars } from "@/shared/utils/sectionStars/SectionStars";
 import servicesData from "@/shared/data/services.json";
 import type { Service } from "@/shared/data/types";
 import { reduceMotion, _clamp, _lerp, easeOutCubic } from "../sectionUtils";
@@ -188,8 +187,7 @@ export function Services() {
 
   if (reduce) {
     return (
-      <section id="services" className={s.panel} data-anim-pause style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
-        <SectionStars />
+      <section id="services" className={s.panel} data-anim-pause style={{ background: "transparent", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
         <SectionConnector sectionKey="services" enter="l" exit="r" />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
           {Header}
@@ -202,10 +200,9 @@ export function Services() {
   }
 
   return (
-    <section id="services" className={s.panel} data-anim-pause style={{ background: "var(--page-bg)", overflow: "clip", position: "relative", zIndex: 2 }}>
+    <section id="services" className={s.panel} data-anim-pause style={{ background: "transparent", overflow: "clip", position: "relative", zIndex: 2 }}>
       <div ref={trackRef} className={s.svcTrack} style={{ position: "relative", zIndex: 1, ["--svc-count" as string]: N }}>
-        <div className={s.svcStage} style={{ position: "sticky", top: 0, display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "var(--page-bg)" }}>
-          <SectionStars />
+        <div className={s.svcStage} style={{ position: "sticky", top: 0, display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "transparent" }}>
           {/* connector lives inside the pinned stage so it never drifts from the
               (sticky) title nodes; it draws in the side lanes, behind the deck */}
           <SectionConnector sectionKey="services" enter="l" exit="r" />

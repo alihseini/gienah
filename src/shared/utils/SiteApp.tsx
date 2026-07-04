@@ -8,6 +8,7 @@ import { Nav } from "./nav/Nav";
 import { LogoTicker } from "./logoTicker/LogoTicker";
 import { JourneyGate, JourneyActivateProvider } from "./journeyGate/JourneyGate";
 import { Hero } from "../components/sections/heroSection/HeroSection";
+import { HomeStarBackdrop } from "./homeStarBackdrop/HomeStarBackdrop";
 
 const Services = dynamic(() => import("../components/sections/servicesSection/ServicesSection").then((m) => m.Services));
 const Featured = dynamic(() => import("../components/sections/productSection/FeaturedProductsSection").then((m) => m.Featured));
@@ -44,6 +45,7 @@ export function SiteApp() {
   return (
     <JourneyActivateProvider activate={activate}>
       <div className={s.site}>
+        <HomeStarBackdrop />
         <ScrollProgress />
         <Nav />
         <Hero />

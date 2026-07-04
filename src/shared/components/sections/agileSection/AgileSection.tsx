@@ -1,8 +1,7 @@
 "use client";
 import React from "react";
 import { Icon } from "@/shared/components";
-import { SectionHead, ScrollParallax, siteStyles as s } from "@/shared/utils/helpers";
-import { StarField } from "@/shared/utils/starfield/StarField";
+import { SectionHead, siteStyles as s } from "@/shared/utils/helpers";
 import { SectionConnector } from "@/shared/utils/sectionConnector/SectionConnector";
 import ag from "./agileStage.module.css";
 import agileData from "@/shared/data/agile.json";
@@ -159,11 +158,7 @@ export function Agile() {
   }, []);
 
   return (
-    <section id="agile" className={[s.panel, s.overlap].join(" ")} data-anim-pause style={{ background: "var(--page-bg)", color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative", zIndex: 5 }}>
-      {/* Hero-style atmosphere: subtle star field + a very soft brand glow (no logo
-          constellation, no fog/topology/meteors/aurora) — keeps Agile visually
-          connected to the Hero but simpler. Both sit behind the content (z-index 1). */}
-      <ScrollParallax max={48}><StarField /></ScrollParallax>
+    <section id="agile" className={[s.panel, s.overlap].join(" ")} data-anim-pause style={{ background: "transparent", color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative", zIndex: 5 }}>
       {/* global journey: line arrives at the Agile title node, then GAPS (Agile's
           own internal line owns the middle), and resumes from the lower handoff
           node toward Contact */}

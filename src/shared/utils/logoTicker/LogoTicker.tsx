@@ -3,7 +3,6 @@ import { ImageLazy } from "@/shared/components";
 import partners from "@/shared/data/partners.json";
 import t from "./logoTicker.module.css";
 import { SectionConnector } from "../sectionConnector/SectionConnector";
-import { SectionStars } from "../sectionStars/SectionStars";
 
 type Partner = { id: string; name: string; logo: string | null; url: string | null };
 
@@ -15,7 +14,6 @@ export function LogoTicker() {
   const row = [...PARTNERS, ...PARTNERS];
   return (
     <div className={t.shell} data-anim-pause>
-      <SectionStars />
       {/* the journey passes straight down the left lane behind the (transparent)
           ticker, bridging Hero → Services without a break. zIndex:0 makes this a
           stacking context so the z-index:-1 connector sits above the page

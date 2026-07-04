@@ -7,15 +7,13 @@ import { HeadingReveal } from "@/shared/utils/headingReveal/HeadingReveal";
 import { TypingAnimation } from "@/shared/utils/typing/TypingAnimation";
 import { TitleNodes } from "@/shared/utils/titleNodes/TitleNodes";
 import { SectionConnector } from "@/shared/utils/sectionConnector/SectionConnector";
-import { SectionStars } from "@/shared/utils/sectionStars/SectionStars";
 import site from "@/shared/data/site.json";
 
 /* ---------------- contact ---------------- */
 export function Contact() {
   const [sent, setSent] = React.useState(false);
   return (
-    <section id="contact" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" data-anim-pause style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0", zIndex: 7 }}>
-      <SectionStars />
+    <section id="contact" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" data-anim-pause style={{ background: "transparent", overflow: "hidden", padding: "120px 0", zIndex: 7 }}>
       {/* final leg: drawn only when it arrives (never pre-drawn) - lands on contact:l */}
       <SectionConnector sectionKey="contact" role="end" enter="l" />
       <div className={s.wrap} style={{ maxWidth: 1000, position: "relative", zIndex: 1, transformOrigin: "center center" }}>

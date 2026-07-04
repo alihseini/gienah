@@ -6,7 +6,6 @@ import { HeadingReveal } from "@/shared/utils/headingReveal/HeadingReveal";
 import { TypingAnimation } from "@/shared/utils/typing/TypingAnimation";
 import { TitleNodes } from "@/shared/utils/titleNodes/TitleNodes";
 import { SectionConnector } from "@/shared/utils/sectionConnector/SectionConnector";
-import { SectionStars } from "@/shared/utils/sectionStars/SectionStars";
 import m from "./moreExplorer.module.css";
 import productsData from "@/shared/data/products.json";
 import type { Product } from "@/shared/data/types";
@@ -92,10 +91,7 @@ export function MoreProducts() {
     return () => mq.removeEventListener("change", apply);
   }, []);
   return (
-    <section id="studio" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" data-anim-pause style={{ background: "var(--page-bg)", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
-      {/* base color → continuous stars only (the moving topology/triangle network
-          was removed — keeps the same calm cosmic base as every other section) */}
-      <SectionStars />
+    <section id="studio" className={[s.page, s.panel, s.overlap].join(" ")} data-sx="front" data-anim-pause style={{ background: "transparent", overflow: "hidden", padding: "120px 0 96px", zIndex: 4 }}>
       {/* incoming drops straight down onto the title node (the Products storyline
           hands the journey down from directly above), then bows over the title and
           exits right toward Agile — no detour out to the side lane */}
