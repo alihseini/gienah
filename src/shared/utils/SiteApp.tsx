@@ -10,14 +10,30 @@ import { JourneyGate, JourneyActivateProvider } from "./journeyGate/JourneyGate"
 import { Hero } from "../components/sections/heroSection/HeroSection";
 import { HomeStarBackdrop } from "./homeStarBackdrop/HomeStarBackdrop";
 import { useVisualBudget } from "./visualBudget";
+import {
+  loadAgileSection,
+  loadFeaturedProductsSection,
+  loadServicesSection,
+  PREWARM_ATTR,
+  useHomepageSectionPrewarm,
+} from "./homepagePrewarm";
 
-const Services = dynamic(() => import("../components/sections/servicesSection/ServicesSection").then((m) => m.Services));
-const Featured = dynamic(() => import("../components/sections/productSection/FeaturedProductsSection").then((m) => m.Featured));
+const Services = dynamic(() => loadServicesSection().then((m) => m.Services));
+const Featured = dynamic(() => loadFeaturedProductsSection().then((m) => m.Featured));
 const MoreProducts = dynamic(() => import("../components/sections/studioSection/StudioSection").then((m) => m.MoreProducts));
-const Agile = dynamic(() => import("../components/sections/agileSection/AgileSection").then((m) => m.Agile));
+const Agile = dynamic(() => loadAgileSection().then((m) => m.Agile));
 const About = dynamic(() => import("../components/sections/aboutSection/AboutSection").then((m) => m.About));
 const Contact = dynamic(() => import("../components/sections/contactSection/ContactSection").then((m) => m.Contact));
 const Footer = dynamic(() => import("../components/sections/footerSection/FooterSection").then((m) => m.Footer));
+
+const prewarmMarkerStyle: React.CSSProperties = {
+  display: "block",
+  height: 1,
+  marginBottom: -1,
+  overflow: "hidden",
+  pointerEvents: "none",
+  visibility: "hidden",
+};
 
 /* Constellation journey — now PER SECTION (no page-wide overlay). Each section
    mounts its own SectionConnector that draws its slice of the line behind that
@@ -33,6 +49,7 @@ export function SiteApp() {
   useLayerChoreography();
   useSectionEntrance();
   useParallax();
+  useHomepageSectionPrewarm(visualBudget);
 
   const [active, setActive] = React.useState<Record<string, boolean>>({});
   const activate = React.useCallback((k: string) => setActive((a) => (a[k] ? a : { ...a, [k]: true })), []);
@@ -62,9 +79,12 @@ export function SiteApp() {
         <Nav />
         <Hero />
         <LogoTicker />
+        <span {...{ [PREWARM_ATTR]: "services" }} aria-hidden="true" style={prewarmMarkerStyle} />
         <JourneyGate ready={!!active.services}><Services /></JourneyGate>
+        <span {...{ [PREWARM_ATTR]: "products" }} aria-hidden="true" style={prewarmMarkerStyle} />
         <JourneyGate ready={!!active.products}><Featured /></JourneyGate>
         <JourneyGate ready={!!active.studio}><MoreProducts /></JourneyGate>
+        <span {...{ [PREWARM_ATTR]: "agile" }} aria-hidden="true" style={prewarmMarkerStyle} />
         <JourneyGate ready={!!active.agile}><Agile /></JourneyGate>
         <About />
         <JourneyGate ready={!!active.contact}><Contact /></JourneyGate>
