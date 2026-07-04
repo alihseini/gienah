@@ -41,7 +41,12 @@
     "shots": [
       "/garage/garage-ui/garage-ui1.avif",
       "/garage/garage-ui/garage-ui2.avif",
-      "/garage/garage-ui/garage-ui3.avif"
+      "/garage/garage-ui/garage-ui3.avif",
+      "/garage/garage-ui/garage-ui4.avif",
+      "/garage/garage-ui/garage-ui5.avif",
+      "/garage/garage-ui/garage-ui6.avif",
+      "/garage/garage-ui/garage-ui7.avif",
+      "/garage/garage-ui/garage-ui8.avif"
     ],
     "landingShot": "/garage/garage-main.avif",
     "blurb": "The ultimate hub for car maintenance inside the Tapsi super-app. Browse and buy spare parts, tools and accessories, then connect with professional mechanics nearby for repairs, pickup or delivery.",
@@ -61,7 +66,13 @@
     "tone": "azure",
     "featured": true,
     "banner": "/banners/air-banner.avif",
-    "shots": ["/air/air-ui/air-ui1.avif", "/air/air-ui/air-ui2.avif"],
+    "shots": [
+      "/air/air-ui/air-ui1.avif",
+      "/air/air-ui/air-ui2.avif",
+      "/air/air-ui/air-ui3.avif",
+      "/air/air-ui/air-ui4.avif",
+      "/air/air-ui/air-ui5.avif"
+    ],
     "landingShot": "/air/air-main.avif",
     "blurb": "Air Properties is an AI-powered real estate platform that delivers personalized home recommendations, smart property chat, and seamless scheduling with agents.",
     "desc": [
@@ -110,7 +121,11 @@
       "/nabz/nabz-screens/nabz-screen2.avif",
       "/nabz/nabz-screens/nabz-screen3.avif",
       "/nabz/nabz-screens/nabz-screen4.avif",
-      "/nabz/nabz-screens/nabz-screen5.avif"
+      "/nabz/nabz-screens/nabz-screen5.avif",
+      "/nabz/nabz-screens/nabz-screen6.avif",
+      "/nabz/nabz-screens/nabz-screen7.avif",
+      "/nabz/nabz-screens/nabz-screen8.avif",
+      "/nabz/nabz-screens/nabz-screen9.avif"
     ],
     "landingShot": "/nabz/nabz-main.avif",
     "blurb": "A platform that nudges people to cut gas and electricity use through awareness and gamification. AI-driven reports, challenges, points and rewards make sustainable habits engaging — and measurable.",
