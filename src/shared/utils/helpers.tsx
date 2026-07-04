@@ -167,7 +167,6 @@ export function useParallax() {
         const preset = PARALLAX_PRESETS[raw];
         const y = (preset ? preset.y : parseFloat(raw) || 0) * factor;
         const scaleAttr = el.dataset.parallaxScale ? parseFloat(el.dataset.parallaxScale) : preset ? preset.scale : 0;
-        el.style.willChange = "transform";
         return [{ el, y, scale: (scaleAttr || 0) * factor, top: docTop(el), h: el.offsetHeight, last: "" }];
       });
     };
@@ -180,7 +179,11 @@ export function useParallax() {
       for (const item of items) {
         const { el, y, scale, top, h } = item;
         if (h === 0) continue; // hidden (e.g. responsive display:none) — skip
-        if (top > sy + vh * 1.4 || top + h < sy - vh * 0.4) continue;
+        if (top > sy + vh * 1.4 || top + h < sy - vh * 0.4) {
+          if (el.style.willChange !== "auto") el.style.willChange = "auto";
+          continue;
+        }
+        if (el.style.willChange !== "transform") el.style.willChange = "transform";
         // viewport-centred progress from LAYOUT position only: -1 below → 0 centred → 1 above
         const p = clamp((top + h / 2 - sy - vh / 2) / vh, -1, 1);
         const ty = (-p * y).toFixed(1);
@@ -201,7 +204,14 @@ export function useParallax() {
     // re-measure after first layout settles (fonts/images can shift offsets)
     const settle = setTimeout(() => { collect(); update(); }, 300);
     update();
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onResize); window.removeEventListener("load", onResize); clearTimeout(settle); if (raf) cancelAnimationFrame(raf); };
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("load", onResize);
+      clearTimeout(settle);
+      if (raf) cancelAnimationFrame(raf);
+      items.forEach(({ el }) => { el.style.willChange = "auto"; });
+    };
   }, []);
 }
 

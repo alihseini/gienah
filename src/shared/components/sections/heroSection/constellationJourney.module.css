@@ -77,6 +77,9 @@
   pointer-events: none;
   background: radial-gradient(circle, rgba(120, 190, 235, 0.34), transparent 68%);
   box-shadow: 0 0 20px 5px rgba(96, 178, 230, 0.52);
+}
+.exitNode[data-active]::before,
+.node[data-active]::before {
   will-change: opacity, transform;
 }
 .exitNode[data-active] {

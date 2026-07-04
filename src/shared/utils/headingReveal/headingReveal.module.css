@@ -7,7 +7,6 @@
     opacity 0.62s var(--ease-out),
     transform 0.62s var(--ease-out);
   transition-delay: var(--d, 0ms);
-  will-change: opacity, transform;
 }
 .revealed .word {
   opacity: 1;

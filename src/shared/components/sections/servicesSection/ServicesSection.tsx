@@ -149,12 +149,20 @@ export function Services() {
     if (reduce) return;
     let raf = 0;
     let active = true;
+    const resetWillChange = () => {
+      cardRefs.current.forEach((node) => {
+        if (node && node.style.willChange !== "auto") node.style.willChange = "auto";
+      });
+    };
     const update = () => {
       raf = 0;
       const el = trackRef.current; if (!el) return;
       const r = el.getBoundingClientRect();
       const vh = stableViewportHeight();
-      if (r.bottom < -vh * 0.2 || r.top > vh * 1.2) return;
+      if (r.bottom < -vh * 0.1 || r.top > vh) {
+        resetWillChange();
+        return;
+      }
       const dist = el.offsetHeight - vh;
       const scrolled = _clamp(-r.top, 0, dist);
       // complete the reveal at 90% of the travel, leaving a brief "hold" on the last
@@ -164,7 +172,10 @@ export function Services() {
       const H = deckRef.current?.offsetHeight || vh * 0.5;   // live card height
       for (let i = 0; i < N; i++) {
         const node = cardRefs.current[i];
-        if (node) writeCardStyle(node, computeCardStyle(i, head, mobileRef.current, H));
+        if (node) {
+          if (node.style.willChange !== "transform") node.style.willChange = "transform";
+          writeCardStyle(node, computeCardStyle(i, head, mobileRef.current, H));
+        }
       }
       const ni = _clamp(Math.round(head), 0, N - 1);
       if (ni !== idxRef.current) { idxRef.current = ni; setActive(ni); }
@@ -178,7 +189,7 @@ export function Services() {
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     update();
-    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); resetWillChange(); };
   }, [reduce, N]);
 
   const Header = (
