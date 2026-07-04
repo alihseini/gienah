@@ -7,6 +7,7 @@ import { useJourneyReady } from "./journeyGate/JourneyGate";
 import { TitleNodes } from "./titleNodes/TitleNodes";
 import { safariScrollLayerLock, stableViewportHeight } from "./viewport";
 import { requestHomeScrollMeasureRefresh, subscribeHomeScrollFrame } from "./homeScrollCoordinator";
+import { readVisualBudgetFromDom, visualBudgetFactor } from "./visualBudget";
 
 /* ---------------- brand colors + helpers ---------------- */
 export const C = { blue1: "#58ABCE", blue2: "#2A92CC", gold1: "#F4C65F", gold2: "#E2AA3B" };
@@ -143,7 +144,7 @@ export function useParallax() {
     if (reduceMotion()) return;
     const lockSafariBackgrounds = safariScrollLayerLock();
     const mobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
-    const factor = mobile ? 0.5 : 1; // mobile: ~half the movement
+    const factor = (mobile ? 0.5 : 1) * visualBudgetFactor(readVisualBudgetFromDom()); // mobile + budget trim movement
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
     type Item = { el: HTMLElement; y: number; scale: number; top: number; h: number; last: string };
     let items: Item[] = [];
@@ -174,6 +175,14 @@ export function useParallax() {
     collect();
     let lastMeasureVersion = -1;
     const update = (sy: number, vh: number) => {
+      if (readVisualBudgetFromDom() === "reduced") {
+        for (const item of items) {
+          item.el.style.transform = "";
+          item.el.style.willChange = "auto";
+          item.last = "";
+        }
+        return;
+      }
       for (const item of items) {
         const { el, y, scale, top, h } = item;
         if (h === 0) continue; // hidden (e.g. responsive display:none) — skip
@@ -349,6 +358,17 @@ export function useLayerChoreography() {
     collect();
     let lastMeasureVersion = -1;
     const update = (sy: number, H: number) => {
+      const budget = readVisualBudgetFromDom();
+      if (budget === "reduced") {
+        for (const item of els) {
+          item.el.style.transform = "";
+          item.el.style.opacity = "";
+          item.lastTransform = "";
+          item.lastOpacity = "";
+        }
+        return;
+      }
+      const motionFactor = visualBudgetFactor(budget);
       for (const item of els) {
         const { el, depth, top, h } = item;
         if (h === 0) continue;
@@ -359,7 +379,7 @@ export function useLayerChoreography() {
         const leave = clamp((0.58 * H - rBottom) / (0.58 * H), 0, 1);
         const emerge = depth === "back" ? 40 : 16;
         const push = depth === "back" ? 20 : 32;
-        const y = emerge * (1 - enter) + push * leave;
+        const y = (emerge * (1 - enter) + push * leave) * motionFactor;
         const nextTransform = `translate3d(0, ${y.toFixed(1)}px, 0)`;
         const nextOpacity = (1 - 0.08 * leave).toFixed(3);
         if (nextTransform !== item.lastTransform) {

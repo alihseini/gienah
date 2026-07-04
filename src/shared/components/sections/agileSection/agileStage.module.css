@@ -146,6 +146,86 @@
   0%, 100% { transform: rotate(-32deg) translateX(-7%); opacity: 0.5; }
   50% { transform: rotate(-32deg) translateX(7%); opacity: 1; }
 }
+
+:global([data-visual-budget="balanced"]) .connDraw {
+  filter: drop-shadow(0 0 4px rgba(88, 171, 206, 0.38));
+}
+
+:global([data-visual-budget="reduced"]) .connDraw {
+  filter: none;
+  transition: none;
+}
+
+:global([data-visual-budget="balanced"]) .right .connector,
+:global([data-visual-budget="balanced"]) .left .connector {
+  box-shadow: 0 0 10px 3px rgba(88, 171, 206, 0.45);
+}
+
+:global([data-visual-budget="balanced"]) .left .connector {
+  box-shadow: 0 0 10px 3px rgba(244, 198, 95, 0.45);
+}
+
+:global([data-visual-budget="reduced"]) .right .connector,
+:global([data-visual-budget="reduced"]) .left .connector {
+  box-shadow: 0 0 6px 1px rgba(88, 171, 206, 0.34);
+}
+
+:global([data-visual-budget="reduced"]) .left .connector {
+  box-shadow: 0 0 6px 1px rgba(244, 198, 95, 0.34);
+}
+
+:global([data-visual-budget="balanced"]) .connector::before {
+  box-shadow: 0 0 12px 3px rgba(88, 171, 206, 0.34);
+}
+
+:global([data-visual-budget="reduced"]) .connector::before {
+  animation: none !important;
+  box-shadow: none;
+  opacity: 0.42;
+}
+
+:global([data-visual-budget="balanced"]) .panel {
+  background:
+    radial-gradient(700px 280px at -5% -10%, rgba(88, 171, 206, 0.1), transparent 60%),
+    radial-gradient(520px 240px at 110% 120%, rgba(244, 198, 95, 0.08), transparent 60%),
+    rgba(12, 23, 41, 0.94);
+}
+
+:global([data-visual-budget="reduced"]) .panel {
+  background:
+    radial-gradient(520px 220px at -5% -10%, rgba(88, 171, 206, 0.07), transparent 60%),
+    rgba(12, 23, 41, 0.94);
+}
+
+:global([data-visual-budget="balanced"]) .streak {
+  animation-duration: 11s;
+  opacity: 0.68;
+}
+
+:global([data-visual-budget="reduced"]) .streak {
+  animation: none;
+  opacity: 0.32;
+  filter: none;
+}
+
+:global([data-visual-budget="balanced"]) .illusGlow {
+  opacity: 0.68;
+}
+
+:global([data-visual-budget="reduced"]) .illusGlow {
+  opacity: 0.38;
+}
+
+:global([data-visual-budget="reduced"]) .illusIcon {
+  opacity: 0.62;
+}
+
+:global([data-visual-budget="balanced"]) .right.slot[data-shown] .connector::before,
+:global([data-visual-budget="balanced"]) .left.slot[data-shown] .connector::before,
+:global([data-visual-budget="reduced"]) .right.slot[data-shown] .connector::before,
+:global([data-visual-budget="reduced"]) .left.slot[data-shown] .connector::before {
+  will-change: auto;
+}
 /* desktop: the mobile rail is hidden (the measured S-curve SVG is used instead) */
 .rail { display: none; }
 

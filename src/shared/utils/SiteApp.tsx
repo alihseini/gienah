@@ -9,6 +9,7 @@ import { LogoTicker } from "./logoTicker/LogoTicker";
 import { JourneyGate, JourneyActivateProvider } from "./journeyGate/JourneyGate";
 import { Hero } from "../components/sections/heroSection/HeroSection";
 import { HomeStarBackdrop } from "./homeStarBackdrop/HomeStarBackdrop";
+import { useVisualBudget } from "./visualBudget";
 
 const Services = dynamic(() => import("../components/sections/servicesSection/ServicesSection").then((m) => m.Services));
 const Featured = dynamic(() => import("../components/sections/productSection/FeaturedProductsSection").then((m) => m.Featured));
@@ -27,6 +28,7 @@ const Footer = dynamic(() => import("../components/sections/footerSection/Footer
    node, flipping its JourneyGate to ready so the section reveals once (and stays). */
 
 export function SiteApp() {
+  const visualBudget = useVisualBudget();
   useOffscreenPause();
   useLayerChoreography();
   useSectionEntrance();
@@ -44,8 +46,8 @@ export function SiteApp() {
 
   return (
     <JourneyActivateProvider activate={activate}>
-      <div className={s.site}>
-        <HomeStarBackdrop />
+      <div className={s.site} data-visual-budget={visualBudget}>
+        <HomeStarBackdrop visualBudget={visualBudget} />
         <ScrollProgress />
         <Nav />
         <Hero />

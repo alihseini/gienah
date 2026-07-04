@@ -8,15 +8,23 @@ import type { Service } from "@/shared/data/types";
 import { reduceMotion, _clamp, _lerp, easeOutCubic } from "../sectionUtils";
 import { stableViewportHeight } from "@/shared/utils/viewport";
 import { requestHomeScrollMeasureRefresh, subscribeHomeScrollFrame } from "@/shared/utils/homeScrollCoordinator";
+import { useVisualBudget, type VisualBudget } from "@/shared/utils/visualBudget";
 
 const SERVICES = servicesData as Service[];
 
 /* ---------------- services ---------------- */
-function ServicePanel({ s: svc }: { s: Service }) {
+function ServicePanel({ s: svc, visualBudget }: { s: Service; visualBudget: VisualBudget }) {
   const gold = svc.tone === "gold";
-  const glowA = gold ? "rgba(244,198,95,0.16)" : "rgba(88,171,206,0.16)";
-  const glowB = gold ? "rgba(226,170,59,0.10)" : "rgba(42,146,204,0.12)";
+  const glowScale = visualBudget === "reduced" ? 0.42 : visualBudget === "balanced" ? 0.68 : 1;
+  const glowA = gold ? `rgba(244,198,95,${(0.16 * glowScale).toFixed(3)})` : `rgba(88,171,206,${(0.16 * glowScale).toFixed(3)})`;
+  const glowB = gold ? `rgba(226,170,59,${(0.10 * glowScale).toFixed(3)})` : `rgba(42,146,204,${(0.12 * glowScale).toFixed(3)})`;
   const accent = gold ? "var(--gold-400)" : "var(--accent-400)";
+  const panelShadow = visualBudget === "reduced"
+    ? "0 28px 64px -42px rgba(2,10,22,0.72), 0 1px 0 rgba(255,255,255,0.05) inset"
+    : visualBudget === "balanced"
+      ? "0 34px 78px -42px rgba(2,10,22,0.82), 0 1px 0 rgba(255,255,255,0.055) inset"
+      : "0 40px 90px -40px rgba(2,10,22,0.9), 0 1px 0 rgba(255,255,255,0.06) inset";
+  const backdropBlur = visualBudget === "reduced" ? "none" : visualBudget === "balanced" ? "blur(8px)" : "blur(16px)";
   return (
     <div className={s.svcSlide} style={{ height: "100%" }}>
       <div
@@ -26,16 +34,16 @@ function ServicePanel({ s: svc }: { s: Service }) {
           padding: "clamp(28px, 3.2vw, 46px)",
           borderRadius: 26,
           background: `radial-gradient(900px 360px at 100% -10%, ${glowA}, transparent 62%), radial-gradient(700px 320px at -8% 120%, ${glowB}, transparent 62%), rgb(15,23,40)`,
-          backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+          backdropFilter: backdropBlur, WebkitBackdropFilter: backdropBlur,
           border: "1px solid rgba(255,255,255,0.09)",
-          boxShadow: "0 40px 90px -40px rgba(2,10,22,0.9), 0 1px 0 rgba(255,255,255,0.06) inset",
+          boxShadow: panelShadow,
           display: "grid", gap: "clamp(28px, 4vw, 64px)", alignItems: "center",
         }}
       >
         <span className={s.svcRing} aria-hidden="true"><i /></span>
         <div style={{ position: "relative", zIndex: 1 }}>
           <div className={s.svcIconRow} style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 22 }}>
-            <span className={s.floatIcon} style={{ width: 64, height: 64, borderRadius: 18, background: "var(--brand-gradient-soft)", color: gold ? "var(--gold-700)" : "var(--accent-600)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", boxShadow: `0 10px 30px -10px ${glowA}` }}><Icon name={svc.icon} size={30} /></span>
+            <span className={s.floatIcon} style={{ width: 64, height: 64, borderRadius: 18, background: "var(--brand-gradient-soft)", color: gold ? "var(--gold-700)" : "var(--accent-600)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", boxShadow: visualBudget === "reduced" ? "none" : `0 10px 30px -10px ${glowA}` }}><Icon name={svc.icon} size={30} /></span>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: accent, letterSpacing: "0.04em" }}>SERVICE {svc.no}</span>
           </div>
           <h3 style={{ fontSize: "clamp(34px, 4.4vw, 54px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 18px", color: "#fff", lineHeight: 1.04 }}>{svc.title}</h3>
@@ -117,6 +125,7 @@ function writeCardStyle(el: HTMLElement, st: CardStyle) {
 }
 
 export function Services() {
+  const visualBudget = useVisualBudget();
   const trackRef = React.useRef<HTMLDivElement>(null);
   const deckRef = React.useRef<HTMLDivElement>(null);
   const cardRefs = React.useRef<(HTMLDivElement | null)[]>([]);
@@ -234,7 +243,7 @@ export function Services() {
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
           {Header}
           <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-            {SERVICES.map((svc) => <div key={svc.title} style={{ minHeight: 320, position: "relative" }}><ServicePanel s={svc} /></div>)}
+            {SERVICES.map((svc) => <div key={svc.title} style={{ minHeight: 320, position: "relative" }}><ServicePanel s={svc} visualBudget={visualBudget} /></div>)}
           </div>
         </div>
       </section>
@@ -271,7 +280,7 @@ export function Services() {
                     backfaceVisibility: "hidden",
                   }}
                 >
-                  <ServicePanel s={svc} />
+                  <ServicePanel s={svc} visualBudget={visualBudget} />
                 </div>
               ))}
             </div>

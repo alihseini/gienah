@@ -2,6 +2,8 @@
 import React from "react";
 import { lowEndMotionDevice, safariScrollLayerLock } from "../viewport";
 import { subscribeHomeScrollFrame } from "../homeScrollCoordinator";
+import type { VisualBudget } from "../visualBudget";
+import { visualBudgetFactor } from "../visualBudget";
 
 /* Dense premium hero star field (canvas): many twinkling stars across three
    depth layers (far→near) with parallax drift, soft glow halos on a few brighter
@@ -37,6 +39,7 @@ export function StarField({
   shooting = true,
   shadow = true,
   scrollParallax = false,
+  visualBudget = "full",
   className,
   style,
 }: {
@@ -50,6 +53,7 @@ export function StarField({
   /** per-star shadowBlur glow — turn OFF for dense fields to stay cheap. */
   shadow?: boolean;
   scrollParallax?: boolean;
+  visualBudget?: VisualBudget;
   className?: string;
   style?: React.CSSProperties;
 } = {}) {
@@ -60,8 +64,11 @@ export function StarField({
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const lockSafariBackground = safariScrollLayerLock();
     const lowEnd = lowEndMotionDevice();
-    const quality = reduce ? 0.35 : lowEnd ? 0.58 : 1;
-    const frameInterval = lowEnd ? 1000 / 30 : 0;
+    const budgetFactor = reduce ? 0.35 : visualBudgetFactor(visualBudget);
+    const quality = reduce ? 0.35 : lowEnd ? Math.min(0.58, budgetFactor) : budgetFactor;
+    const frameInterval = visualBudget === "reduced" || lowEnd ? 1000 / 30 : visualBudget === "balanced" ? 1000 / 45 : 0;
+    const glowFactor = visualBudget === "reduced" ? 0.45 : visualBudget === "balanced" ? 0.72 : 1;
+    const driftFactor = visualBudget === "reduced" ? 0.45 : visualBudget === "balanced" ? 0.7 : 1;
     const useScrollParallax = scrollParallax && !reduce && !lockSafariBackground;
     const ctx = canvas.getContext("2d")!;
     let w = 0, h = 0, dpr = 1;
@@ -82,7 +89,8 @@ export function StarField({
       cssW = nextW; cssH = nextH;
       w = nextW; h = nextH;
       const maxPixels = reduce || lowEnd ? REDUCED_CANVAS_PIXEL_BUDGET : CANVAS_PIXEL_BUDGET;
-      const baseDpr = Math.min(window.devicePixelRatio || 1, lowEnd ? 1.25 : 1.5);
+      const budgetDprCap = visualBudget === "reduced" ? 1 : visualBudget === "balanced" ? 1.25 : 1.5;
+      const baseDpr = Math.min(window.devicePixelRatio || 1, lowEnd ? 1.25 : budgetDprCap);
       // Long section backgrounds can otherwise allocate multi-megapixel backing
       // stores. Keep the CSS coverage identical, but lower raster DPR as needed.
       const pixelBudgetDpr = Math.sqrt(maxPixels / Math.max(1, w * h));
@@ -102,7 +110,7 @@ export function StarField({
           sp: rand(0.3, 1.1), ph: Math.random() * 6.283,
           col: gold ? (Math.random() < 0.5 ? GOLD : GOLD2) : (Math.random() < 0.5 ? BLUE : BLUE2),
           layer,
-          glow: layer === 2 && (big || Math.random() < 0.18),
+          glow: layer === 2 && visualBudget !== "reduced" && (big || Math.random() < 0.18 * glowFactor),
         };
       });
     };
@@ -175,7 +183,7 @@ export function StarField({
         if (st.glow && alpha > 0.04) {
           const hr = st.r * 6;
           const g = ctx.createRadialGradient(px, py, 0, px, py, hr);
-          g.addColorStop(0, `rgba(${st.col},${0.18 * alpha})`);
+          g.addColorStop(0, `rgba(${st.col},${0.18 * alpha * glowFactor})`);
           g.addColorStop(1, `rgba(${st.col},0)`);
           ctx.fillStyle = g;
           ctx.beginPath(); ctx.arc(px, py, hr, 0, 6.283); ctx.fill();
@@ -245,8 +253,8 @@ export function StarField({
     build(true);
     const unsubscribeScroll = useScrollParallax
       ? subscribeHomeScrollFrame((frame) => {
-          targetCameraY = frame.scrollY * (lowEnd ? 0.014 : 0.026);
-          targetCameraX = Math.sin(frame.scrollY * 0.0018) * (lowEnd ? 10 : 18);
+          targetCameraY = frame.scrollY * (lowEnd ? 0.014 : 0.026) * driftFactor;
+          targetCameraX = Math.sin(frame.scrollY * 0.0018) * (lowEnd ? 10 : 18) * driftFactor;
         })
       : undefined;
     if (reduce) render(t0);
@@ -271,7 +279,7 @@ export function StarField({
       canvas.height = 0;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [visualBudget]);
 
   return <canvas ref={ref} aria-hidden="true" className={className} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0, ...style }} />;
 }

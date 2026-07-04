@@ -49,6 +49,33 @@
   50% { transform: scale(1.6); opacity: 0.16; }
 }
 
+:global([data-visual-budget="balanced"]) .path {
+  filter: drop-shadow(0 0 4px rgba(120, 190, 235, 0.38));
+}
+
+:global([data-visual-budget="reduced"]) .path {
+  stroke-width: 1.75;
+  filter: none;
+}
+
+:global([data-visual-budget="balanced"]) .node[data-active] .core {
+  filter: drop-shadow(0 0 5px rgba(120, 190, 235, 0.58));
+}
+
+:global([data-visual-budget="reduced"]) .core,
+:global([data-visual-budget="reduced"]) .node[data-active] .core {
+  filter: none;
+}
+
+:global([data-visual-budget="balanced"]) .node[data-active] .halo {
+  animation-duration: 4.8s;
+}
+
+:global([data-visual-budget="reduced"]) .node[data-active] .halo {
+  animation: none;
+  opacity: 0.55;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .node[data-active] .halo {
     animation: none;

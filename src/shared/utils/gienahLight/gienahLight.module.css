@@ -249,6 +249,38 @@
   }
 }
 
+:global([data-visual-budget="balanced"]) .halo {
+  filter: blur(14px);
+  opacity: 0.42;
+}
+
+:global([data-visual-budget="balanced"]) .sig[data-lit] .halo {
+  opacity: 0.72;
+}
+
+:global([data-visual-budget="balanced"]) .bloom {
+  filter: blur(10px);
+}
+
+:global([data-visual-budget="reduced"]) .halo {
+  filter: blur(8px);
+  opacity: 0.32;
+}
+
+:global([data-visual-budget="reduced"]) .sig[data-lit] .halo {
+  opacity: 0.56;
+}
+
+:global([data-visual-budget="reduced"]) .bloom {
+  filter: blur(6px);
+}
+
+:global([data-visual-budget="reduced"]) .twinkleOn[data-lit] .bloom,
+:global([data-visual-budget="reduced"]) .sig[data-lit] .flare::before,
+:global([data-visual-budget="reduced"]) .sig[data-lit] .flare::after {
+  animation: none;
+}
+
 /* reduced motion: no draw, no twinkle — the signature simply rests, lit & calm */
 @media (prefers-reduced-motion: reduce) {
   .sig,
