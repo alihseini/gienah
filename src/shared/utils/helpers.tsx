@@ -148,6 +148,17 @@ export function useParallax() {
     const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
     type Item = { el: HTMLElement; y: number; scale: number; top: number; h: number; last: string };
     let items: Item[] = [];
+    let willChangeTimer = 0;
+    const clearParallaxWillChange = () => {
+      for (const item of items) {
+        if (item.el.style.willChange !== "auto") item.el.style.willChange = "auto";
+      }
+      willChangeTimer = 0;
+    };
+    const scheduleWillChangeClear = () => {
+      if (willChangeTimer) window.clearTimeout(willChangeTimer);
+      willChangeTimer = window.setTimeout(clearParallaxWillChange, 220);
+    };
     // layout position (document-space), measured WITHOUT transforms via the
     // offsetTop chain — so the element's own transform and any ancestor reveal /
     // entrance transform never feed back into the parallax (that feedback was what
@@ -202,6 +213,7 @@ export function useParallax() {
           item.last = next;
         }
       }
+      scheduleWillChangeClear();
     };
     const unsubscribe = subscribeHomeScrollFrame({
       read: (frame) => {
@@ -217,6 +229,7 @@ export function useParallax() {
     return () => {
       unsubscribe();
       clearTimeout(settle);
+      if (willChangeTimer) window.clearTimeout(willChangeTimer);
       items.forEach(({ el }) => { el.style.willChange = "auto"; });
     };
   }, []);

@@ -44,6 +44,16 @@ export function SiteApp() {
     }
   }, []);
 
+  React.useEffect(() => {
+    document.documentElement.dataset.visualBudget = visualBudget;
+    document.body.dataset.visualBudget = visualBudget;
+
+    return () => {
+      if (document.documentElement.dataset.visualBudget === visualBudget) delete document.documentElement.dataset.visualBudget;
+      if (document.body.dataset.visualBudget === visualBudget) delete document.body.dataset.visualBudget;
+    };
+  }, [visualBudget]);
+
   return (
     <JourneyActivateProvider activate={activate}>
       <div className={s.site} data-visual-budget={visualBudget}>

@@ -104,7 +104,6 @@
   opacity: 1 !important;
   transform: none !important;
   filter: none !important;
-  will-change: opacity;
 }
 .reveal.settled {
   opacity: 1 !important;
