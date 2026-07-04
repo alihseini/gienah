@@ -331,6 +331,12 @@
   /* product visual floats a little more + breathes in scale, so it feels alive */
   animation: deviceFloat 7s var(--ease-in-out) infinite;
 }
+.pjRow:not([data-revealed]) .device,
+.pjRow:not([data-revealed]) .floatIcon,
+.svcCard[aria-hidden="true"] .floatIcon,
+.svcCard[aria-hidden="true"] .svcRing > i {
+  animation: none;
+}
 @keyframes deviceFloat {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-22px); }
@@ -401,16 +407,13 @@
      reaches this row's node; matches the site's other first-entry reveals. */
   opacity: 0;
   transform: translateY(56px) scale(0.975);
-  filter: blur(10px);
   transition:
     opacity 0.8s var(--ease-out),
-    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 0.8s var(--ease-out);
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .pjRow[data-revealed] {
   opacity: 1;
   transform: none;
-  filter: none;
 }
 /* alternation: odd rows put the visual on the right via grid order */
 .pjRow[data-reverse] .pjMedia { order: 2; }
@@ -1490,19 +1493,13 @@
   animation: none;
 }
 
-.site[data-visual-budget="balanced"] .pjRow {
-  filter: blur(5px);
-}
-
 .site[data-visual-budget="reduced"] .pjRow {
-  filter: none;
   transform: translateY(28px);
 }
 
 .site[data-visual-budget="balanced"] .pjRow[data-revealed],
 .site[data-visual-budget="reduced"] .pjRow[data-revealed] {
   transform: none;
-  filter: none;
 }
 
 .site[data-visual-budget="balanced"] .pcarousel[data-enhanced] > .pcard[data-active],

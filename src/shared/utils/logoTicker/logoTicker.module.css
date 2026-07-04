@@ -4,8 +4,19 @@
 .shell {
   position: relative;
   z-index: 0;
+  isolation: isolate;
   background: transparent;
   overflow: visible;
+}
+.connectorLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.connectorLayer :global(svg) {
+  z-index: 0;
 }
 .wrap {
   position: relative;

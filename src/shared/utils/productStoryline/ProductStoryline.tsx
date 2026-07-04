@@ -142,6 +142,15 @@ export function ProductStoryline({ count }: { count: number }) {
   const draw = useMotionValue(reduce ? 1 : 0);
   const [geo, setGeo] = React.useState<{ w: number; h: number; d: string; nodeFracs: number[]; nodes: Pt[] }>({ w: 0, h: 0, d: "", nodeFracs: [], nodes: [] });
 
+  const setStableGeo = React.useCallback((next: { w: number; h: number; d: string; nodeFracs: number[]; nodes: Pt[] }) => {
+    setGeo((prev) => {
+      if (prev.w === next.w && prev.h === next.h && prev.d === next.d && prev.nodes.length === next.nodes.length) {
+        return prev;
+      }
+      return next;
+    });
+  }, []);
+
   const measure = React.useCallback(() => {
     const svg = svgRef.current;
     const list = svg?.parentElement as HTMLElement | null;
@@ -193,7 +202,7 @@ export function ProductStoryline({ count }: { count: number }) {
       const nodes: Pt[] = rows.map((row, i) => ({ x: cx + (i % 2 ? 6 : -6), y: row.offsetTop + row.offsetHeight / 2 }));
       const start = titleStart ?? { x: nodes[0].x, y: Math.max(0, nodes[0].y - 80) };
       const { d, nodeFracs } = buildMobile(start, nodes, h, bridge);
-      setGeo({ w, h, d, nodeFracs, nodes });
+      setStableGeo({ w, h, d, nodeFracs, nodes });
       return;
     }
 
@@ -218,19 +227,20 @@ export function ProductStoryline({ count }: { count: number }) {
     const start: Pt = titleStart ?? { x: nodes[0].x, y: -70 };
 
     const { d, nodeFracs } = buildDesktop(start, nodes, mockHalf, h, bridge);
-    setGeo({ w, h, d, nodeFracs, nodes });
-  }, []);
+    setStableGeo({ w, h, d, nodeFracs, nodes });
+  }, [setStableGeo]);
 
   React.useLayoutEffect(() => {
-    measure();
+    const raf = requestAnimationFrame(measure);
     let t = 0;
     const schedule = () => { window.clearTimeout(t); t = window.setTimeout(measure, 120); };
     const ro = new ResizeObserver(schedule);
     const list = svgRef.current?.parentElement;
     if (list) ro.observe(list);
     ro.observe(document.body);
+    document.fonts?.ready.then(measure).catch(() => undefined);
     const settle = window.setTimeout(measure, 600);
-    return () => { ro.disconnect(); window.clearTimeout(t); window.clearTimeout(settle); };
+    return () => { ro.disconnect(); cancelAnimationFrame(raf); window.clearTimeout(t); window.clearTimeout(settle); };
   }, [measure]);
 
   // reduced motion: show everything statically (full path already drawn at 1).

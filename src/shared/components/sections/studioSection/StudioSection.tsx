@@ -69,7 +69,7 @@ function MorePreview({ p }: { p: Product }) {
     return () => clearTimeout(t);
   }, [p]);
   return (
-    <a href={`/projects/${p.id}`} className={m.preview} data-parallax="28">
+    <a href={`/projects/${p.id}`} className={m.preview}>
       {layers.map((l, i) => (
         <PreviewLayer key={l.key} p={l.p} body={i === layers.length - 1} incoming={i === layers.length - 1 && layers.length > 1} />
       ))}
@@ -116,7 +116,6 @@ export function MoreProducts() {
                 key={p.id}
                 href={`/projects/${p.id}`}
                 className={[m.row, p.id === active ? m.rowActive : ""].filter(Boolean).join(" ")}
-                data-parallax={String(10 + (i % 3) * 7)}
                 onMouseEnter={() => setActive(p.id)}
                 onFocus={() => setActive(p.id)}
                 onTouchStart={() => setActive(p.id)}

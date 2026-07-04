@@ -5,7 +5,7 @@ import type { VisualBudget } from "./visualBudget";
 
 export const PREWARM_ATTR = "data-home-prewarm";
 
-type SectionKey = "services" | "products" | "agile";
+type SectionKey = "services" | "products" | "studio" | "agile";
 type IdleHandle = number;
 type IdleCallback = (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void;
 
@@ -17,6 +17,7 @@ type WindowWithIdle = Window & {
 const prewarmers = {
   services: () => import("../components/sections/servicesSection/ServicesSection"),
   products: () => import("../components/sections/productSection/FeaturedProductsSection"),
+  studio: () => import("../components/sections/studioSection/StudioSection"),
   agile: () => import("../components/sections/agileSection/AgileSection"),
 } satisfies Record<SectionKey, () => Promise<unknown>>;
 
@@ -32,6 +33,10 @@ export function loadFeaturedProductsSection() {
 
 export function loadAgileSection() {
   return prewarmers.agile();
+}
+
+export function loadMoreProductsSection() {
+  return prewarmers.studio();
 }
 
 function prewarmSection(key: SectionKey) {
@@ -74,7 +79,7 @@ function budgetPlan(budget: VisualBudget) {
       idleTimeout: 1800,
       spacing: 950,
       rootMargin: "180% 0px",
-      idleQueue: ["services", "products"] as SectionKey[],
+      idleQueue: ["services", "products", "studio"] as SectionKey[],
     };
   }
 
@@ -83,7 +88,7 @@ function budgetPlan(budget: VisualBudget) {
     idleTimeout: 1400,
     spacing: 700,
     rootMargin: "240% 0px",
-    idleQueue: ["services", "products", "agile"] as SectionKey[],
+    idleQueue: ["services", "products", "studio", "agile"] as SectionKey[],
   };
 }
 
@@ -117,7 +122,7 @@ export function useHomepageSectionPrewarm(budget: VisualBudget) {
           entries.forEach((entry) => {
             if (!entry.isIntersecting) return;
             const key = (entry.target as HTMLElement).dataset.homePrewarm as SectionKey | undefined;
-            if (key === "services" || key === "products" || key === "agile") {
+            if (key === "services" || key === "products" || key === "studio" || key === "agile") {
               void prewarmSection(key);
               observer.unobserve(entry.target);
               observed.delete(entry.target);

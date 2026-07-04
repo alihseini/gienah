@@ -13,6 +13,7 @@ import { useVisualBudget } from "./visualBudget";
 import {
   loadAgileSection,
   loadFeaturedProductsSection,
+  loadMoreProductsSection,
   loadServicesSection,
   PREWARM_ATTR,
   useHomepageSectionPrewarm,
@@ -20,7 +21,7 @@ import {
 
 const Services = dynamic(() => loadServicesSection().then((m) => m.Services));
 const Featured = dynamic(() => loadFeaturedProductsSection().then((m) => m.Featured));
-const MoreProducts = dynamic(() => import("../components/sections/studioSection/StudioSection").then((m) => m.MoreProducts));
+const MoreProducts = dynamic(() => loadMoreProductsSection().then((m) => m.MoreProducts));
 const Agile = dynamic(() => loadAgileSection().then((m) => m.Agile));
 const About = dynamic(() => import("../components/sections/aboutSection/AboutSection").then((m) => m.About));
 const Contact = dynamic(() => import("../components/sections/contactSection/ContactSection").then((m) => m.Contact));
@@ -83,6 +84,7 @@ export function SiteApp() {
         <JourneyGate ready={!!active.services}><Services /></JourneyGate>
         <span {...{ [PREWARM_ATTR]: "products" }} aria-hidden="true" style={prewarmMarkerStyle} />
         <JourneyGate ready={!!active.products}><Featured /></JourneyGate>
+        <span {...{ [PREWARM_ATTR]: "studio" }} aria-hidden="true" style={prewarmMarkerStyle} />
         <JourneyGate ready={!!active.studio}><MoreProducts /></JourneyGate>
         <span {...{ [PREWARM_ATTR]: "agile" }} aria-hidden="true" style={prewarmMarkerStyle} />
         <JourneyGate ready={!!active.agile}><Agile /></JourneyGate>

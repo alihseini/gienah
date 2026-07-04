@@ -24,7 +24,7 @@ function ServicePanel({ s: svc, visualBudget }: { s: Service; visualBudget: Visu
     : visualBudget === "balanced"
       ? "0 34px 78px -42px rgba(2,10,22,0.82), 0 1px 0 rgba(255,255,255,0.055) inset"
       : "0 40px 90px -40px rgba(2,10,22,0.9), 0 1px 0 rgba(255,255,255,0.06) inset";
-  const backdropBlur = visualBudget === "reduced" ? "none" : visualBudget === "balanced" ? "blur(8px)" : "blur(16px)";
+  const backdropBlur = visualBudget === "full" ? "blur(8px)" : "none";
   return (
     <div className={s.svcSlide} style={{ height: "100%" }}>
       <div
@@ -38,6 +38,7 @@ function ServicePanel({ s: svc, visualBudget }: { s: Service; visualBudget: Visu
           border: "1px solid rgba(255,255,255,0.09)",
           boxShadow: panelShadow,
           display: "grid", gap: "clamp(28px, 4vw, 64px)", alignItems: "center",
+          contain: "paint",
         }}
       >
         <span className={s.svcRing} aria-hidden="true"><i /></span>
@@ -198,7 +199,9 @@ export function Services() {
       for (let i = 0; i < N; i++) {
         const node = cardRefs.current[i];
         if (node) {
-          if (node.style.willChange !== "transform") node.style.willChange = "transform";
+          const closeToViewport = Math.abs(head - i) < 1.35;
+          const nextWillChange = closeToViewport ? "transform" : "auto";
+          if (node.style.willChange !== nextWillChange) node.style.willChange = nextWillChange;
           writeCardStyle(node, computeCardStyle(i, head, mobileRef.current, H));
         }
       }

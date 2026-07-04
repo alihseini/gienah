@@ -14,11 +14,10 @@ export function LogoTicker() {
   const row = [...PARTNERS, ...PARTNERS];
   return (
     <div className={t.shell} data-anim-pause>
-      {/* the journey passes straight down the left lane behind the (transparent)
-          ticker, bridging Hero → Services without a break. zIndex:0 makes this a
-          stacking context so the z-index:-1 connector sits above the page
-          background (otherwise it is hoisted to root and hidden behind it). */}
-      <SectionConnector sectionKey="ticker" role="pass" enter="l" />
+      {/* The journey passes through the transparent ticker, below the logos. */}
+      <div className={t.connectorLayer} aria-hidden="true">
+        <SectionConnector sectionKey="ticker" role="pass" enter="l" />
+      </div>
       <div className={t.wrap} role="region" aria-label="Companies we've worked with">
       <div className={t.track}>
         {row.map((p, i) => {
