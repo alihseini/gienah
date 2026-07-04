@@ -57,7 +57,7 @@ function ProductRow({ p, i }: { p: Product; i: number }) {
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           {p.website && <Button variant="primary" className={s.btnGlow} as="a" href={p.website} target="_blank" rel="noopener" trailingIcon={<Icon name="external-link" size={15} />}>Website</Button>}
           {p.download && <Button variant="secondary" as="a" href={p.download} target="_blank" rel="noopener" leadingIcon={<Icon name="download" size={15} />}>Download</Button>}
-          <Button variant={p.website ? "ghost" : "primary"} className={p.website ? "" : s.btnGlow} as="a" href={`/projects/${p.id}`} trailingIcon={<Icon name="arrow-right" size={15} />}>Case study</Button>
+          <Button variant={p.website ? "ghost" : "primary"} className={p.website ? "" : s.btnGlow} as="a" href={`/projects/${p.id}`} trailingIcon={<Icon name="arrow-right" size={15} />}>Show Projects</Button>
         </div>
       </div>
     </article>
@@ -79,7 +79,7 @@ export function Featured() {
           departs from that left node and carries the journey down to Studio. */}
       <SectionConnector sectionKey="products" enter="r" exit="l" noExitLeg />
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
-        <SectionHead nodeId="products" tag="#Products" title="Work we're proud of" sub="A few of the products we've designed and engineered end to end." />
+        <SectionHead nodeId="products" tag="#Projects" title="Work we're proud of" sub="A few of the projects we've designed and engineered end to end." />
         {/* vertical journey: storyline (centre gutter, z 0) behind the rows (z 1) */}
         <div className={s.pjList}>
           <ProductStoryline count={FEATURED.length} />

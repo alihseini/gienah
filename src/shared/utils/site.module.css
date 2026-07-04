@@ -764,6 +764,7 @@
   align-items: center;
 }
 .fabBtn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 11px;
@@ -777,6 +778,22 @@
   font-size: 14.5px;
   font-weight: 600;
   letter-spacing: -0.01em;
+  background: transparent;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow:
+    0 10px 30px -10px rgba(0, 0, 0, 0.6),
+    0 0 28px -10px rgba(88, 171, 206, 0.45);
+  transition:
+    box-shadow 0.35s var(--ease-out),
+    border-color 0.35s;
+}
+.fabBtn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
   background: linear-gradient(
     180deg,
     rgba(20, 32, 54, 0.82),
@@ -785,19 +802,16 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow:
-    0 10px 30px -10px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 28px -10px rgba(88, 171, 206, 0.45);
-  transition:
-    transform 0.35s var(--ease-out),
-    box-shadow 0.35s var(--ease-out),
-    border-color 0.35s;
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+.fabBtn > * {
+  position: relative;
+  z-index: 1;
 }
 .fabBtn:hover {
-  transform: translateY(-1px);
   box-shadow:
     0 14px 36px -10px rgba(0, 0, 0, 0.7),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 0 38px -8px rgba(88, 171, 206, 0.65);
   border-color: rgba(88, 171, 206, 0.4);
 }
@@ -841,9 +855,22 @@
   opacity: 1;
 }
 .fabPanel {
+  position: relative;
   margin-top: 13px;
   overflow: hidden;
   transform-origin: top center;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 30px 70px -24px rgba(0, 0, 0, 0.8),
+    0 0 60px -18px rgba(88, 171, 206, 0.4);
+}
+.fabPanel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
   background: linear-gradient(
     180deg,
     rgba(18, 30, 52, 0.92),
@@ -851,17 +878,17 @@
   );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
-    0 30px 70px -24px rgba(0, 0, 0, 0.8),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 0 60px -18px rgba(88, 171, 206, 0.4);
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  pointer-events: none;
 }
 .fabOpen .fabPanel,
 .fabSeedOn .fabPanel {
   will-change: width, height, border-radius, transform, opacity;
 }
 .fabPanelInner {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   gap: 4px;

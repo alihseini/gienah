@@ -108,7 +108,7 @@ export function MoreProducts() {
             />
           </TitleNodes>
         </div>
-        <Reveal delay={60}><TypingAnimation as="p" text={touch ? "Tap a project to open its case study." : "Hover a project to preview it — click to open the case study."} style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 8px" }} /></Reveal>
+        <Reveal delay={60}><TypingAnimation as="p" text={touch ? "Tap a project to open it." : "Hover a project to preview it — click to open it."} style={{ textAlign: "center", fontSize: 16, color: "var(--text-secondary)", margin: "0 0 8px" }} /></Reveal>
         <div className={m.explorer}>
           <div className={m.list} onMouseLeave={() => setActive(MORE[0].id)}>
             {MORE.map((p, i) => (

@@ -4,7 +4,7 @@
   "founded": "2020",
   "nav": [
     ["Services", "services"],
-    ["Products", "products"],
+    ["Projects", "products"],
     ["Agile Methodology", "agile"],
     ["Job Opportunities", "/careers"],
     ["About us", "about"],
@@ -15,9 +15,9 @@
     "badge": "Digital product studio · since 2020",
     "titleLead": "Creating digital experiences",
     "titleAccent": "beyond your expectations.",
-    "sub": "Gienah is a software studio that turns ambitious ideas into products people love — from strategy and design to engineering and growth.",
+    "sub": "Gienah is a software studio that turns ambitious ideas into projects people love — from strategy and design to engineering and growth.",
     "stats": [
-      ["11+", "Products shipped"],
+      ["11+", "Projects shipped"],
       ["5M+", "Users reached"],
       ["6", "Industries served"],
       ["2020", "Founded"]

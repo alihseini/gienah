@@ -167,7 +167,7 @@ function NotFound() {
     <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", textAlign: "center" }}>
       <div>
         <div style={{ fontSize: 22, fontWeight: 600 }}>Project not found</div>
-        <p style={{ color: "var(--text-secondary)", marginTop: 8 }}>That case study doesn&apos;t exist.</p>
+        <p style={{ color: "var(--text-secondary)", marginTop: 8 }}>That project doesn&apos;t exist.</p>
         <div style={{ marginTop: 18 }}><Button variant="primary" className={siteStyles.btnGlow} as="a" href="/">Back to Gienah</Button></div>
       </div>
     </div>
@@ -197,7 +197,7 @@ export function ProjectDetail({ id }: { id: number }) {
             <img src="/assets/logo-mark.png" alt="" style={{ height: 28, width: "auto" }} />
             <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em" }}>Gienah</span>
           </a>
-          <Press><Button size="sm" variant="ghost" className={siteStyles.btnGhostDark} as="a" href="/" leadingIcon={<Icon name="arrow-left" size={15} />}>All projects</Button></Press>
+          <Press><Button size="sm" variant="ghost" className={siteStyles.btnGhostDark} as="a" href="/" trailingIcon={<Icon name="arrow-right" size={15} />}>All projects</Button></Press>
         </div>
       </header>
 
@@ -208,7 +208,7 @@ export function ProjectDetail({ id }: { id: number }) {
         <div className={d.heroStars} aria-hidden="true" />
         <div className={d.wrap} style={{ position: "relative", zIndex: 1 }}>
           <FadeIn>
-            <div className={d.kicker}>Case study</div>
+            <div className={d.kicker}>Show Projects</div>
           </FadeIn>
           <Stagger style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "14px 0 4px" }} gap={0.07}>
             <StaggerItem as="span"><Badge variant={p.tone === "gold" ? "warning" : "accent"} className={catBadge}>{p.category}</Badge></StaggerItem>
