@@ -3,6 +3,7 @@ import * as React from "react";
 import { motion, useMotionValue, useReducedMotion } from "motion/react";
 import st from "./productStoryline.module.css";
 import { stableViewportHeight } from "../viewport";
+import { requestHomeScrollMeasureRefresh, subscribeHomeScrollFrame } from "../homeScrollCoordinator";
 
 /* ProductStoryline
  *
@@ -228,9 +229,8 @@ export function ProductStoryline({ count }: { count: number }) {
     const list = svgRef.current?.parentElement;
     if (list) ro.observe(list);
     ro.observe(document.body);
-    window.addEventListener("resize", schedule);
     const settle = window.setTimeout(measure, 600);
-    return () => { ro.disconnect(); window.removeEventListener("resize", schedule); window.clearTimeout(t); window.clearTimeout(settle); };
+    return () => { ro.disconnect(); window.clearTimeout(t); window.clearTimeout(settle); };
   }, [measure]);
 
   // reduced motion: show everything statically (full path already drawn at 1).
@@ -253,11 +253,21 @@ export function ProductStoryline({ count }: { count: number }) {
     const tlNode = document.querySelector<HTMLElement>('[data-node="products:l"]');
     const rows = Array.from(list.querySelectorAll<HTMLElement>("[data-pj-row]"));
     const dots = Array.from(svg.querySelectorAll<SVGGElement>("[data-pj-node]"));
-    let raf = 0;
     let active = true;
     let lastFrac = -1;
+    let lastMeasureVersion = -1;
+    let metrics = { top: 0, height: 0 };
     const REF = 0.58;                       // line begins drawing as the list top passes here
     const SPAN = Math.max(1, geo.h * 0.92); // scroll distance that draws the whole path
+    const docTop = (node: HTMLElement) => {
+      let top = 0;
+      let n: HTMLElement | null = node;
+      while (n) { top += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      return top;
+    };
+    const collect = () => {
+      metrics = { top: docTop(list), height: list.offsetHeight || geo.h };
+    };
     const applyFraction = (frac: number) => {
       if (Math.abs(frac - lastFrac) > 0.001) {
         draw.set(frac);
@@ -271,31 +281,45 @@ export function ProductStoryline({ count }: { count: number }) {
         }
       }
     };
-    const update = () => {
-      raf = 0;
-      const r = svg.getBoundingClientRect();
-      const vh = stableViewportHeight();
-      if (r.bottom < -vh * 0.2) {
+    const update = (scrollY: number, vh: number) => {
+      const top = metrics.top - scrollY;
+      const bottom = top + metrics.height;
+      if (bottom < -vh * 0.2) {
         applyFraction(1);
         return;
       }
-      if (r.top > vh * 1.2) {
+      if (top > vh * 1.2) {
         draw.set(0);
         return;
       }
-      const frac = clamp01((vh * REF - r.top) / SPAN);
+      const frac = clamp01((vh * REF - top) / SPAN);
       applyFraction(frac);
     };
-    const onScroll = () => { if (active && !raf) raf = requestAnimationFrame(update); };
+    collect();
+    const unsubscribe = subscribeHomeScrollFrame({
+      read: (frame) => {
+        if (frame.measureVersion !== lastMeasureVersion) {
+          lastMeasureVersion = frame.measureVersion;
+          collect();
+        }
+      },
+      write: (frame) => {
+        if (active) update(frame.scrollY, frame.viewportHeight || stableViewportHeight());
+      },
+    });
     const io = new IntersectionObserver(([entry]) => {
       active = entry.isIntersecting;
-      if (active) onScroll();
+      if (active) requestHomeScrollMeasureRefresh();
     }, { rootMargin: "120% 0px" });
     io.observe(svg);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    update();
-    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+    const ro = new ResizeObserver(() => {
+      collect();
+      requestHomeScrollMeasureRefresh();
+    });
+    ro.observe(svg);
+    ro.observe(list);
+    requestHomeScrollMeasureRefresh();
+    return () => { io.disconnect(); ro.disconnect(); unsubscribe(); };
   }, [reduce, draw, geo.nodeFracs, geo.h]);
 
   return (

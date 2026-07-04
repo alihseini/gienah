@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { lowEndMotionDevice, safariScrollLayerLock } from "../viewport";
+import { subscribeHomeScrollFrame } from "../homeScrollCoordinator";
 
 /* Dense premium hero star field (canvas): many twinkling stars across three
    depth layers (far→near) with parallax drift, soft glow halos on a few brighter
@@ -113,6 +114,8 @@ export function StarField({
     let vis = true;
     let cameraX = 0;
     let cameraY = 0;
+    let targetCameraX = 0;
+    let targetCameraY = 0;
     let nextShoot = t0 + rand(14000, 22000);
     const stop = () => {
       if (raf) {
@@ -134,11 +137,8 @@ export function StarField({
       const dx = lockSafariBackground ? [0, 0, 0] : [Math.sin(t * 0.04) * 6, Math.sin(t * 0.035) * 13, Math.sin(t * 0.028) * 22];
       const dy = lockSafariBackground ? [0, 0, 0] : [Math.cos(t * 0.04) * 4, Math.cos(t * 0.035) * 8, Math.cos(t * 0.028) * 14];
       if (useScrollParallax) {
-        const scrollY = window.scrollY || window.pageYOffset || 0;
-        const targetY = scrollY * (lowEnd ? 0.014 : 0.026);
-        const targetX = Math.sin(scrollY * 0.0018) * (lowEnd ? 10 : 18);
-        cameraX += (targetX - cameraX) * 0.08;
-        cameraY += (targetY - cameraY) * 0.08;
+        cameraX += (targetCameraX - cameraX) * 0.08;
+        cameraY += (targetCameraY - cameraY) * 0.08;
       } else {
         cameraX += (0 - cameraX) * 0.08;
         cameraY += (0 - cameraY) * 0.08;
@@ -243,6 +243,12 @@ export function StarField({
     io.observe(canvas);
 
     build(true);
+    const unsubscribeScroll = useScrollParallax
+      ? subscribeHomeScrollFrame((frame) => {
+          targetCameraY = frame.scrollY * (lowEnd ? 0.014 : 0.026);
+          targetCameraX = Math.sin(frame.scrollY * 0.0018) * (lowEnd ? 10 : 18);
+        })
+      : undefined;
     if (reduce) render(t0);
     else start();
     const onResize = () => build();
@@ -254,6 +260,7 @@ export function StarField({
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
       stop();
+      unsubscribeScroll?.();
       io.disconnect();
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);

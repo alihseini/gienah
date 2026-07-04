@@ -4,6 +4,7 @@ import { motion, useMotionValue, useReducedMotion } from "motion/react";
 import c from "../../components/sections/heroSection/constellationJourney.module.css";
 import { useJourneyActivate } from "../journeyGate/JourneyGate";
 import { stableViewportHeight } from "../viewport";
+import { requestHomeScrollMeasureRefresh, subscribeHomeScrollFrame } from "../homeScrollCoordinator";
 
 /* SectionConnector
  *
@@ -252,9 +253,8 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
     const ro = new ResizeObserver(schedule);
     if (svgRef.current) ro.observe(svgRef.current);
     ro.observe(document.body);
-    window.addEventListener("resize", schedule);
     const settle = window.setTimeout(measure, 600);
-    return () => { ro.disconnect(); window.removeEventListener("resize", schedule); window.clearTimeout(t); window.clearTimeout(settle); };
+    return () => { ro.disconnect(); window.clearTimeout(t); window.clearTimeout(settle); };
   }, [measure]);
 
   // scroll-linked draw: progress of THIS section through the viewport → pathLength.
@@ -271,7 +271,6 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
     if (reduce) { draw.set(1); fire(); return; }
     const svg = svgRef.current;
     if (!svg) return;
-    let raf = 0;
     let active = true;
     let last1 = -1;
     let last2 = -1;
@@ -286,10 +285,10 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
         last2 = next2;
       }
     };
-    const update = () => {
-      raf = 0;
+    const update = (vh: number) => {
+      // Sticky-hosted connectors need their current visual viewport position.
+      // Geometry stays cached; this live rect only drives draw timing.
       const r = svg.getBoundingClientRect();
-      const vh = stableViewportHeight();
       if (r.bottom < -vh * 0.2) {
         setDraw(1, 1);
         fire();
@@ -312,16 +311,18 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
       // sticky decks where the title is pinned.
       if (geo.nodeY != null && r.top + geo.nodeY <= vh * REF) fire();
     };
-    const onScroll = () => { if (active && !raf) raf = requestAnimationFrame(update); };
+    const unsubscribe = subscribeHomeScrollFrame({
+      write: (frame) => {
+        if (active) update(frame.viewportHeight || stableViewportHeight());
+      },
+    });
     const io = new IntersectionObserver(([entry]) => {
       active = entry.isIntersecting;
-      if (active) onScroll();
+      if (active) requestHomeScrollMeasureRefresh();
     }, { rootMargin: "120% 0px" });
     io.observe(svg);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    update();
-    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+    requestHomeScrollMeasureRefresh();
+    return () => { io.disconnect(); unsubscribe(); };
   }, [reduce, draw, draw2, geo.strokes, geo.nodeY, fire]);
 
   return (

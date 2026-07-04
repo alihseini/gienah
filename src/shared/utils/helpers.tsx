@@ -6,6 +6,7 @@ import { TypingAnimation } from "./typing/TypingAnimation";
 import { useJourneyReady } from "./journeyGate/JourneyGate";
 import { TitleNodes } from "./titleNodes/TitleNodes";
 import { safariScrollLayerLock, stableViewportHeight } from "./viewport";
+import { requestHomeScrollMeasureRefresh, subscribeHomeScrollFrame } from "./homeScrollCoordinator";
 
 /* ---------------- brand colors + helpers ---------------- */
 export const C = { blue1: "#58ABCE", blue2: "#2A92CC", gold1: "#F4C65F", gold2: "#E2AA3B" };
@@ -171,11 +172,8 @@ export function useParallax() {
       });
     };
     collect();
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const vh = stableViewportHeight();
-      const sy = window.scrollY || window.pageYOffset || 0;
+    let lastMeasureVersion = -1;
+    const update = (sy: number, vh: number) => {
       for (const item of items) {
         const { el, y, scale, top, h } = item;
         if (h === 0) continue; // hidden (e.g. responsive display:none) — skip
@@ -196,20 +194,20 @@ export function useParallax() {
         }
       }
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    const onResize = () => { collect(); onScroll(); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onResize);
-    window.addEventListener("load", onResize);
+    const unsubscribe = subscribeHomeScrollFrame({
+      read: (frame) => {
+        if (frame.measureVersion !== lastMeasureVersion) {
+          lastMeasureVersion = frame.measureVersion;
+          collect();
+        }
+      },
+      write: (frame) => update(frame.scrollY, frame.viewportHeight || stableViewportHeight()),
+    });
     // re-measure after first layout settles (fonts/images can shift offsets)
-    const settle = setTimeout(() => { collect(); update(); }, 300);
-    update();
+    const settle = setTimeout(() => { collect(); requestHomeScrollMeasureRefresh(); }, 300);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("load", onResize);
+      unsubscribe();
       clearTimeout(settle);
-      if (raf) cancelAnimationFrame(raf);
       items.forEach(({ el }) => { el.style.willChange = "auto"; });
     };
   }, []);
@@ -296,16 +294,18 @@ export function CountUp({ value }: { value: string }) {
 
 /* ---------------- ScrollProgress ---------------- */
 export function ScrollProgress() {
-  const [p, setP] = React.useState(0);
+  const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
-    const onS = () => { const h = document.documentElement.scrollHeight - stableViewportHeight(); setP(h > 0 ? Math.min(1, window.scrollY / h) : 0); };
-    window.addEventListener("scroll", onS, { passive: true });
-    onS();
-    return () => window.removeEventListener("scroll", onS);
+    const unsubscribe = subscribeHomeScrollFrame((frame) => {
+      const h = document.documentElement.scrollHeight - (frame.viewportHeight || stableViewportHeight());
+      const p = h > 0 ? Math.min(1, frame.scrollY / h) : 0;
+      if (ref.current) ref.current.style.transform = `scaleX(${p.toFixed(4)})`;
+    });
+    return unsubscribe;
   }, []);
   return (
     <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 3, zIndex: 60, background: "rgba(42,146,204,0.10)" }}>
-      <div style={{ height: "100%", width: `${p * 100}%`, background: "var(--brand-gradient)", transition: "width .08s linear" }} />
+      <div ref={ref} style={{ height: "100%", width: "100%", transform: "scaleX(0)", transformOrigin: "left center", background: "var(--brand-gradient)", transition: "transform .08s linear" }} />
     </div>
   );
 }
@@ -347,11 +347,8 @@ export function useLayerChoreography() {
       }));
     };
     collect();
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const H = stableViewportHeight();
-      const sy = window.scrollY || window.pageYOffset || 0;
+    let lastMeasureVersion = -1;
+    const update = (sy: number, H: number) => {
       for (const item of els) {
         const { el, depth, top, h } = item;
         if (h === 0) continue;
@@ -375,15 +372,18 @@ export function useLayerChoreography() {
         }
       }
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    const onResize = () => { collect(); onScroll(); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onResize);
-    window.addEventListener("load", onResize);
+    const unsubscribe = subscribeHomeScrollFrame({
+      read: (frame) => {
+        if (frame.measureVersion !== lastMeasureVersion) {
+          lastMeasureVersion = frame.measureVersion;
+          collect();
+        }
+      },
+      write: (frame) => update(frame.scrollY, frame.viewportHeight || stableViewportHeight()),
+    });
     // re-measure after first layout settles (fonts/images can shift offsets)
-    const settle = setTimeout(() => { collect(); update(); }, 300);
-    update();
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onResize); window.removeEventListener("load", onResize); clearTimeout(settle); if (raf) cancelAnimationFrame(raf); };
+    const settle = setTimeout(() => { collect(); requestHomeScrollMeasureRefresh(); }, 300);
+    return () => { unsubscribe(); clearTimeout(settle); };
   }, []);
 }
 

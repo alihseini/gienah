@@ -7,6 +7,7 @@ import servicesData from "@/shared/data/services.json";
 import type { Service } from "@/shared/data/types";
 import { reduceMotion, _clamp, _lerp, easeOutCubic } from "../sectionUtils";
 import { stableViewportHeight } from "@/shared/utils/viewport";
+import { requestHomeScrollMeasureRefresh, subscribeHomeScrollFrame } from "@/shared/utils/homeScrollCoordinator";
 
 const SERVICES = servicesData as Service[];
 
@@ -147,29 +148,44 @@ export function Services() {
   const N = SERVICES.length;
   React.useEffect(() => {
     if (reduce) return;
-    let raf = 0;
     let active = true;
+    let lastMeasureVersion = -1;
+    let metrics = { top: 0, height: 0, deckHeight: 0 };
+    const docTop = (node: HTMLElement) => {
+      let top = 0;
+      let n: HTMLElement | null = node;
+      while (n) { top += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      return top;
+    };
+    const collect = () => {
+      const el = trackRef.current;
+      if (!el) return;
+      metrics = {
+        top: docTop(el),
+        height: el.offsetHeight,
+        deckHeight: deckRef.current?.offsetHeight || 0,
+      };
+    };
     const resetWillChange = () => {
       cardRefs.current.forEach((node) => {
         if (node && node.style.willChange !== "auto") node.style.willChange = "auto";
       });
     };
-    const update = () => {
-      raf = 0;
-      const el = trackRef.current; if (!el) return;
-      const r = el.getBoundingClientRect();
-      const vh = stableViewportHeight();
-      if (r.bottom < -vh * 0.1 || r.top > vh) {
+    const update = (scrollY: number, vh: number) => {
+      if (!trackRef.current) return;
+      const top = metrics.top - scrollY;
+      const bottom = top + metrics.height;
+      if (bottom < -vh * 0.1 || top > vh) {
         resetWillChange();
         return;
       }
-      const dist = el.offsetHeight - vh;
-      const scrolled = _clamp(-r.top, 0, dist);
+      const dist = metrics.height - vh;
+      const scrolled = _clamp(-top, 0, dist);
       // complete the reveal at 90% of the travel, leaving a brief "hold" on the last
       // card before the section unpins — feels deliberate rather than abrupt.
       const progress = dist > 0 ? _clamp(scrolled / (dist * 0.94), 0, 1) : 0;
       const head = progress * (N - 1);          // continuous playhead across the deck
-      const H = deckRef.current?.offsetHeight || vh * 0.5;   // live card height
+      const H = metrics.deckHeight || vh * 0.5;   // live card height
       for (let i = 0; i < N; i++) {
         const node = cardRefs.current[i];
         if (node) {
@@ -180,16 +196,31 @@ export function Services() {
       const ni = _clamp(Math.round(head), 0, N - 1);
       if (ni !== idxRef.current) { idxRef.current = ni; setActive(ni); }
     };
-    const onScroll = () => { if (active && !raf) raf = requestAnimationFrame(update); };
+    collect();
+    const unsubscribe = subscribeHomeScrollFrame({
+      read: (frame) => {
+        if (frame.measureVersion !== lastMeasureVersion) {
+          lastMeasureVersion = frame.measureVersion;
+          collect();
+        }
+      },
+      write: (frame) => {
+        if (active) update(frame.scrollY, frame.viewportHeight || stableViewportHeight());
+      },
+    });
     const io = new IntersectionObserver(([entry]) => {
       active = entry.isIntersecting;
-      if (active) onScroll();
+      if (active) requestHomeScrollMeasureRefresh();
     }, { rootMargin: "120% 0px" });
     if (trackRef.current) io.observe(trackRef.current);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    update();
-    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); resetWillChange(); };
+    const ro = new ResizeObserver(() => {
+      collect();
+      requestHomeScrollMeasureRefresh();
+    });
+    if (trackRef.current) ro.observe(trackRef.current);
+    if (deckRef.current) ro.observe(deckRef.current);
+    requestHomeScrollMeasureRefresh();
+    return () => { io.disconnect(); ro.disconnect(); unsubscribe(); resetWillChange(); };
   }, [reduce, N]);
 
   const Header = (

@@ -8,6 +8,7 @@ import agileData from "@/shared/data/agile.json";
 import type { AgileStage } from "@/shared/data/types";
 import { reduceMotion } from "../sectionUtils";
 import { stableViewportHeight } from "@/shared/utils/viewport";
+import { requestHomeScrollMeasureRefresh, subscribeHomeScrollFrame } from "@/shared/utils/homeScrollCoordinator";
 
 const AGILE = agileData as AgileStage[];
 
@@ -106,9 +107,8 @@ export function Agile() {
     build();
     const ro = new ResizeObserver(build);
     ro.observe(root);
-    window.addEventListener("resize", build);
     const t = setTimeout(build, 400); // re-measure after fonts/layout settle
-    return () => { ro.disconnect(); window.removeEventListener("resize", build); clearTimeout(t); };
+    return () => { ro.disconnect(); clearTimeout(t); };
   }, []);
 
   // draw the curved path with scroll progress (sets --p on the timeline; the SVG
@@ -117,44 +117,67 @@ export function Agile() {
     const root = timelineRef.current;
     if (!root) return;
     if (reduceMotion()) { root.style.setProperty("--p", "1"); return; }
-    let raf = 0;
     let active = true;
     let lastP = "";
-    const update = () => {
-      raf = 0;
-      const r = root.getBoundingClientRect();
-      const vh = stableViewportHeight();
-      if (r.bottom < -vh * 0.2) {
+    let lastMeasureVersion = -1;
+    let metrics = { top: 0, height: 0 };
+    const docTop = (node: HTMLElement) => {
+      let top = 0;
+      let n: HTMLElement | null = node;
+      while (n) { top += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      return top;
+    };
+    const collect = () => {
+      metrics = { top: docTop(root), height: root.offsetHeight };
+    };
+    const update = (scrollY: number, vh: number) => {
+      const top = metrics.top - scrollY;
+      const bottom = top + metrics.height;
+      if (bottom < -vh * 0.2) {
         if (lastP !== "1") {
           root.style.setProperty("--p", "1");
           lastP = "1";
         }
         return;
       }
-      if (r.top > vh * 1.2) {
+      if (top > vh * 1.2) {
         if (lastP !== "0") {
           root.style.setProperty("--p", "0");
           lastP = "0";
         }
         return;
       }
-      const p = Math.max(0, Math.min(1, (vh * 0.6 - r.top) / (r.height || 1)));
+      const p = Math.max(0, Math.min(1, (vh * 0.6 - top) / (metrics.height || 1)));
       const next = p.toFixed(3);
       if (next !== lastP) {
         root.style.setProperty("--p", next);
         lastP = next;
       }
     };
-    const onScroll = () => { if (active && !raf) raf = requestAnimationFrame(update); };
+    collect();
+    const unsubscribe = subscribeHomeScrollFrame({
+      read: (frame) => {
+        if (frame.measureVersion !== lastMeasureVersion) {
+          lastMeasureVersion = frame.measureVersion;
+          collect();
+        }
+      },
+      write: (frame) => {
+        if (active) update(frame.scrollY, frame.viewportHeight || stableViewportHeight());
+      },
+    });
     const io = new IntersectionObserver(([entry]) => {
       active = entry.isIntersecting;
-      if (active) onScroll();
+      if (active) requestHomeScrollMeasureRefresh();
     }, { rootMargin: "120% 0px" });
     io.observe(root);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    update();
-    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+    const ro = new ResizeObserver(() => {
+      collect();
+      requestHomeScrollMeasureRefresh();
+    });
+    ro.observe(root);
+    requestHomeScrollMeasureRefresh();
+    return () => { io.disconnect(); ro.disconnect(); unsubscribe(); };
   }, []);
 
   return (
