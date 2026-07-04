@@ -6,6 +6,7 @@ import { ScrollProgress, siteStyles } from "@/shared/utils/helpers";
 import { HeadingReveal } from "@/shared/utils/headingReveal/HeadingReveal";
 import { StarField } from "@/shared/utils/starfield/StarField";
 import { Stagger, StaggerItem, FadeIn, Lift, Press } from "@/shared/utils/motion/motion";
+import { useVisualBudget } from "@/shared/utils/visualBudget";
 import { motion, useReducedMotion } from "motion/react";
 import productsData from "@/shared/data/products.json";
 import type { Product, Tone } from "@/shared/data/types";
@@ -175,6 +176,7 @@ function NotFound() {
 }
 
 export function ProjectDetail({ id }: { id: number }) {
+  const visualBudget = useVisualBudget();
   const p = PRODUCTS.find((x) => x.id === id);
   if (!p) return <div className={d.page}><NotFound /></div>;
   const idx = ORDER.indexOf(id);
@@ -186,7 +188,7 @@ export function ProjectDetail({ id }: { id: number }) {
   const tokens = techTokens(p.tech);
 
   return (
-    <div className={d.page} data-tone={p.tone}>
+    <div className={d.page} data-tone={p.tone} data-visual-budget={visualBudget}>
       <div className={d.canvas} aria-hidden="true" />
       <StarField className={d.starField} style={{ position: "fixed", zIndex: 0 }} density={5000} maxCount={420} shadow={false} constellations={false} />
       <ScrollProgress />
