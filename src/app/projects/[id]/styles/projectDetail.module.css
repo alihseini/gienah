@@ -494,8 +494,9 @@
 }
 .lightboxPanel {
   position: relative;
-  max-width: min(1180px, 94vw);
-  max-height: min(820px, 86vh);
+  box-sizing: border-box;
+  width: min(1180px, calc(100vw - clamp(36px, 8vw, 84px)));
+  max-height: min(820px, calc(100dvh - clamp(36px, 8vw, 84px)));
   padding: clamp(10px, 1.8vw, 18px);
   border-radius: 22px;
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -506,11 +507,14 @@
     0 46px 120px -42px rgba(0, 0, 0, 1),
     0 0 70px -24px rgba(var(--proj-rgb), 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
 }
 .lightboxPanel img {
   display: block;
-  max-width: calc(94vw - clamp(20px, 3.6vw, 36px));
-  max-height: calc(86vh - clamp(20px, 3.6vw, 36px));
+  max-width: 100%;
+  max-height: calc(min(820px, calc(100dvh - clamp(36px, 8vw, 84px))) - clamp(20px, 3.6vw, 36px));
   width: auto;
   height: auto;
   object-fit: contain;
