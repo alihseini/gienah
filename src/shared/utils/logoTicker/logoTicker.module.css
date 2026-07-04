@@ -15,8 +15,19 @@
   pointer-events: none;
   overflow: visible;
 }
-.connectorLayer :global(svg) {
-  z-index: 0;
+.bridge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.bridgePath {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 6px rgba(80, 165, 226, 0.55));
 }
 .wrap {
   position: relative;
