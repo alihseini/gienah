@@ -20,7 +20,7 @@
       "/snapp/snapp-screens/snapp-screen-9.avif",
       "/snapp/snapp-screens/snapp-screen-10.avif"
     ],
-    "landingShot": "/snapp/snapp-main.avif",
+    "landingShot": "/mockups/snapp-main.avif",
     "blurb": "A complete car maintenance and repair hub within the Snapp ecosystem. Browse and buy spare parts, tools and accessories, then connect with trusted mechanics nearby for repairs, pickup or delivery.",
     "desc": [
       "Snapp Carfix is a complete destination for car maintenance and repair, seamlessly connected to the Snapp ecosystem.",
@@ -48,7 +48,7 @@
       "/garage/garage-ui/garage-ui7.avif",
       "/garage/garage-ui/garage-ui8.avif"
     ],
-    "landingShot": "/garage/garage-main.avif",
+    "landingShot": "/mockups/garage-main.avif",
     "blurb": "The ultimate hub for car maintenance inside the Tapsi super-app. Browse and buy spare parts, tools and accessories, then connect with professional mechanics nearby for repairs, pickup or delivery.",
     "desc": [
       "Tapsi Garage is the ultimate hub for car maintenance and repair, seamlessly integrated into the Tapsi super-app.",
@@ -67,7 +67,7 @@
     "featured": true,
     "banner": "/banners/air-banner.avif",
     "shots": ["/air/air-ui/air-ui1.avif", "/air/air-ui/air-ui2.avif"],
-    "landingShot": "/air/air-main.avif",
+    "landingShot": "/mockups/air-main.avif",
     "blurb": "Air Properties is an AI-powered real estate platform that delivers personalized home recommendations, smart property chat, and seamless scheduling with agents.",
     "desc": [
       "Air Properties is an innovative project powered by LLMs and advanced AI, designed to revolutionize the real estate experience. This platform provides personalized home recommendations tailored to user preferences. Users can chat with the AI about various properties, receive smart suggestions based on their interests, and even schedule a viewing with an agent seamlessly. The AI’s intelligent algorithms ensure it understands user preferences deeply, offering homes that align perfectly with their needs and lifestyle."
@@ -95,7 +95,7 @@
       "/tops/tops-screens/tops-screen8.avif",
       "/tops/tops-screens/tops-screen9.avif"
     ],
-    "landingShot": "/tops/tops-main.avif",
+    "landingShot": "/mockups/tops-main.avif",
     "blurb": "A feature-rich educational game for high-school students — a fully complex, high-tech service built on AI and microservices that scales past 5M users. Its unique AI engine recommends the best course for each pupil from their data.",
     "desc": [
       "Tops Game is a feature-rich educational game for high-school students — a fully complex project and high-tech service that includes AI and microservices technology.",
@@ -123,7 +123,7 @@
       "/nabz/nabz-screens/nabz-screen8.avif",
       "/nabz/nabz-screens/nabz-screen9.avif"
     ],
-    "landingShot": "/nabz/nabz-main.avif",
+    "landingShot": "/mockups/nabz-main.avif",
     "blurb": "A platform that nudges people to cut gas and electricity use through awareness and gamification. AI-driven reports, challenges, points and rewards make sustainable habits engaging — and measurable.",
     "desc": [
       "Nabz Energy encourages users to reduce their gas and electricity consumption through awareness-building and gamification.",
