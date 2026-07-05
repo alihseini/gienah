@@ -212,7 +212,9 @@ function ServicePanel({
  * smooth scroll-linked curve — never jumpy. `H` is the live deck height, so the rise
  * distance and bottom-peek scale with the actual card size at every breakpoint. */
 type CardStyle = { transform: string };
+type CardDepth = "active" | "near" | "far";
 const CARD_STYLE_CACHE = new WeakMap<HTMLElement, CardStyle>();
+const CARD_DEPTH_CACHE = new WeakMap<HTMLElement, CardDepth>();
 function computeCardStyle(
   i: number,
   head: number,
@@ -253,6 +255,12 @@ function writeCardStyle(el: HTMLElement, st: CardStyle) {
   if (prev?.transform !== st.transform) el.style.transform = st.transform;
   if (el.style.opacity !== "1") el.style.opacity = "1";
   CARD_STYLE_CACHE.set(el, st);
+}
+
+function writeCardDepth(el: HTMLElement, depth: CardDepth) {
+  if (CARD_DEPTH_CACHE.get(el) === depth) return;
+  el.dataset.svcDepth = depth;
+  CARD_DEPTH_CACHE.set(el, depth);
 }
 
 export function Services() {
@@ -315,8 +323,9 @@ export function Services() {
     };
     const resetWillChange = () => {
       cardRefs.current.forEach((node) => {
-        if (node && node.style.willChange !== "auto")
-          node.style.willChange = "auto";
+        if (!node) return;
+        if (node.style.willChange !== "auto") node.style.willChange = "auto";
+        writeCardDepth(node, "far");
       });
     };
     const update = (scrollY: number, vh: number) => {
@@ -334,17 +343,19 @@ export function Services() {
       const progress = dist > 0 ? _clamp(scrolled / (dist * 0.82), 0, 1) : 0;
       const head = progress * (N - 1); // continuous playhead across the deck
       const H = metrics.deckHeight || vh * 0.5; // live card height
+      const ni = _clamp(Math.round(head), 0, N - 1);
       for (let i = 0; i < N; i++) {
         const node = cardRefs.current[i];
         if (node) {
-          const closeToViewport = Math.abs(head - i) < 1.35;
-          const nextWillChange = closeToViewport ? "transform" : "auto";
+          const depth: CardDepth =
+            i === ni ? "active" : Math.abs(i - ni) === 1 ? "near" : "far";
+          const nextWillChange = depth === "far" ? "auto" : "transform";
           if (node.style.willChange !== nextWillChange)
             node.style.willChange = nextWillChange;
+          writeCardDepth(node, depth);
           writeCardStyle(node, computeCardStyle(i, head, mobileRef.current, H));
         }
       }
-      const ni = _clamp(Math.round(head), 0, N - 1);
       if (ni !== idxRef.current) {
         idxRef.current = ni;
         setActive(ni);

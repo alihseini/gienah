@@ -966,6 +966,36 @@
 .svcCard[aria-hidden="true"] {
   will-change: auto;
 }
+.svcCard[data-svc-depth="far"] {
+  pointer-events: none;
+}
+.svcCard[data-svc-depth="far"] .svcPanel {
+  box-shadow:
+    0 18px 42px -34px rgba(2, 10, 22, 0.7),
+    0 1px 0 rgba(255, 255, 255, 0.04) inset !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.svcCard[data-svc-depth="far"] .svcRing,
+.svcCard[data-svc-depth="far"] .floatIcon {
+  opacity: 0.46;
+}
+.svcCard[data-svc-depth="far"] .svcRing > i {
+  animation: none;
+}
+.site[data-visual-budget="balanced"]
+  .svcCard:not([data-svc-depth="active"])
+  .svcPanel,
+.site[data-visual-budget="reduced"] .svcCard .svcPanel {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.site[data-visual-budget="balanced"] .svcCard[data-svc-depth="far"] .svcPanel,
+.site[data-visual-budget="reduced"] .svcCard[data-svc-depth="far"] .svcPanel {
+  box-shadow:
+    0 14px 34px -30px rgba(2, 10, 22, 0.66),
+    0 1px 0 rgba(255, 255, 255, 0.035) inset !important;
+}
 @media (max-height: 820px) {
   .svcStage {
     padding: 64px 0 24px;
