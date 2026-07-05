@@ -66,13 +66,7 @@
     "tone": "azure",
     "featured": true,
     "banner": "/banners/air-banner.avif",
-    "shots": [
-      "/air/air-ui/air-ui1.avif",
-      "/air/air-ui/air-ui2.avif",
-      "/air/air-ui/air-ui3.avif",
-      "/air/air-ui/air-ui4.avif",
-      "/air/air-ui/air-ui5.avif"
-    ],
+    "shots": ["/air/air-ui/air-ui1.avif", "/air/air-ui/air-ui2.avif"],
     "landingShot": "/air/air-main.avif",
     "blurb": "Air Properties is an AI-powered real estate platform that delivers personalized home recommendations, smart property chat, and seamless scheduling with agents.",
     "desc": [

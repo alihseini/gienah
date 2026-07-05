@@ -382,10 +382,12 @@
 
 /* ---------------- screens gallery ---------------- */
 .gallery {
+  --shot-col: clamp(220px, 21vw, 250px);
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(var(--shot-col), var(--shot-col)));
+  gap: 0.75rem;
   align-items: start;
+  justify-content: start;
 }
 .gItem {
   grid-column: var(--shot-span, span 1);
@@ -646,10 +648,12 @@
   .gallery {
     display: flex;
     grid-template-columns: none;
+    gap: 0.75rem;
+    justify-content: flex-start;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 10px;
+    padding-bottom: 1.75rem;
   }
   .gItem {
     flex: 0 0 var(--shot-mobile-basis, 64%);

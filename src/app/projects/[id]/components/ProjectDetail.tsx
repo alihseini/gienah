@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { Button, Badge, Icon, ImageLazy } from "@/shared/components";
 import { ScrollProgress, siteStyles } from "@/shared/utils/helpers";
 import { HeadingReveal } from "@/shared/utils/headingReveal/HeadingReveal";
@@ -176,6 +177,7 @@ function NotFound() {
 }
 
 export function ProjectDetail({ id }: { id: number }) {
+  const router = useRouter();
   const visualBudget = useVisualBudget();
   const p = PRODUCTS.find((x) => x.id === id);
   if (!p) return <div className={d.page}><NotFound /></div>;
@@ -186,6 +188,35 @@ export function ProjectDetail({ id }: { id: number }) {
   const highlights = deriveHighlights(p);
   const delivered = deriveDelivered(p);
   const tokens = techTokens(p.tech);
+  const handleAllProjectsClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+
+    const fallbackHref = "/#products";
+    let shouldGoBack = false;
+
+    if (document.referrer) {
+      try {
+        const referrer = new URL(document.referrer);
+        const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+        const referrerPath = `${referrer.pathname}${referrer.search}${referrer.hash}`;
+        shouldGoBack =
+          referrer.origin === window.location.origin &&
+          referrerPath !== currentPath &&
+          (referrer.pathname === "/" || !referrer.pathname.startsWith("/projects/"));
+      } catch {
+        shouldGoBack = false;
+      }
+    }
+
+    event.preventDefault();
+    if (shouldGoBack) {
+      router.back();
+      return;
+    }
+    router.push(fallbackHref);
+  };
 
   return (
     <div className={d.page} data-tone={p.tone} data-visual-budget={visualBudget}>
@@ -199,7 +230,7 @@ export function ProjectDetail({ id }: { id: number }) {
             <img src="/assets/logo-mark.png" alt="" style={{ height: 28, width: "auto" }} />
             <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em" }}>Gienah</span>
           </a>
-          <Press><Button size="sm" variant="ghost" className={siteStyles.btnGhostDark} as="a" href="/" trailingIcon={<Icon name="arrow-right" size={15} />}>All projects</Button></Press>
+          <Press><Button size="sm" variant="ghost" className={siteStyles.btnGhostDark} as="a" href="/#products" onClick={handleAllProjectsClick} trailingIcon={<Icon name="arrow-right" size={15} />}>All projects</Button></Press>
         </div>
       </header>
 
