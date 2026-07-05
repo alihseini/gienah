@@ -466,8 +466,9 @@
 /* ---------------- screens gallery ---------------- */
 .gallery {
   --shot-h: clamp(360px, 32vw, 440px);
-  --portrait-ratio: 0.462; 
+  --portrait-ratio: 0.462;
   --landscape-ratio: 1.777;
+  --landscape-w: clamp(360px, 38vw, 440px);
   --shot-gap: 0.75rem;
 
   display: flex;
@@ -477,7 +478,6 @@
   align-items: flex-start;
   align-content: flex-start;
 }
-
 .gItem {
   flex: 0 0 auto;
   min-width: 0;
@@ -512,7 +512,7 @@
 }
 
 .gShot[data-orientation="landscape"] {
-  width: min(calc(var(--shot-h) * var(--landscape-ratio)), 680px);
+  width: var(--landscape-w);
   height: auto;
   aspect-ratio: 16 / 9;
 }
