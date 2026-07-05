@@ -252,6 +252,7 @@
 .svcPanel {
   position: relative;
   overflow: hidden;
+  background-clip: padding-box;
   transition:
     transform 0.5s var(--ease-out),
     border-color 0.5s var(--ease-out);
@@ -287,22 +288,37 @@
     linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  transition: filter 0.5s var(--ease-out);
+  opacity: 0.68;
+  transition: opacity 0.35s var(--ease-out);
 }
 .svcRing > i {
   position: absolute;
-  inset: -60%;
+  inset: 0;
   display: block;
-  background: conic-gradient(
-    from 0deg,
-    rgba(88, 171, 206, 0) 0deg,
-    rgba(88, 171, 206, 0.85) 55deg,
-    rgba(244, 198, 95, 0.9) 130deg,
-    rgba(226, 170, 59, 0) 205deg,
-    rgba(42, 146, 204, 0.75) 300deg,
-    rgba(88, 171, 206, 0) 360deg
+  background:
+    linear-gradient(
+      135deg,
+      rgba(88, 171, 206, 0.58),
+      rgba(244, 198, 95, 0.52) 46%,
+      rgba(255, 255, 255, 0.18) 64%,
+      rgba(42, 146, 204, 0.32)
+    ),
+    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+  opacity: 0.74;
+}
+.svcPanel::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0) 34%,
+    rgba(88, 171, 206, 0.05) 100%
   );
-  animation: svcspin 7s linear infinite;
 }
 .svcHeadwrap {
   position: sticky;
@@ -350,16 +366,7 @@
 
 /* gentle floating for icon chips inside cards (Services) — subtle life, not scroll-linked */
 .floatIcon {
-  animation: iconFloat 5.5s var(--ease-in-out) infinite;
-}
-@keyframes iconFloat {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-9px);
-  }
+  animation: none;
 }
 .device {
   width: 15rem;
@@ -966,6 +973,14 @@
   opacity: 1;
   transform: none;
 }
+section[data-services-mode] .svcPanel {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+section[data-services-mode] .svcRing > i,
+section[data-services-mode] .floatIcon {
+  animation: none !important;
+}
 .svcCard[aria-hidden="true"] {
   will-change: auto;
 }
@@ -974,29 +989,17 @@
 }
 .svcCard[data-svc-depth="far"] .svcPanel {
   box-shadow:
-    0 18px 42px -34px rgba(2, 10, 22, 0.7),
+    0 10px 28px -26px rgba(2, 10, 22, 0.62),
     0 1px 0 rgba(255, 255, 255, 0.04) inset !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 .svcCard[data-svc-depth="far"] .svcRing,
 .svcCard[data-svc-depth="far"] .floatIcon {
   opacity: 0.46;
 }
-.svcCard[data-svc-depth="far"] .svcRing > i {
-  animation: none;
-}
-.site[data-visual-budget="balanced"]
-  .svcCard:not([data-svc-depth="active"])
-  .svcPanel,
-.site[data-visual-budget="reduced"] .svcCard .svcPanel {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
 .site[data-visual-budget="balanced"] .svcCard[data-svc-depth="far"] .svcPanel,
 .site[data-visual-budget="reduced"] .svcCard[data-svc-depth="far"] .svcPanel {
   box-shadow:
-    0 14px 34px -30px rgba(2, 10, 22, 0.66),
+    0 8px 22px -22px rgba(2, 10, 22, 0.58),
     0 1px 0 rgba(255, 255, 255, 0.035) inset !important;
 }
 @media (max-height: 820px) {
@@ -1552,23 +1555,11 @@
   opacity: 0.22;
 }
 
-.site[data-visual-budget="balanced"] .svcRing > i {
-  animation-duration: 12s;
-  opacity: 0.74;
-}
-
-.site[data-visual-budget="reduced"] .svcRing > i {
-  animation: none;
-  opacity: 0.42;
-}
-
-.site[data-visual-budget="balanced"] .device,
-.site[data-visual-budget="balanced"] .floatIcon {
+.site[data-visual-budget="balanced"] .device {
   animation-duration: 11s;
 }
 
-.site[data-visual-budget="reduced"] .device,
-.site[data-visual-budget="reduced"] .floatIcon {
+.site[data-visual-budget="reduced"] .device {
   animation: none;
 }
 

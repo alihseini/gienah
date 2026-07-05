@@ -39,6 +39,7 @@ export function StarField({
   shooting = true,
   shadow = true,
   scrollParallax = false,
+  pauseWhenServicesActive = false,
   visualBudget = "full",
   className,
   style,
@@ -53,6 +54,7 @@ export function StarField({
   /** per-star shadowBlur glow — turn OFF for dense fields to stay cheap. */
   shadow?: boolean;
   scrollParallax?: boolean;
+  pauseWhenServicesActive?: boolean;
   visualBudget?: VisualBudget;
   className?: string;
   style?: React.CSSProperties;
@@ -125,6 +127,9 @@ export function StarField({
     let targetCameraX = 0;
     let targetCameraY = 0;
     let nextShoot = t0 + rand(14000, 22000);
+    const servicesPaused = () =>
+      pauseWhenServicesActive &&
+      document.documentElement.dataset.servicesScrollActive === "true";
     const stop = () => {
       if (raf) {
         cancelAnimationFrame(raf);
@@ -232,6 +237,11 @@ export function StarField({
         last = now;
         return;
       }
+      if (servicesPaused()) {
+        raf = 0;
+        last = now;
+        return;
+      }
       if (frameInterval && now - lastFrame < frameInterval) {
         raf = requestAnimationFrame(loop);
         return;
@@ -241,8 +251,18 @@ export function StarField({
       raf = requestAnimationFrame(loop);
     };
     const start = () => {
-      if (!raf) raf = requestAnimationFrame(loop);
+      if (!raf && !servicesPaused()) raf = requestAnimationFrame(loop);
     };
+    const observeServicesPause = new MutationObserver(() => {
+      if (servicesPaused()) stop();
+      else if (vis && !document.hidden && !reduce) start();
+    });
+    if (pauseWhenServicesActive) {
+      observeServicesPause.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-services-scroll-active"],
+      });
+    }
     const io = new IntersectionObserver(([e]) => {
       vis = e.isIntersecting;
       if (vis) start();
@@ -270,6 +290,7 @@ export function StarField({
       stop();
       unsubscribeScroll?.();
       io.disconnect();
+      observeServicesPause.disconnect();
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
       ctx.clearRect(0, 0, w, h);
@@ -279,7 +300,7 @@ export function StarField({
       canvas.height = 0;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visualBudget]);
+  }, [visualBudget, pauseWhenServicesActive]);
 
   return <canvas ref={ref} aria-hidden="true" className={className} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0, ...style }} />;
 }

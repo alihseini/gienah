@@ -15,6 +15,7 @@ export function HomeStarBackdrop({ visualBudget = "full" }: { visualBudget?: Vis
         constellations={false}
         shooting={false}
         scrollParallax
+        pauseWhenServicesActive={visualBudget !== "full"}
         visualBudget={visualBudget}
       />
     </div>

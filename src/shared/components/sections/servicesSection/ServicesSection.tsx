@@ -15,6 +15,7 @@ import {
   useVisualBudget,
   type VisualBudget,
 } from "@/shared/utils/visualBudget";
+import { lowEndMotionDevice } from "@/shared/utils/viewport";
 
 const SERVICES = servicesData as Service[];
 
@@ -38,11 +39,10 @@ function ServicePanel({
   const accent = gold ? "var(--gold-400)" : "var(--accent-400)";
   const panelShadow =
     visualBudget === "reduced"
-      ? "0 28px 64px -42px rgba(2,10,22,0.72), 0 1px 0 rgba(255,255,255,0.05) inset"
+      ? "0 16px 40px -34px rgba(2,10,22,0.68), 0 1px 0 rgba(255,255,255,0.05) inset"
       : visualBudget === "balanced"
-        ? "0 34px 78px -42px rgba(2,10,22,0.82), 0 1px 0 rgba(255,255,255,0.055) inset"
-        : "0 40px 90px -40px rgba(2,10,22,0.9), 0 1px 0 rgba(255,255,255,0.06) inset";
-  const backdropBlur = visualBudget === "full" ? "blur(8px)" : "none";
+        ? "0 20px 50px -36px rgba(2,10,22,0.74), 0 1px 0 rgba(255,255,255,0.055) inset"
+        : "0 24px 58px -36px rgba(2,10,22,0.82), 0 1px 0 rgba(255,255,255,0.06) inset";
   return (
     <div className={s.svcSlide} style={{ height: "100%" }}>
       <div
@@ -52,9 +52,7 @@ function ServicePanel({
           boxSizing: "border-box",
           padding: "clamp(28px, 3.2vw, 46px)",
           borderRadius: 26,
-          background: `radial-gradient(900px 360px at 100% -10%, ${glowA}, transparent 62%), radial-gradient(700px 320px at -8% 120%, ${glowB}, transparent 62%), rgb(15,23,40)`,
-          backdropFilter: backdropBlur,
-          WebkitBackdropFilter: backdropBlur,
+          background: `linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018)), radial-gradient(900px 360px at 100% -10%, ${glowA}, transparent 62%), radial-gradient(700px 320px at -8% 120%, ${glowB}, transparent 62%), rgb(15,23,40)`,
           border: "1px solid rgba(255,255,255,0.09)",
           boxShadow: panelShadow,
           display: "grid",
@@ -280,8 +278,27 @@ export function Services() {
   // useState made the reduced client hydrate a different tree than the SSR'd one
   // (hydration mismatch / React #418).
   const [reduce, setReduce] = React.useState(false);
+  const [plainStack, setPlainStack] = React.useState(false);
   React.useEffect(() => {
     setReduce(reduceMotion());
+  }, []);
+  React.useEffect(() => {
+    const apply = () => {
+      const coarse = window.matchMedia("(pointer: coarse)").matches;
+      const compact = window.matchMedia("(max-width: 1023px)").matches;
+      setPlainStack(coarse || compact || lowEndMotionDevice());
+    };
+    apply();
+    const coarseMq = window.matchMedia("(pointer: coarse)");
+    const narrowMq = window.matchMedia("(max-width: 760px)");
+    coarseMq.addEventListener("change", apply);
+    narrowMq.addEventListener("change", apply);
+    window.addEventListener("resize", apply);
+    return () => {
+      coarseMq.removeEventListener("change", apply);
+      narrowMq.removeEventListener("change", apply);
+      window.removeEventListener("resize", apply);
+    };
   }, []);
   // phones + tablets recede the deck without the upward lift (see computeCardStyle).
   // Kept in a ref so the rAF loop reads the live value without re-subscribing.
@@ -299,7 +316,7 @@ export function Services() {
   // carousel on mobile/tablet). Reduced-motion still falls back to a plain stack.
   const N = SERVICES.length;
   React.useEffect(() => {
-    if (reduce) return;
+    if (reduce || plainStack || visualBudget === "reduced") return;
     let active = true;
     let lastMeasureVersion = -1;
     let metrics = { top: 0, height: 0, deckHeight: 0 };
@@ -377,7 +394,15 @@ export function Services() {
     const io = new IntersectionObserver(
       ([entry]) => {
         active = entry.isIntersecting;
-        if (active) requestHomeScrollMeasureRefresh();
+        if (active) {
+          if (visualBudget !== "full")
+            document.documentElement.dataset.servicesScrollActive = "true";
+          requestHomeScrollMeasureRefresh();
+        } else if (
+          document.documentElement.dataset.servicesScrollActive === "true"
+        ) {
+          delete document.documentElement.dataset.servicesScrollActive;
+        }
       },
       { rootMargin: "120% 0px" },
     );
@@ -393,9 +418,11 @@ export function Services() {
       io.disconnect();
       ro.disconnect();
       unsubscribe();
+      if (document.documentElement.dataset.servicesScrollActive === "true")
+        delete document.documentElement.dataset.servicesScrollActive;
       resetWillChange();
     };
-  }, [reduce, N]);
+  }, [reduce, plainStack, visualBudget, N]);
 
   const Header = (
     <SectionHead
@@ -407,12 +434,16 @@ export function Services() {
     />
   );
 
-  if (reduce) {
+  const servicesMode =
+    reduce || plainStack || visualBudget === "reduced" ? "static" : "full";
+
+  if (servicesMode === "static") {
     return (
       <section
         id="services"
         className={s.panel}
         data-anim-pause
+        data-services-mode="static"
         style={{
           background: "transparent",
           overflow: "hidden",
@@ -444,6 +475,7 @@ export function Services() {
       id="services"
       className={s.panel}
       data-anim-pause
+      data-services-mode={servicesMode}
       style={{
         background: "transparent",
         overflow: "clip",
