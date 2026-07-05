@@ -7,60 +7,185 @@ import servicesData from "@/shared/data/services.json";
 import type { Service } from "@/shared/data/types";
 import { reduceMotion, _clamp, _lerp, easeOutCubic } from "../sectionUtils";
 import { stableViewportHeight } from "@/shared/utils/viewport";
-import { requestHomeScrollMeasureRefresh, subscribeHomeScrollFrame } from "@/shared/utils/homeScrollCoordinator";
-import { useVisualBudget, type VisualBudget } from "@/shared/utils/visualBudget";
+import {
+  requestHomeScrollMeasureRefresh,
+  subscribeHomeScrollFrame,
+} from "@/shared/utils/homeScrollCoordinator";
+import {
+  useVisualBudget,
+  type VisualBudget,
+} from "@/shared/utils/visualBudget";
 
 const SERVICES = servicesData as Service[];
 
 /* ---------------- services ---------------- */
-function ServicePanel({ s: svc, visualBudget }: { s: Service; visualBudget: VisualBudget }) {
+function ServicePanel({
+  s: svc,
+  visualBudget,
+}: {
+  s: Service;
+  visualBudget: VisualBudget;
+}) {
   const gold = svc.tone === "gold";
-  const glowScale = visualBudget === "reduced" ? 0.42 : visualBudget === "balanced" ? 0.68 : 1;
-  const glowA = gold ? `rgba(244,198,95,${(0.16 * glowScale).toFixed(3)})` : `rgba(88,171,206,${(0.16 * glowScale).toFixed(3)})`;
-  const glowB = gold ? `rgba(226,170,59,${(0.10 * glowScale).toFixed(3)})` : `rgba(42,146,204,${(0.12 * glowScale).toFixed(3)})`;
+  const glowScale =
+    visualBudget === "reduced" ? 0.42 : visualBudget === "balanced" ? 0.68 : 1;
+  const glowA = gold
+    ? `rgba(244,198,95,${(0.16 * glowScale).toFixed(3)})`
+    : `rgba(88,171,206,${(0.16 * glowScale).toFixed(3)})`;
+  const glowB = gold
+    ? `rgba(226,170,59,${(0.1 * glowScale).toFixed(3)})`
+    : `rgba(42,146,204,${(0.12 * glowScale).toFixed(3)})`;
   const accent = gold ? "var(--gold-400)" : "var(--accent-400)";
-  const panelShadow = visualBudget === "reduced"
-    ? "0 28px 64px -42px rgba(2,10,22,0.72), 0 1px 0 rgba(255,255,255,0.05) inset"
-    : visualBudget === "balanced"
-      ? "0 34px 78px -42px rgba(2,10,22,0.82), 0 1px 0 rgba(255,255,255,0.055) inset"
-      : "0 40px 90px -40px rgba(2,10,22,0.9), 0 1px 0 rgba(255,255,255,0.06) inset";
+  const panelShadow =
+    visualBudget === "reduced"
+      ? "0 28px 64px -42px rgba(2,10,22,0.72), 0 1px 0 rgba(255,255,255,0.05) inset"
+      : visualBudget === "balanced"
+        ? "0 34px 78px -42px rgba(2,10,22,0.82), 0 1px 0 rgba(255,255,255,0.055) inset"
+        : "0 40px 90px -40px rgba(2,10,22,0.9), 0 1px 0 rgba(255,255,255,0.06) inset";
   const backdropBlur = visualBudget === "full" ? "blur(8px)" : "none";
   return (
     <div className={s.svcSlide} style={{ height: "100%" }}>
       <div
         className={s.svcPanel}
         style={{
-          height: "100%", boxSizing: "border-box",
+          height: "100%",
+          boxSizing: "border-box",
           padding: "clamp(28px, 3.2vw, 46px)",
           borderRadius: 26,
           background: `radial-gradient(900px 360px at 100% -10%, ${glowA}, transparent 62%), radial-gradient(700px 320px at -8% 120%, ${glowB}, transparent 62%), rgb(15,23,40)`,
-          backdropFilter: backdropBlur, WebkitBackdropFilter: backdropBlur,
+          backdropFilter: backdropBlur,
+          WebkitBackdropFilter: backdropBlur,
           border: "1px solid rgba(255,255,255,0.09)",
           boxShadow: panelShadow,
-          display: "grid", gap: "clamp(28px, 4vw, 64px)", alignItems: "center",
+          display: "grid",
+          gap: "clamp(28px, 4vw, 64px)",
+          alignItems: "center",
           contain: "paint",
         }}
       >
-        <span className={s.svcRing} aria-hidden="true"><i /></span>
+        <span className={s.svcRing} aria-hidden="true">
+          <i />
+        </span>
         <div style={{ position: "relative", zIndex: 1 }}>
-          <div className={s.svcIconRow} style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 22 }}>
-            <span className={s.floatIcon} style={{ width: 64, height: 64, borderRadius: 18, background: "var(--brand-gradient-soft)", color: gold ? "var(--gold-700)" : "var(--accent-600)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", boxShadow: visualBudget === "reduced" ? "none" : `0 10px 30px -10px ${glowA}` }}><Icon name={svc.icon} size={30} /></span>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: accent, letterSpacing: "0.04em" }}>SERVICE {svc.no}</span>
+          <div
+            className={s.svcIconRow}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              marginBottom: 22,
+            }}
+          >
+            <span
+              className={s.floatIcon}
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: 18,
+                background: "var(--brand-gradient-soft)",
+                color: gold ? "var(--gold-700)" : "var(--accent-600)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: "none",
+                boxShadow:
+                  visualBudget === "reduced"
+                    ? "none"
+                    : `0 10px 30px -10px ${glowA}`,
+              }}
+            >
+              <Icon name={svc.icon} size={30} />
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 14,
+                color: accent,
+                letterSpacing: "0.04em",
+              }}
+            >
+              SERVICE {svc.no}
+            </span>
           </div>
-          <h3 style={{ fontSize: "clamp(34px, 4.4vw, 54px)", fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 18px", color: "#fff", lineHeight: 1.04 }}>{svc.title}</h3>
-          <p style={{ fontSize: "clamp(16px, 1.4vw, 19px)", lineHeight: 1.65, color: "var(--ink-text-dim)", margin: "0 0 24px", maxWidth: 440 }}>{svc.desc}</p>
-          <div className={s.svcTags} style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <h3
+            style={{
+              fontSize: "clamp(34px, 4.4vw, 54px)",
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              margin: "0 0 18px",
+              color: "#fff",
+              lineHeight: 1.04,
+            }}
+          >
+            {svc.title}
+          </h3>
+          <p
+            style={{
+              fontSize: "clamp(16px, 1.4vw, 19px)",
+              lineHeight: 1.65,
+              color: "var(--ink-text-dim)",
+              margin: "0 0 24px",
+              maxWidth: 440,
+            }}
+          >
+            {svc.desc}
+          </p>
+          <div
+            className={s.svcTags}
+            style={{ display: "flex", gap: 10, flexWrap: "wrap" }}
+          >
             {svc.tags.map((tg) => (
-              <span key={tg} style={{ fontSize: 13, fontWeight: 500, color: "#fff", padding: "7px 14px", borderRadius: 99, background: "rgba(255,255,255,0.07)", border: `1px solid ${gold ? "rgba(244,198,95,0.34)" : "rgba(88,171,206,0.34)"}` }}>{tg}</span>
+              <span
+                key={tg}
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: "#fff",
+                  padding: "7px 14px",
+                  borderRadius: 99,
+                  background: "rgba(255,255,255,0.07)",
+                  border: `1px solid ${gold ? "rgba(244,198,95,0.34)" : "rgba(88,171,206,0.34)"}`,
+                }}
+              >
+                {tg}
+              </span>
             ))}
           </div>
         </div>
-        <div className={s.svcCapsBlock} style={{ position: "relative", zIndex: 1 }}>
-          <div className={s.svcCapsLabel} style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-text-dim)", marginBottom: 16 }}>Capabilities</div>
+        <div
+          className={s.svcCapsBlock}
+          style={{ position: "relative", zIndex: 1 }}
+        >
+          <div
+            className={s.svcCapsLabel}
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 12,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--ink-text-dim)",
+              marginBottom: 16,
+            }}
+          >
+            Capabilities
+          </div>
           <div className={s.respGrid2} style={{ gap: "12px 22px" }}>
             {svc.caps.map((c) => (
-              <div key={c} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: "clamp(13.5px, 1.05vw, 15px)", color: "rgba(232,234,238,0.92)", lineHeight: 1.4 }}>
-                <span style={{ color: accent, marginTop: 2, flex: "none" }}><Icon name="check" size={15} /></span>{c}
+              <div
+                key={c}
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "flex-start",
+                  fontSize: "clamp(13.5px, 1.05vw, 15px)",
+                  color: "rgba(232,234,238,0.92)",
+                  lineHeight: 1.4,
+                }}
+              >
+                <span style={{ color: accent, marginTop: 2, flex: "none" }}>
+                  <Icon name="check" size={15} />
+                </span>
+                {c}
               </div>
             ))}
           </div>
@@ -88,22 +213,27 @@ function ServicePanel({ s: svc, visualBudget }: { s: Service; visualBudget: Visu
  * distance and bottom-peek scale with the actual card size at every breakpoint. */
 type CardStyle = { transform: string };
 const CARD_STYLE_CACHE = new WeakMap<HTMLElement, CardStyle>();
-function computeCardStyle(i: number, head: number, mobile: boolean, H: number): CardStyle {
+function computeCardStyle(
+  i: number,
+  head: number,
+  mobile: boolean,
+  H: number,
+): CardStyle {
   const rel = head - i;
-  const ENTER = Math.max(300, H * 1.16);        // larger rise distance leaves more air between cards
-  const PEEK_TOP = mobile ? 0 : 18;             // header sliver each passed card shows
+  const ENTER = Math.max(340, H + (mobile ? 36 : 48)); // larger rise distance leaves more air between cards
+  const PEEK_TOP = mobile ? 0 : 18; // header sliver each passed card shows
   let y: number, scale: number;
 
   if (rel >= 0) {
     // passed/active: stays in place, only eases up to peek above the new top card.
     // On phones PEEK_TOP is 0 (taller single-column cards would poke over the title),
-    // so passed cards simply sit covered — the rise-over still reads during scroll.
+    // so passed cards simply sit covered —w the rise-over still reads during scroll.
     const d = Math.min(rel, 3);
     y = -PEEK_TOP * d;
     scale = 1 - 0.018 * d;
   } else if (rel >= -1) {
     // entering: rise from the bottom-peek up to active, fading in.
-    const t = easeOutCubic(rel + 1);            // 0 at rel=-1 → 1 at rel=0
+    const t = easeOutCubic(rel + 1); // 0 at rel=-1 → 1 at rel=0
     y = _lerp(ENTER, 0, t);
     scale = _lerp(0.96, 1, t);
   } else {
@@ -142,13 +272,17 @@ export function Services() {
   // useState made the reduced client hydrate a different tree than the SSR'd one
   // (hydration mismatch / React #418).
   const [reduce, setReduce] = React.useState(false);
-  React.useEffect(() => { setReduce(reduceMotion()); }, []);
+  React.useEffect(() => {
+    setReduce(reduceMotion());
+  }, []);
   // phones + tablets recede the deck without the upward lift (see computeCardStyle).
   // Kept in a ref so the rAF loop reads the live value without re-subscribing.
   const mobileRef = React.useRef(false);
   React.useEffect(() => {
     const mq = window.matchMedia("(max-width: 1023px)");
-    const apply = () => { mobileRef.current = mq.matches; };
+    const apply = () => {
+      mobileRef.current = mq.matches;
+    };
     apply();
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
@@ -164,7 +298,10 @@ export function Services() {
     const docTop = (node: HTMLElement) => {
       let top = 0;
       let n: HTMLElement | null = node;
-      while (n) { top += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      while (n) {
+        top += n.offsetTop;
+        n = n.offsetParent as HTMLElement | null;
+      }
       return top;
     };
     const collect = () => {
@@ -178,7 +315,8 @@ export function Services() {
     };
     const resetWillChange = () => {
       cardRefs.current.forEach((node) => {
-        if (node && node.style.willChange !== "auto") node.style.willChange = "auto";
+        if (node && node.style.willChange !== "auto")
+          node.style.willChange = "auto";
       });
     };
     const update = (scrollY: number, vh: number) => {
@@ -193,20 +331,24 @@ export function Services() {
       const scrolled = _clamp(-top, 0, dist);
       // complete the reveal at 90% of the travel, leaving a brief "hold" on the last
       // card before the section unpins — feels deliberate rather than abrupt.
-      const progress = dist > 0 ? _clamp(scrolled / (dist * 0.94), 0, 1) : 0;
-      const head = progress * (N - 1);          // continuous playhead across the deck
-      const H = metrics.deckHeight || vh * 0.5;   // live card height
+      const progress = dist > 0 ? _clamp(scrolled / (dist * 0.82), 0, 1) : 0;
+      const head = progress * (N - 1); // continuous playhead across the deck
+      const H = metrics.deckHeight || vh * 0.5; // live card height
       for (let i = 0; i < N; i++) {
         const node = cardRefs.current[i];
         if (node) {
           const closeToViewport = Math.abs(head - i) < 1.35;
           const nextWillChange = closeToViewport ? "transform" : "auto";
-          if (node.style.willChange !== nextWillChange) node.style.willChange = nextWillChange;
+          if (node.style.willChange !== nextWillChange)
+            node.style.willChange = nextWillChange;
           writeCardStyle(node, computeCardStyle(i, head, mobileRef.current, H));
         }
       }
       const ni = _clamp(Math.round(head), 0, N - 1);
-      if (ni !== idxRef.current) { idxRef.current = ni; setActive(ni); }
+      if (ni !== idxRef.current) {
+        idxRef.current = ni;
+        setActive(ni);
+      }
     };
     collect();
     const unsubscribe = subscribeHomeScrollFrame({
@@ -217,13 +359,17 @@ export function Services() {
         }
       },
       write: (frame) => {
-        if (active) update(frame.scrollY, frame.viewportHeight || stableViewportHeight());
+        if (active)
+          update(frame.scrollY, frame.viewportHeight || stableViewportHeight());
       },
     });
-    const io = new IntersectionObserver(([entry]) => {
-      active = entry.isIntersecting;
-      if (active) requestHomeScrollMeasureRefresh();
-    }, { rootMargin: "120% 0px" });
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        active = entry.isIntersecting;
+        if (active) requestHomeScrollMeasureRefresh();
+      },
+      { rootMargin: "120% 0px" },
+    );
     if (trackRef.current) io.observe(trackRef.current);
     const ro = new ResizeObserver(() => {
       collect();
@@ -232,21 +378,50 @@ export function Services() {
     if (trackRef.current) ro.observe(trackRef.current);
     if (deckRef.current) ro.observe(deckRef.current);
     requestHomeScrollMeasureRefresh();
-    return () => { io.disconnect(); ro.disconnect(); unsubscribe(); resetWillChange(); };
+    return () => {
+      io.disconnect();
+      ro.disconnect();
+      unsubscribe();
+      resetWillChange();
+    };
   }, [reduce, N]);
 
   const Header = (
-    <SectionHead nodeId="services" tag="#Services" light title="Everything from idea to launch" sub="Four disciplines, one team — so your product stays coherent from the first conversation to its first users." />
+    <SectionHead
+      nodeId="services"
+      tag="#Services"
+      light
+      title="Everything from idea to launch"
+      sub="Four disciplines, one team — so your product stays coherent from the first conversation to its first users."
+    />
   );
 
   if (reduce) {
     return (
-      <section id="services" className={s.panel} data-anim-pause style={{ background: "transparent", overflow: "hidden", padding: "120px 0 96px", position: "relative", zIndex: 2 }}>
+      <section
+        id="services"
+        className={s.panel}
+        data-anim-pause
+        style={{
+          background: "transparent",
+          overflow: "hidden",
+          padding: "120px 0 96px",
+          position: "relative",
+          zIndex: 2,
+        }}
+      >
         <SectionConnector sectionKey="services" enter="l" exit="r" />
         <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
           {Header}
           <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-            {SERVICES.map((svc) => <div key={svc.title} style={{ minHeight: 320, position: "relative" }}><ServicePanel s={svc} visualBudget={visualBudget} /></div>)}
+            {SERVICES.map((svc) => (
+              <div
+                key={svc.title}
+                style={{ minHeight: 320, position: "relative" }}
+              >
+                <ServicePanel s={svc} visualBudget={visualBudget} />
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -254,13 +429,46 @@ export function Services() {
   }
 
   return (
-    <section id="services" className={s.panel} data-anim-pause style={{ background: "transparent", overflow: "clip", position: "relative", zIndex: 2 }}>
-      <div ref={trackRef} className={s.svcTrack} style={{ position: "relative", zIndex: 1, ["--svc-count" as string]: N }}>
-        <div className={s.svcStage} style={{ position: "sticky", top: 0, display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box", overflow: "hidden", background: "transparent" }}>
+    <section
+      id="services"
+      className={s.panel}
+      data-anim-pause
+      style={{
+        background: "transparent",
+        overflow: "clip",
+        position: "relative",
+        zIndex: 2,
+      }}
+    >
+      <div
+        ref={trackRef}
+        className={s.svcTrack}
+        style={{
+          position: "relative",
+          zIndex: 1,
+          ["--svc-count" as string]: N,
+        }}
+      >
+        <div
+          className={s.svcStage}
+          style={{
+            position: "sticky",
+            top: 0,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            boxSizing: "border-box",
+            overflow: "hidden",
+            background: "transparent",
+          }}
+        >
           {/* connector lives inside the pinned stage so it never drifts from the
               (sticky) title nodes; it draws in the side lanes, behind the deck */}
           <SectionConnector sectionKey="services" enter="l" exit="r" />
-          <div className={s.wrap} style={{ width: "100%", position: "relative", zIndex: 1 }}>
+          <div
+            className={s.wrap}
+            style={{ width: "100%", position: "relative", zIndex: 1 }}
+          >
             {Header}
             {/* The deck. Every card is absolutely stacked (inset:0); z-index = i+1 so
                 each new card layers ABOVE the previous one (newest in front, earlier
@@ -272,11 +480,14 @@ export function Services() {
               {SERVICES.map((svc, i) => (
                 <div
                   key={svc.title}
-                  ref={(el) => { cardRefs.current[i] = el; }}
+                  ref={(el) => {
+                    cardRefs.current[i] = el;
+                  }}
                   className={s.svcCard}
                   aria-hidden={i !== active}
                   style={{
-                    position: "absolute", inset: 0,
+                    position: "absolute",
+                    inset: 0,
                     zIndex: i + 1,
                     transformOrigin: "center top",
                     pointerEvents: i === active ? "auto" : "none",
@@ -287,9 +498,31 @@ export function Services() {
                 </div>
               ))}
             </div>
-            <div className={s.deckDots} style={{ display: "flex", justifyContent: "center", gap: 9, marginTop: 22 }}>
+            <div
+              className={s.deckDots}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 9,
+                marginTop: 22,
+              }}
+            >
               {SERVICES.map((svc, i) => (
-                <span key={svc.title} aria-hidden="true" style={{ width: i === active ? 26 : 8, height: 8, borderRadius: 99, background: i === active ? "var(--brand-gradient)" : "rgba(255,255,255,0.22)", transition: "width .4s var(--ease-out), background .4s var(--ease-out)" }} />
+                <span
+                  key={svc.title}
+                  aria-hidden="true"
+                  style={{
+                    width: i === active ? 26 : 8,
+                    height: 8,
+                    borderRadius: 99,
+                    background:
+                      i === active
+                        ? "var(--brand-gradient)"
+                        : "rgba(255,255,255,0.22)",
+                    transition:
+                      "width .4s var(--ease-out), background .4s var(--ease-out)",
+                  }}
+                />
               ))}
             </div>
           </div>

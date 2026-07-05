@@ -159,7 +159,8 @@
 .site :global([data-sx][data-shown]) {
   opacity: 1;
 }
-.layer {}
+.layer {
+}
 
 /* ===== safe stacked-panel overlap =====
    Every main section stays in normal document flow with its own solid background.
@@ -338,8 +339,13 @@
   animation: none;
 }
 @keyframes deviceFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-22px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-22px);
+  }
 }
 
 /* gentle floating for icon chips inside cards (Services) — subtle life, not scroll-linked */
@@ -347,8 +353,13 @@
   animation: iconFloat 5.5s var(--ease-in-out) infinite;
 }
 @keyframes iconFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-9px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
 }
 .productShot {
   width: 100%;
@@ -416,8 +427,12 @@
   transform: none;
 }
 /* alternation: odd rows put the visual on the right via grid order */
-.pjRow[data-reverse] .pjMedia { order: 2; }
-.pjRow[data-reverse] .pjBody { order: 1; }
+.pjRow[data-reverse] .pjMedia {
+  order: 2;
+}
+.pjRow[data-reverse] .pjBody {
+  order: 1;
+}
 .pjMedia {
   position: relative;
   display: flex;
@@ -436,7 +451,11 @@
   background: radial-gradient(circle, rgba(88, 171, 206, 0.5), transparent 70%);
 }
 .pjMediaGlow[data-tone="gold"] {
-  background: radial-gradient(circle, rgba(244, 198, 95, 0.45), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(244, 198, 95, 0.45),
+    transparent 70%
+  );
 }
 .pjBody {
   min-width: 0;
@@ -495,8 +514,12 @@
 }
 /* tablet: keep the two-column alternation, tighten the gutter */
 @media (max-width: 1023px) and (min-width: 768px) {
-  .pjList { gap: clamp(60px, 9vh, 120px); }
-  .pjRow { column-gap: clamp(26px, 4vw, 56px); }
+  .pjList {
+    gap: clamp(60px, 9vh, 120px);
+  }
+  .pjRow {
+    column-gap: clamp(26px, 4vw, 56px);
+  }
 }
 /* phones: single column, product visual ALWAYS above the text; the storyline drops into a
    thin left lane, so rows are padded left to clear the line + nodes — no overlap,
@@ -512,10 +535,17 @@
     transform: translateY(48px) scale(0.98);
   }
   .pjRow .pjMedia,
-  .pjRow[data-reverse] .pjMedia { order: 1; }
+  .pjRow[data-reverse] .pjMedia {
+    order: 1;
+  }
   .pjRow .pjBody,
-  .pjRow[data-reverse] .pjBody { order: 2; }
-  .pjMediaGlow { width: 58%; height: 48%; }
+  .pjRow[data-reverse] .pjBody {
+    order: 2;
+  }
+  .pjMediaGlow {
+    width: 58%;
+    height: 48%;
+  }
 }
 /* readable + static when motion is reduced (no reveal transform/blur) */
 @media (prefers-reduced-motion: reduce) {
@@ -751,8 +781,7 @@
   );
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
   pointer-events: none;
 }
 .fabBtn > * {
@@ -825,8 +854,7 @@
   );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   pointer-events: none;
 }
 .fabPanelInner {
@@ -909,8 +937,8 @@
   height: 100svh;
 }
 .svcTrack {
-  height: calc(var(--svc-count) * 118vh);
-  height: calc(var(--svc-count) * 118svh);
+  height: calc(var(--svc-count) * 96vh);
+  height: calc(var(--svc-count) * 96svh);
 }
 .svcStage {
   padding: 100px 0 52px;
@@ -1360,7 +1388,11 @@
   gap: 16px;
   padding: 22px 20px 24px;
   border-radius: 22px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.022));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.055),
+    rgba(255, 255, 255, 0.022)
+  );
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
@@ -1425,12 +1457,26 @@
   animation-name: hintArrowR;
 }
 @keyframes hintArrowL {
-  0%, 100% { transform: translateX(0); opacity: 0.45; }
-  50% { transform: translateX(-3px); opacity: 1; }
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translateX(-3px);
+    opacity: 1;
+  }
 }
 @keyframes hintArrowR {
-  0%, 100% { transform: translateX(0); opacity: 0.45; }
-  50% { transform: translateX(3px); opacity: 1; }
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translateX(3px);
+    opacity: 1;
+  }
 }
 /* services swipe carousel — cells stretch to a shared height so every card in
    the deck is the same size regardless of how much copy it holds */
@@ -1502,16 +1548,24 @@
   transform: none;
 }
 
-.site[data-visual-budget="balanced"] .pcarousel[data-enhanced] > .pcard[data-active],
-.site[data-visual-budget="balanced"] .pcarousel[data-enhanced] > .scard[data-active] {
+.site[data-visual-budget="balanced"]
+  .pcarousel[data-enhanced]
+  > .pcard[data-active],
+.site[data-visual-budget="balanced"]
+  .pcarousel[data-enhanced]
+  > .scard[data-active] {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.07),
     0 24px 58px -36px rgba(0, 0, 0, 0.84),
     0 0 30px -16px rgba(42, 146, 204, 0.34);
 }
 
-.site[data-visual-budget="reduced"] .pcarousel[data-enhanced] > .pcard[data-active],
-.site[data-visual-budget="reduced"] .pcarousel[data-enhanced] > .scard[data-active] {
+.site[data-visual-budget="reduced"]
+  .pcarousel[data-enhanced]
+  > .pcard[data-active],
+.site[data-visual-budget="reduced"]
+  .pcarousel[data-enhanced]
+  > .scard[data-active] {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
     0 20px 48px -36px rgba(0, 0, 0, 0.78);
