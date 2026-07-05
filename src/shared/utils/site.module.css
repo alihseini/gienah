@@ -361,6 +361,9 @@
     transform: translateY(-9px);
   }
 }
+.device {
+  width: 15rem;
+}
 .productShot {
   width: 100%;
   height: 100%;
