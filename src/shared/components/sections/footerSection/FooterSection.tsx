@@ -8,7 +8,7 @@ import site from "@/shared/data/site.json";
 export function Footer() {
   const NAV = site.nav as [string, string][];
   return (
-    <footer style={{ position: "relative", zIndex: 9, background: "transparent", padding: "56px 0 40px" }}>
+    <footer style={{ position: "relative", zIndex: 9, background: "transparent", padding: "2rem 0 2.5rem" }}>
       <div className={s.wrap} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <img src="/assets/logo-mark.png" alt="" style={{ height: 28, width: "auto" }} />
