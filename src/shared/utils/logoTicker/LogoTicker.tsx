@@ -8,7 +8,13 @@ import t from "./logoTicker.module.css";
 import { requestHomeScrollMeasureRefresh, subscribeHomeScrollFrame } from "../homeScrollCoordinator";
 import { stableViewportHeight } from "../viewport";
 
-type Partner = { id: string; name: string; logo: string | null; url: string | null };
+type Partner = {
+  id: string;
+  name: string;
+  logo: string | null;
+  url: string | null;
+  isStatic?: boolean;
+};
 
 const PARTNERS = partners as Partner[];
 
@@ -122,35 +128,54 @@ function TickerBridge() {
   );
 }
 
-/* Data-driven, seamless logo marquee. The list is rendered twice so a -50%
-   translate loops without a gap. Logos that have no asset fall back to a wordmark. */
+function PartnerItem({ partner, featured = false, duplicate = false }: { partner: Partner; featured?: boolean; duplicate?: boolean }) {
+  const inner = partner.logo ? (
+    <ImageLazy className={featured ? t.featuredLogo : t.logo} src={partner.logo} alt={partner.name} />
+  ) : (
+    <span className={featured ? t.featuredWordmark : t.wordmark}>{partner.name}</span>
+  );
+
+  if (partner.url && !duplicate) {
+    return (
+      <a className={featured ? t.featuredItem : t.item} href={partner.url} target="_blank" rel="noopener noreferrer">
+        {inner}
+      </a>
+    );
+  }
+
+  return (
+    <span className={featured ? t.featuredItem : t.item} aria-hidden={duplicate || undefined}>
+      {inner}
+    </span>
+  );
+}
+
+/* Data-driven, seamless logo marquee. Moving partners are rendered twice so a
+   -50% translate loops without a gap; logos without assets fall back to wordmarks. */
 export function LogoTicker() {
-  const row = [...PARTNERS, ...PARTNERS];
+  const staticPartners = PARTNERS.filter((partner) => partner.isStatic);
+  const movingPartners = PARTNERS.filter((partner) => !partner.isStatic);
+  const row = [...movingPartners, ...movingPartners];
+
   return (
     <div className={t.shell} data-anim-pause>
       {/* The journey passes through the transparent ticker, below the logos. */}
       <div className={t.connectorLayer} aria-hidden="true">
         <TickerBridge />
       </div>
-      <div className={t.wrap} role="region" aria-label="Companies we've worked with">
-      <div className={t.track}>
-        {row.map((p, i) => {
-          const dup = i >= PARTNERS.length;
-          const inner = p.logo ? (
-            <ImageLazy className={t.logo} src={p.logo} alt={p.name} />
-          ) : (
-            <span className={t.wordmark}>{p.name}</span>
-          );
-          if (p.url && !dup) {
-            return (
-              <a key={i} className={t.item} href={p.url} target="_blank" rel="noopener noreferrer">{inner}</a>
-            );
-          }
-          return (
-            <span key={i} className={t.item} aria-hidden={dup || undefined}>{inner}</span>
-          );
-        })}
+
+      <div className={t.featuredRow} aria-label="Featured partners">
+        {staticPartners.map((partner) => (
+          <PartnerItem key={partner.id} partner={partner} featured />
+        ))}
       </div>
+
+      <div className={t.wrap} role="region" aria-label="Companies we've worked with">
+        <div className={t.track}>
+          {row.map((partner, i) => (
+            <PartnerItem key={`${partner.id}-${i}`} partner={partner} duplicate={i >= movingPartners.length} />
+          ))}
+        </div>
       </div>
     </div>
   );

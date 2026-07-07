@@ -3,13 +3,15 @@
     "id": "tapsi",
     "name": "Tapsi",
     "logo": "/logos/tapsi.avif",
-    "url": "https://tapsi.ir"
+    "url": "https://tapsi.ir",
+    "isStatic": true
   },
   {
     "id": "snapp",
     "name": "snapp",
     "logo": "/logos/snapp.avif",
-    "url": "https://snapp.ir"
+    "url": "https://snapp.ir",
+    "isStatic": true
   },
   {
     "id": "iran-airshow",
@@ -21,7 +23,8 @@
     "id": "air",
     "name": "Air",
     "logo": "/logos/air.avif",
-    "url": null
+    "url": null,
+    "isStatic": true
   },
   {
     "id": "charb-chimie",
