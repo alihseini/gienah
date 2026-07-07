@@ -20,7 +20,14 @@
 }
 .accent {
   display: inline-block;
-  background-image: linear-gradient(90deg, #58abce, #2a92cc, #f4c65f, #e2aa3b, #58abce);
+  background-image: linear-gradient(
+    90deg,
+    #58abce,
+    #2a92cc,
+    #f4c65f,
+    #e2aa3b,
+    #58abce
+  );
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -36,9 +43,25 @@
   animation: diaFlow 16s linear infinite;
 }
 @keyframes diaFlow {
-  to { background-position: 200% 0; }
+  to {
+    background-position: 200% 0;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .word { opacity: 1; transform: none; transition: none; }
-  .accent { animation: none; }
+  .word {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .accent {
+    animation: none;
+  }
+}
+
+.suffix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.75rem;
+  vertical-align: middle;
 }

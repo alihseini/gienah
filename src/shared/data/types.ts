@@ -8,6 +8,7 @@ export type Product = {
   tech: string;
   tone: Tone;
   featured: boolean;
+  featuredIcon?: string;
   website?: string;
   download?: string;
   banner: string | null;

@@ -17,6 +17,7 @@ export function HeadingReveal({
   style,
   stagger = 75,
   lcpSafe = false,
+  suffix,
 }: {
   segments: HeadingSeg[];
   as?: React.ElementType;
@@ -24,6 +25,7 @@ export function HeadingReveal({
   style?: React.CSSProperties;
   stagger?: number;
   lcpSafe?: boolean;
+  suffix?: React.ReactNode;
 }) {
   const ref = React.useRef<HTMLElement>(null);
   const [shown, setShown] = React.useState(lcpSafe);
@@ -37,7 +39,10 @@ export function HeadingReveal({
     }
     const el = ref.current;
     if (!el) return;
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
       setShown(true);
       return;
     }
@@ -51,40 +56,78 @@ export function HeadingReveal({
     let io: IntersectionObserver | undefined;
     try {
       io = new IntersectionObserver(
-        ([e]) => { if (e.isIntersecting) { setShown(true); io && io.disconnect(); } },
-        { threshold: 0.2, rootMargin: "0px 0px -8% 0px" }
+        ([e]) => {
+          if (e.isIntersecting) {
+            setShown(true);
+            io && io.disconnect();
+          }
+        },
+        { threshold: 0.2, rootMargin: "0px 0px -8% 0px" },
       );
       io.observe(el);
     } catch {
       setShown(true);
     }
-    return () => { if (io) io.disconnect(); };
+    return () => {
+      if (io) io.disconnect();
+    };
   }, [ready, lcpSafe]);
 
   const tokens = React.useMemo(() => {
-    const out: ({ type: "word"; w: string; accent: boolean } | { type: "br" })[] = [];
+    const out: (
+      | { type: "word"; w: string; accent: boolean }
+      | { type: "br" }
+    )[] = [];
     segments.forEach((seg) => {
-      if (seg.br) { out.push({ type: "br" }); return; }
-      (seg.text || "").trim().split(/\s+/).forEach((w) => { if (w) out.push({ type: "word", w, accent: !!seg.accent }); });
+      if (seg.br) {
+        out.push({ type: "br" });
+        return;
+      }
+      (seg.text || "")
+        .trim()
+        .split(/\s+/)
+        .forEach((w) => {
+          if (w) out.push({ type: "word", w, accent: !!seg.accent });
+        });
     });
     return out;
   }, [segments]);
-
   let wi = 0;
+
   return (
-    <Tag ref={ref} className={[lcpSafe ? s.lcpSafe : "", shown ? s.revealed : "", accentReady ? s.accentReady : "", className].filter(Boolean).join(" ")} style={style}>
+    <Tag
+      ref={ref}
+      className={`${className} ${shown ? s.revealed : ""} ${
+        lcpSafe ? s.lcpSafe : ""
+      } ${accentReady ? s.accentReady : ""}`}
+      style={style}
+    >
       {tokens.map((t, i) => {
         if (t.type === "br") return <br key={i} />;
+
         const delay = wi * stagger;
         wi++;
+
         return (
-          <React.Fragment key={i}>
-            <span className={s.word} style={{ ["--d" as string]: `${delay}ms` } as React.CSSProperties}>
-              {t.accent ? <span className={s.accent}>{t.w}</span> : t.w}
-            </span>{" "}
-          </React.Fragment>
+          <span
+            key={i}
+            className={s.word}
+            style={{ "--d": `${delay}ms` } as React.CSSProperties}
+          >
+            {t.accent ? <span className={s.accent}>{t.w}</span> : t.w}{" "}
+          </span>
         );
       })}
+
+      {suffix ? (
+        <span
+          className={`${s.word} ${s.suffix}`}
+          style={{ "--d": `${wi * stagger}ms` } as React.CSSProperties}
+          aria-hidden="true"
+        >
+          {suffix}
+        </span>
+      ) : null}
     </Tag>
   );
 }

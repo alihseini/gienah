@@ -7,6 +7,7 @@
     "tech": "Next · Node.js",
     "tone": "azure",
     "featured": true,
+    "featuredIcon": "/logos/snapp.avif",
     "banner": "/banners/snapp-banner.avif",
     "shots": [
       "/snapp/snapp-screens/snapp-screen-1.avif",
@@ -37,6 +38,7 @@
     "tech": "React · Node.js",
     "tone": "gold",
     "featured": true,
+    "featuredIcon": "/logos/tapsi.png",
     "banner": "/banners/garage-banner.avif",
     "shots": [
       "/garage/garage-ui/garage-ui1.avif",
@@ -65,6 +67,7 @@
     "tech": "React · Node.js · Python · Ai",
     "tone": "azure",
     "featured": true,
+    "featuredIcon": "/logos/air.png",
     "banner": "/banners/air-banner.avif",
     "shots": ["/air/air-ui/air-ui1.avif", "/air/air-ui/air-ui2.avif"],
     "landingShot": "/mockups/air-main.avif",
@@ -140,6 +143,7 @@
     "tech": "React · Node.js",
     "tone": "gold",
     "featured": false,
+    "featuredIcon": "/logos/tapsi.png",
     "banner": "/banners/legal-banner.avif",
     "shots": [
       "/legal/legal-ui/legal-ui1.avif",
@@ -182,6 +186,7 @@
     "tech": "React · Node.js · PWA",
     "tone": "gold",
     "featured": false,
+    "featuredIcon": "/logos/tapsi.png",
     "banner": "/banners/hr-banner.avif",
     "shots": [
       "/hr/hr-ui/tapsi-ui1.avif",

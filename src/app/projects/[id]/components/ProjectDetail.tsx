@@ -6,7 +6,13 @@ import { Button, Badge, Icon, ImageLazy } from "@/shared/components";
 import { ScrollProgress, siteStyles } from "@/shared/utils/helpers";
 import { HeadingReveal } from "@/shared/utils/headingReveal/HeadingReveal";
 import { StarField } from "@/shared/utils/starfield/StarField";
-import { Stagger, StaggerItem, FadeIn, Lift, Press } from "@/shared/utils/motion/motion";
+import {
+  Stagger,
+  StaggerItem,
+  FadeIn,
+  Lift,
+  Press,
+} from "@/shared/utils/motion/motion";
 import { useVisualBudget } from "@/shared/utils/visualBudget";
 import { motion, useReducedMotion } from "motion/react";
 import productsData from "@/shared/data/products.json";
@@ -19,28 +25,78 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 type ShotOrientation = "unknown" | "portrait" | "landscape";
 
 function toneBg(tone: Tone, strong: boolean) {
-  if (tone === "gold") return strong ? "linear-gradient(150deg, #f4d485, #e2aa3b 70%, #c68d28)" : "linear-gradient(150deg, #fdf6e6, #f4d485)";
-  return strong ? "linear-gradient(150deg, #a7d8f1, #2a92cc 70%, #1f7cae)" : "linear-gradient(150deg, #ecf6fc, #a7d8f1)";
+  if (tone === "gold")
+    return strong
+      ? "linear-gradient(150deg, #f4d485, #e2aa3b 70%, #c68d28)"
+      : "linear-gradient(150deg, #fdf6e6, #f4d485)";
+  return strong
+    ? "linear-gradient(150deg, #a7d8f1, #2a92cc 70%, #1f7cae)"
+    : "linear-gradient(150deg, #ecf6fc, #a7d8f1)";
 }
 
-const techTokens = (tech: string) => tech.split(/[·,•|]/).map((t) => t.trim()).filter(Boolean);
+const techTokens = (tech: string) =>
+  tech
+    .split(/[·,•|]/)
+    .map((t) => t.trim())
+    .filter(Boolean);
 
 /* Reusable case-study extras: use authored data when present, otherwise derive
    premium fallbacks from category/tech so EVERY project renders fully. */
-function deriveHighlights(p: Product): { icon: string; title: string; desc: string }[] {
+function deriveHighlights(
+  p: Product,
+): { icon: string; title: string; desc: string }[] {
   if (p.highlights?.length) return p.highlights.slice(0, 4);
   const t = p.tech.toLowerCase();
   const c = p.category.toLowerCase();
   const out: { icon: string; title: string; desc: string }[] = [];
-  const add = (icon: string, title: string, desc: string) => { if (out.length < 4 && !out.some((o) => o.title === title)) out.push({ icon, title, desc }); };
-  if (/\bai\b|llm|ml\b|intelligen/.test(t)) add("sparkles", "AI-powered", "Smart features tuned to each user's intent.");
-  if (/pwa/.test(c) || /pwa/.test(t)) add("smartphone", "Installable PWA", "App-like, fast, and offline-ready — no store needed.");
-  if (/admin|panel|dashboard/.test(c)) add("layout-dashboard", "Admin tooling", "Operational dashboards for the team behind it.");
-  if (/real-?time|live|socket|node/.test(t)) add("activity", "Real-time experience", "Live data with instant, seamless updates.");
-  add("palette", "Considered UI/UX", "A clean, premium interface from first tap to last.");
-  add("smartphone", "Fully responsive", "Fluid and sharp from mobile to desktop.");
-  add("gauge", "Built to scale", "Architected for growth and real-world performance.");
-  add("shield-check", "Robust & reliable", "Stable foundations users can trust.");
+  const add = (icon: string, title: string, desc: string) => {
+    if (out.length < 4 && !out.some((o) => o.title === title))
+      out.push({ icon, title, desc });
+  };
+  if (/\bai\b|llm|ml\b|intelligen/.test(t))
+    add(
+      "sparkles",
+      "AI-powered",
+      "Smart features tuned to each user's intent.",
+    );
+  if (/pwa/.test(c) || /pwa/.test(t))
+    add(
+      "smartphone",
+      "Installable PWA",
+      "App-like, fast, and offline-ready — no store needed.",
+    );
+  if (/admin|panel|dashboard/.test(c))
+    add(
+      "layout-dashboard",
+      "Admin tooling",
+      "Operational dashboards for the team behind it.",
+    );
+  if (/real-?time|live|socket|node/.test(t))
+    add(
+      "activity",
+      "Real-time experience",
+      "Live data with instant, seamless updates.",
+    );
+  add(
+    "palette",
+    "Considered UI/UX",
+    "A clean, premium interface from first tap to last.",
+  );
+  add(
+    "smartphone",
+    "Fully responsive",
+    "Fluid and sharp from mobile to desktop.",
+  );
+  add(
+    "gauge",
+    "Built to scale",
+    "Architected for growth and real-world performance.",
+  );
+  add(
+    "shield-check",
+    "Robust & reliable",
+    "Stable foundations users can trust.",
+  );
   return out.slice(0, 4);
 }
 
@@ -49,7 +105,9 @@ function deriveDelivered(p: Product): string[] {
   const t = p.tech.toLowerCase();
   const c = p.category.toLowerCase();
   const out: string[] = ["UI/UX Design"];
-  out.push(/pwa/.test(c) || /pwa/.test(t) ? "PWA Development" : "Frontend Engineering");
+  out.push(
+    /pwa/.test(c) || /pwa/.test(t) ? "PWA Development" : "Frontend Engineering",
+  );
   out.push("Product Architecture");
   if (/\bai\b|llm|ml\b/.test(t)) out.push("AI Integration");
   if (/real-?time|live|socket|node/.test(t)) out.push("Real-time Experience");
@@ -60,7 +118,15 @@ function deriveDelivered(p: Product): string[] {
 
 /* opacity + y + scale reveal (reduced motion → instant; targets kept identical
    for hydration safety, only the transition changes). */
-function RevealScale({ children, className, style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+function RevealScale({
+  children,
+  className,
+  style,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   const reduce = useReducedMotion();
   return (
     <motion.div
@@ -76,8 +142,18 @@ function RevealScale({ children, className, style }: { children: React.ReactNode
   );
 }
 
-function ScreensGallery({ shots, title, tone }: { shots: (string | null)[]; title: string; tone: Tone }) {
-  const [orientations, setOrientations] = React.useState<Record<string, ShotOrientation>>({});
+function ScreensGallery({
+  shots,
+  title,
+  tone,
+}: {
+  shots: (string | null)[];
+  title: string;
+  tone: Tone;
+}) {
+  const [orientations, setOrientations] = React.useState<
+    Record<string, ShotOrientation>
+  >({});
   const [openShot, setOpenShot] = React.useState<string | null>(null);
   const portalAccentStyle = {
     "--proj-rgb": tone === "gold" ? "244, 198, 95" : "88, 171, 206",
@@ -97,28 +173,45 @@ function ScreensGallery({ shots, title, tone }: { shots: (string | null)[]; titl
     };
   }, [openShot]);
 
-  const updateOrientation = React.useCallback((src: string, img: HTMLImageElement) => {
-    const next: ShotOrientation = img.naturalWidth >= img.naturalHeight ? "landscape" : "portrait";
-    setOrientations((current) => (current[src] === next ? current : { ...current, [src]: next }));
-  }, []);
+  const updateOrientation = React.useCallback(
+    (src: string, img: HTMLImageElement) => {
+      const next: ShotOrientation =
+        img.naturalWidth >= img.naturalHeight ? "landscape" : "portrait";
+      setOrientations((current) =>
+        current[src] === next ? current : { ...current, [src]: next },
+      );
+    },
+    [],
+  );
 
   return (
     <>
       <Stagger className={d.gallery} gap={0.07}>
         {shots.map((src, i) => {
-          const orientation = src ? orientations[src] ?? "unknown" : "portrait";
+          const orientation = src
+            ? (orientations[src] ?? "unknown")
+            : "portrait";
           const itemStyle = {
             "--shot-span": orientation === "landscape" ? "span 2" : "span 1",
             "--shot-mobile-basis": orientation === "landscape" ? "86%" : "64%",
           } as React.CSSProperties;
 
           return (
-            <Lift asItem key={src ?? `placeholder-${i}`} className={d.gItem} style={itemStyle}>
+            <Lift
+              asItem
+              key={src ?? `placeholder-${i}`}
+              className={d.gItem}
+              style={itemStyle}
+            >
               <button
                 type="button"
                 className={d.gShot}
                 data-orientation={orientation}
-                style={{ background: src ? "var(--bg-subtle)" : toneBg(tone, i % 2 === 0) }}
+                style={{
+                  background: src
+                    ? "var(--bg-subtle)"
+                    : toneBg(tone, i % 2 === 0),
+                }}
                 onClick={() => src && setOpenShot(src)}
                 disabled={!src}
                 aria-label={src ? `Open ${title} screen ${i + 1}` : undefined}
@@ -127,12 +220,28 @@ function ScreensGallery({ shots, title, tone }: { shots: (string | null)[]; titl
                   <ImageLazy
                     src={src}
                     alt={`${title} screen ${i + 1}`}
-                    onLoad={(event) => updateOrientation(src, event.currentTarget)}
+                    onLoad={(event) =>
+                      updateOrientation(src, event.currentTarget)
+                    }
                   />
                 ) : (
                   <div className={d.showPlaceholder}>
-                    <ImageLazy src="/assets/logo-mark.png" alt="" style={{ height: 34, width: "auto", opacity: 0.9 }} />
-                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".08em", opacity: 0.82 }}>Screen {i + 1}</div>
+                    <ImageLazy
+                      src="/assets/logo-mark.png"
+                      alt=""
+                      style={{ height: 34, width: "auto", opacity: 0.9 }}
+                    />
+                    <div
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: 11,
+                        textTransform: "uppercase",
+                        letterSpacing: ".08em",
+                        opacity: 0.82,
+                      }}
+                    >
+                      Screen {i + 1}
+                    </div>
                   </div>
                 )}
               </button>
@@ -151,11 +260,24 @@ function ScreensGallery({ shots, title, tone }: { shots: (string | null)[]; titl
             style={portalAccentStyle}
             onClick={() => setOpenShot(null)}
           >
-            <button type="button" className={d.lightboxClose} aria-label="Close screenshot preview" onClick={() => setOpenShot(null)}>
+            <button
+              type="button"
+              className={d.lightboxClose}
+              aria-label="Close screenshot preview"
+              onClick={() => setOpenShot(null)}
+            >
               &times;
             </button>
-            <div className={d.lightboxPanel} onClick={(event) => event.stopPropagation()}>
-              <img src={openShot} alt={`${title} enlarged screenshot`} loading="lazy" decoding="async" />
+            <div
+              className={d.lightboxPanel}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <img
+                src={openShot}
+                alt={`${title} enlarged screenshot`}
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           </div>,
           document.body,
@@ -166,11 +288,29 @@ function ScreensGallery({ shots, title, tone }: { shots: (string | null)[]; titl
 
 function NotFound() {
   return (
-    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", textAlign: "center" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        textAlign: "center",
+      }}
+    >
       <div>
         <div style={{ fontSize: 22, fontWeight: 600 }}>Project not found</div>
-        <p style={{ color: "var(--text-secondary)", marginTop: 8 }}>That project doesn&apos;t exist.</p>
-        <div style={{ marginTop: 18 }}><Button variant="primary" className={siteStyles.btnGlow} as="a" href="/">Back to Gienah</Button></div>
+        <p style={{ color: "var(--text-secondary)", marginTop: 8 }}>
+          That project doesn&apos;t exist.
+        </p>
+        <div style={{ marginTop: 18 }}>
+          <Button
+            variant="primary"
+            className={siteStyles.btnGlow}
+            as="a"
+            href="/"
+          >
+            Back to Gienah
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -180,16 +320,35 @@ export function ProjectDetail({ id }: { id: number }) {
   const router = useRouter();
   const visualBudget = useVisualBudget();
   const p = PRODUCTS.find((x) => x.id === id);
-  if (!p) return <div className={d.page}><NotFound /></div>;
+  if (!p)
+    return (
+      <div className={d.page}>
+        <NotFound />
+      </div>
+    );
   const idx = ORDER.indexOf(id);
   const next = PRODUCTS.find((x) => x.id === ORDER[(idx + 1) % ORDER.length])!;
-  const shots = p.shots.length ? p.shots : Array.from({ length: 3 }, () => null);
-  const catBadge = p.tone === "gold" ? siteStyles.darkBadgeWarning : siteStyles.darkBadgeAccent;
+  const shots = p.shots.length
+    ? p.shots
+    : Array.from({ length: 3 }, () => null);
+  const catBadge =
+    p.tone === "gold"
+      ? siteStyles.darkBadgeWarning
+      : siteStyles.darkBadgeAccent;
   const highlights = deriveHighlights(p);
   const delivered = deriveDelivered(p);
   const tokens = techTokens(p.tech);
-  const handleAllProjectsClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+  const handleAllProjectsClick = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+  ) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
       return;
     }
 
@@ -204,7 +363,8 @@ export function ProjectDetail({ id }: { id: number }) {
         shouldGoBack =
           referrer.origin === window.location.origin &&
           referrerPath !== currentPath &&
-          (referrer.pathname === "/" || !referrer.pathname.startsWith("/projects/"));
+          (referrer.pathname === "/" ||
+            !referrer.pathname.startsWith("/projects/"));
       } catch {
         shouldGoBack = false;
       }
@@ -219,18 +379,64 @@ export function ProjectDetail({ id }: { id: number }) {
   };
 
   return (
-    <div className={d.page} data-tone={p.tone} data-visual-budget={visualBudget}>
+    <div
+      className={d.page}
+      data-tone={p.tone}
+      data-visual-budget={visualBudget}
+    >
       <div className={d.canvas} aria-hidden="true" />
-      <StarField className={d.starField} style={{ position: "fixed", zIndex: 0 }} density={5000} maxCount={420} shadow={false} constellations={false} />
+      <StarField
+        className={d.starField}
+        style={{ position: "fixed", zIndex: 0 }}
+        density={5000}
+        maxCount={420}
+        shadow={false}
+        constellations={false}
+      />
       <ScrollProgress />
       <div style={{ height: 3, background: "var(--brand-gradient)" }} />
       <header className={d.header}>
-        <div className={d.wrap} style={{ height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-            <img src="/assets/logo-mark.png" alt="" style={{ height: 28, width: "auto" }} />
-            <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em" }}>Gienah</span>
+        <div
+          className={d.wrap}
+          style={{
+            height: 60,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <a
+            href="/"
+            style={{ display: "inline-flex", alignItems: "center", gap: 10 }}
+          >
+            <img
+              src="/assets/logo-mark.png"
+              alt=""
+              style={{ height: 28, width: "auto" }}
+            />
+            <span
+              style={{
+                fontSize: 18,
+                fontWeight: 600,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Gienah
+            </span>
           </a>
-          <Press><Button size="sm" variant="ghost" className={siteStyles.btnGhostDark} as="a" href="/#products" onClick={handleAllProjectsClick} trailingIcon={<Icon name="arrow-right" size={15} />}>All projects</Button></Press>
+          <Press>
+            <Button
+              size="sm"
+              variant="ghost"
+              className={siteStyles.btnGhostDark}
+              as="a"
+              href="/#products"
+              onClick={handleAllProjectsClick}
+              trailingIcon={<Icon name="arrow-right" size={15} />}
+            >
+              All projects
+            </Button>
+          </Press>
         </div>
       </header>
 
@@ -243,22 +449,102 @@ export function ProjectDetail({ id }: { id: number }) {
           <FadeIn>
             <div className={d.kicker}>Show Projects</div>
           </FadeIn>
-          <Stagger style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "14px 0 4px" }} gap={0.07}>
-            <StaggerItem as="span"><Badge variant={p.tone === "gold" ? "warning" : "accent"} className={catBadge}>{p.category}</Badge></StaggerItem>
-            <StaggerItem as="span"><Badge variant="neutral" className={siteStyles.darkBadgeNeutral}>{p.year}</Badge></StaggerItem>
+          <Stagger
+            style={{
+              display: "flex",
+              gap: 8,
+              flexWrap: "wrap",
+              margin: "14px 0 4px",
+            }}
+            gap={0.07}
+          >
+            <StaggerItem as="span">
+              <Badge
+                variant={p.tone === "gold" ? "warning" : "accent"}
+                className={catBadge}
+              >
+                {p.category}
+              </Badge>
+            </StaggerItem>
+            <StaggerItem as="span">
+              <Badge variant="neutral" className={siteStyles.darkBadgeNeutral}>
+                {p.year}
+              </Badge>
+            </StaggerItem>
           </Stagger>
-          <HeadingReveal as="h1" className={d.heroTitle} segments={[{ text: p.title }]} />
-          {p.blurb && <FadeIn delay={0.1}><p className={d.heroLede}>{p.blurb}</p></FadeIn>}
+          <HeadingReveal
+            as="h1"
+            className={d.heroTitle}
+            segments={[{ text: p.title, accent: true }]}
+            suffix={
+              p.featuredIcon ? (
+                <span className={d.heroTitleIcon}>
+                  <ImageLazy
+                    src={p.featuredIcon}
+                    alt=""
+                    width={56}
+                    height={56}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </span>
+              ) : null
+            }
+          />
+          {p.blurb && (
+            <FadeIn delay={0.1}>
+              <p className={d.heroLede}>{p.blurb}</p>
+            </FadeIn>
+          )}
           <FadeIn delay={0.16}>
             <div className={d.stackRow}>
-              {tokens.map((t) => <span key={t} className={d.stackPill}>{t}</span>)}
+              {tokens.map((t) => (
+                <span key={t} className={d.stackPill}>
+                  {t}
+                </span>
+              ))}
             </div>
           </FadeIn>
           {(p.website || p.download) && (
             <FadeIn delay={0.22}>
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 26 }}>
-                {p.website && <Press><Button variant="primary" className={siteStyles.btnGlow} as="a" href={p.website} target="_blank" rel="noopener" trailingIcon={<Icon name="external-link" size={15} />}>Visit website</Button></Press>}
-                {p.download && <Press><Button variant="secondary" className={siteStyles.btnSecondaryDark} as="a" href={p.download} target="_blank" rel="noopener" leadingIcon={<Icon name="download" size={15} />}>Download</Button></Press>}
+              <div
+                style={{
+                  display: "flex",
+                  gap: 12,
+                  flexWrap: "wrap",
+                  marginTop: 26,
+                }}
+              >
+                {p.website && (
+                  <Press>
+                    <Button
+                      variant="primary"
+                      className={siteStyles.btnGlow}
+                      as="a"
+                      href={p.website}
+                      target="_blank"
+                      rel="noopener"
+                      trailingIcon={<Icon name="external-link" size={15} />}
+                    >
+                      Visit website
+                    </Button>
+                  </Press>
+                )}
+                {p.download && (
+                  <Press>
+                    <Button
+                      variant="secondary"
+                      className={siteStyles.btnSecondaryDark}
+                      as="a"
+                      href={p.download}
+                      target="_blank"
+                      rel="noopener"
+                      leadingIcon={<Icon name="download" size={15} />}
+                    >
+                      Download
+                    </Button>
+                  </Press>
+                )}
               </div>
             </FadeIn>
           )}
@@ -266,17 +552,39 @@ export function ProjectDetail({ id }: { id: number }) {
       </section>
 
       {/* ---------- main showcase ---------- */}
-      <section className={d.wrap} style={{ position: "relative", zIndex: 2, marginTop: -6 }}>
+      <section
+        className={d.wrap}
+        style={{ position: "relative", zIndex: 2, marginTop: -6 }}
+      >
         <RevealScale>
           <figure className={d.showcase}>
             <div className={d.showGlow} aria-hidden="true" />
-            <div className={d.showInner} style={{ background: p.banner ? "var(--bg-subtle)" : toneBg(p.tone, true) }}>
+            <div
+              className={d.showInner}
+              style={{
+                background: p.banner
+                  ? "var(--bg-subtle)"
+                  : toneBg(p.tone, true),
+              }}
+            >
               {p.banner ? (
                 <img src={p.banner} alt={p.title} />
               ) : (
                 <div className={d.showPlaceholder}>
-                  <img src="/assets/logo-mark.png" alt="" style={{ height: 56, width: "auto", opacity: 0.95 }} />
-                  <div style={{ fontSize: "clamp(24px,3vw,34px)", fontWeight: 700, letterSpacing: "-0.02em" }}>{p.title}</div>
+                  <img
+                    src="/assets/logo-mark.png"
+                    alt=""
+                    style={{ height: 56, width: "auto", opacity: 0.95 }}
+                  />
+                  <div
+                    style={{
+                      fontSize: "clamp(24px,3vw,34px)",
+                      fontWeight: 700,
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    {p.title}
+                  </div>
                 </div>
               )}
               <span className={d.sweep} aria-hidden="true" />
@@ -288,19 +596,37 @@ export function ProjectDetail({ id }: { id: number }) {
       {/* ---------- overview + at a glance ---------- */}
       <section style={{ position: "relative", overflow: "hidden", zIndex: 1 }}>
         <div className={d.softGlow} data-pos="left" aria-hidden="true" />
-        <div className={d.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 64, paddingBottom: 24 }}>
+        <div
+          className={d.wrap}
+          style={{
+            position: "relative",
+            zIndex: 1,
+            paddingTop: 64,
+            paddingBottom: 24,
+          }}
+        >
           <div className={d.overviewGrid}>
             <div>
-              <FadeIn><div className={d.eyebrow}>Overview</div></FadeIn>
+              <FadeIn>
+                <div className={d.eyebrow}>Overview</div>
+              </FadeIn>
               {p.desc.map((para, i) => (
-                <FadeIn key={i} delay={0.05 + i * 0.04}><p className={d.body}>{para}</p></FadeIn>
+                <FadeIn key={i} delay={0.05 + i * 0.04}>
+                  <p className={d.body}>{para}</p>
+                </FadeIn>
               ))}
             </div>
             <FadeIn delay={0.1}>
               <aside className={d.aside}>
                 <Lift className={d.glance}>
                   <div className={d.glanceTitle}>At a glance</div>
-                  {([["Year", p.year], ["Category", p.category], ["Stack", p.tech]] as [string, string][]).map(([k, v]) => (
+                  {(
+                    [
+                      ["Year", p.year],
+                      ["Category", p.category],
+                      ["Stack", p.tech],
+                    ] as [string, string][]
+                  ).map(([k, v]) => (
                     <div key={k} className={d.glanceRow}>
                       <span className={d.glanceKey}>{k}</span>
                       <span className={d.glanceVal}>{v}</span>
@@ -308,8 +634,35 @@ export function ProjectDetail({ id }: { id: number }) {
                   ))}
                   {(p.website || p.download) && (
                     <div className={d.glanceCta}>
-                      {p.website && <Button size="sm" variant="primary" className={siteStyles.btnGlow} as="a" href={p.website} target="_blank" rel="noopener" trailingIcon={<Icon name="arrow-up-right" size={14} />}>Visit</Button>}
-                      {p.download && <Button size="sm" variant="secondary" className={siteStyles.btnSecondaryDark} as="a" href={p.download} target="_blank" rel="noopener">Download</Button>}
+                      {p.website && (
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          className={siteStyles.btnGlow}
+                          as="a"
+                          href={p.website}
+                          target="_blank"
+                          rel="noopener"
+                          trailingIcon={
+                            <Icon name="arrow-up-right" size={14} />
+                          }
+                        >
+                          Visit
+                        </Button>
+                      )}
+                      {p.download && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className={siteStyles.btnSecondaryDark}
+                          as="a"
+                          href={p.download}
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          Download
+                        </Button>
+                      )}
                     </div>
                   )}
                 </Lift>
@@ -320,12 +673,24 @@ export function ProjectDetail({ id }: { id: number }) {
       </section>
 
       {/* ---------- project highlights ---------- */}
-      <section className={d.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 28, paddingBottom: 12 }}>
-        <FadeIn><div className={d.eyebrow}>Project highlights</div></FadeIn>
+      <section
+        className={d.wrap}
+        style={{
+          position: "relative",
+          zIndex: 1,
+          paddingTop: 28,
+          paddingBottom: 12,
+        }}
+      >
+        <FadeIn>
+          <div className={d.eyebrow}>Project highlights</div>
+        </FadeIn>
         <Stagger className={d.highlights} gap={0.08}>
           {highlights.map((h) => (
             <Lift asItem key={h.title} className={d.hcard}>
-              <span className={d.hIcon}><Icon name={h.icon} size={22} /></span>
+              <span className={d.hIcon}>
+                <Icon name={h.icon} size={22} />
+              </span>
               <div className={d.hTitle}>{h.title}</div>
               <div className={d.hDesc}>{h.desc}</div>
             </Lift>
@@ -334,12 +699,24 @@ export function ProjectDetail({ id }: { id: number }) {
       </section>
 
       {/* ---------- what we delivered ---------- */}
-      <section className={d.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 36, paddingBottom: 12 }}>
-        <FadeIn><div className={d.eyebrow}>What we delivered</div></FadeIn>
+      <section
+        className={d.wrap}
+        style={{
+          position: "relative",
+          zIndex: 1,
+          paddingTop: 36,
+          paddingBottom: 12,
+        }}
+      >
+        <FadeIn>
+          <div className={d.eyebrow}>What we delivered</div>
+        </FadeIn>
         <Stagger className={d.delivered} gap={0.06}>
           {delivered.map((item) => (
             <StaggerItem key={item} className={d.ditem}>
-              <span className={d.dDot}><Icon name="check" size={14} /></span>
+              <span className={d.dDot}>
+                <Icon name="check" size={14} />
+              </span>
               <span>{item}</span>
             </StaggerItem>
           ))}
@@ -347,8 +724,20 @@ export function ProjectDetail({ id }: { id: number }) {
       </section>
 
       {/* ---------- screens gallery ---------- */}
-      <section className={d.wrap} style={{ position: "relative", zIndex: 1, paddingTop: 40, paddingBottom: 80 }}>
-        <FadeIn><div className={d.eyebrow} style={{ marginBottom: 22 }}>Screens</div></FadeIn>
+      <section
+        className={d.wrap}
+        style={{
+          position: "relative",
+          zIndex: 1,
+          paddingTop: 40,
+          paddingBottom: 80,
+        }}
+      >
+        <FadeIn>
+          <div className={d.eyebrow} style={{ marginBottom: 22 }}>
+            Screens
+          </div>
+        </FadeIn>
         <ScreensGallery shots={shots} title={p.title} tone={p.tone} />
       </section>
 
@@ -360,14 +749,28 @@ export function ProjectDetail({ id }: { id: number }) {
             <FadeIn>
               <a href={`/projects/${next.id}`} className={d.nextProject}>
                 <span className={d.nextKicker}>Next project</span>
-                <span className={d.nextTitle}>{next.title}<Icon name="arrow-right" size={22} /></span>
+                <span className={d.nextTitle}>
+                  {next.title}
+                  <Icon name="arrow-right" size={22} />
+                </span>
                 <span className={d.nextMeta}>{next.category}</span>
               </a>
             </FadeIn>
             <FadeIn delay={0.08}>
               <div className={d.outroCta}>
                 <div className={d.outroCtaText}>Have a product in mind?</div>
-                <Press><Button variant="primary" className={[siteStyles.btnGlow, d.ctaBtn].join(" ")} size="lg" as="a" href="/#contact" trailingIcon={<Icon name="arrow-right" size={16} />}>Start a project</Button></Press>
+                <Press>
+                  <Button
+                    variant="primary"
+                    className={[siteStyles.btnGlow, d.ctaBtn].join(" ")}
+                    size="lg"
+                    as="a"
+                    href="/#contact"
+                    trailingIcon={<Icon name="arrow-right" size={16} />}
+                  >
+                    Start a project
+                  </Button>
+                </Press>
               </div>
             </FadeIn>
           </div>
