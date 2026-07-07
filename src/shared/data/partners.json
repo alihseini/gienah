@@ -2,7 +2,7 @@
   {
     "id": "tapsi",
     "name": "Tapsi",
-    "logo": "/logos/tapsi.avif",
+    "logo": "/logos/tapsi.png",
     "url": "https://tapsi.ir",
     "isStatic": true
   },
@@ -22,7 +22,7 @@
   {
     "id": "air",
     "name": "Air",
-    "logo": "/logos/air.avif",
+    "logo": "/logos/air.png",
     "url": null,
     "isStatic": true
   },
