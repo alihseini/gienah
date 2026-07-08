@@ -1398,6 +1398,22 @@ section[data-services-mode] .floatIcon {
 }
 /* mobile / small-tablet: the floating menu stacks vertically — the horizontal
    pill doesn't fit and would clip its items */
+@media (max-width: 767px) {
+  section[data-services-mode="static"] .svcSlide,
+  section[data-services-mode="static"] .svcPanel {
+    min-height: 495px;
+  }
+
+  .svcCapsBlock .respGrid2 {
+    grid-template-columns: 1fr !important;
+    align-content: start !important;
+    gap: 8px !important;
+  }
+
+  .svcCapsBlock .respGrid2 > div {
+    line-height: 1.32 !important;
+  }
+}
 @media (max-width: 860px) {
   .fabOpen .fabPanel {
     width: min(248px, calc(100vw - 24px)) !important;
