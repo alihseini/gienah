@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { Fragment } from "react";
 import s from "./headingReveal.module.css";
 import { useJourneyReady } from "../journeyGate/JourneyGate";
 import { stableViewportHeight } from "../viewport";
@@ -109,24 +109,28 @@ export function HeadingReveal({
         wi++;
 
         return (
-          <span
-            key={i}
-            className={s.word}
-            style={{ "--d": `${delay}ms` } as React.CSSProperties}
-          >
-            {t.accent ? <span className={s.accent}>{t.w}</span> : t.w}{" "}
-          </span>
+          <Fragment key={i}>
+            <span
+              className={s.word}
+              style={{ "--d": `${delay}ms` } as React.CSSProperties}
+            >
+              {t.accent ? <span className={s.accent}>{t.w}</span> : t.w}
+            </span>{" "}
+          </Fragment>
         );
       })}
 
       {suffix ? (
-        <span
-          className={`${s.word} ${s.suffix}`}
-          style={{ "--d": `${wi * stagger}ms` } as React.CSSProperties}
-          aria-hidden="true"
-        >
-          {suffix}
-        </span>
+        <>
+          {" "}
+          <span
+            className={`${s.word} ${s.suffix}`}
+            style={{ "--d": `${wi * stagger}ms` } as React.CSSProperties}
+            aria-hidden="true"
+          >
+            {suffix}
+          </span>
+        </>
       ) : null}
     </Tag>
   );
