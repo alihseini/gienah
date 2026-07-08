@@ -5,6 +5,14 @@ export function stableViewportHeight() {
   return document.documentElement.clientHeight || window.innerHeight || 1;
 }
 
+export function isMobileOrPortraitTablet() {
+  if (typeof window === "undefined") return false;
+  const width = window.innerWidth || document.documentElement.clientWidth || 0;
+  const height = window.innerHeight || document.documentElement.clientHeight || 0;
+
+  return width < 768 || (width <= 1024 && height > width);
+}
+
 export function safariScrollLayerLock() {
   if (typeof window === "undefined") return false;
   const touchSafari = CSS.supports("-webkit-touch-callout", "none");

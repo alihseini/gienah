@@ -10,6 +10,7 @@ import { JourneyGate, JourneyActivateProvider } from "./journeyGate/JourneyGate"
 import { Hero } from "../components/sections/heroSection/HeroSection";
 import { HomeStarBackdrop } from "./homeStarBackdrop/HomeStarBackdrop";
 import { useVisualBudget } from "./visualBudget";
+import { isMobileOrPortraitTablet, stableViewportHeight } from "./viewport";
 import {
   loadAgileSection,
   loadFeaturedProductsSection,
@@ -36,6 +37,9 @@ const prewarmMarkerStyle: React.CSSProperties = {
   visibility: "hidden",
 };
 
+const JOURNEY_SECTION_KEYS = ["services", "products", "studio", "agile", "contact"] as const;
+type JourneySectionKey = (typeof JOURNEY_SECTION_KEYS)[number];
+
 /* Constellation journey — now PER SECTION (no page-wide overlay). Each section
    mounts its own SectionConnector that draws its slice of the line behind that
    section's content (see SectionConnector.tsx). The journey reads:
@@ -54,6 +58,14 @@ export function SiteApp() {
 
   const [active, setActive] = React.useState<Record<string, boolean>>({});
   const activate = React.useCallback((k: string) => setActive((a) => (a[k] ? a : { ...a, [k]: true })), []);
+  const earlyRevealRefs = React.useRef<Partial<Record<JourneySectionKey, HTMLElement>>>({});
+  const setEarlyRevealRef = React.useCallback(
+    (sectionKey: JourneySectionKey) => (node: HTMLElement | null) => {
+      if (node) earlyRevealRefs.current[sectionKey] = node;
+      else delete earlyRevealRefs.current[sectionKey];
+    },
+    [],
+  );
 
   // reduced motion → never gate; reveal everything immediately
   React.useEffect(() => {
@@ -72,6 +84,68 @@ export function SiteApp() {
     };
   }, [visualBudget]);
 
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    let observer: IntersectionObserver | undefined;
+    let resizeTimer = 0;
+
+    const teardown = () => {
+      observer?.disconnect();
+      observer = undefined;
+    };
+
+    const activatePassedTriggers = () => {
+      const revealLine = stableViewportHeight() * 0.8;
+      JOURNEY_SECTION_KEYS.forEach((sectionKey) => {
+        const node = earlyRevealRefs.current[sectionKey];
+        if (node && node.getBoundingClientRect().top <= revealLine) activate(sectionKey);
+      });
+    };
+
+    const setup = () => {
+      teardown();
+      if (!isMobileOrPortraitTablet()) return;
+
+      activatePassedTriggers();
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            const sectionKey = (entry.target as HTMLElement).dataset.journeyReveal as
+              | JourneySectionKey
+              | undefined;
+            if (sectionKey) activate(sectionKey);
+            observer?.unobserve(entry.target);
+          });
+        },
+        { threshold: 0, rootMargin: "0px 0px -20% 0px" },
+      );
+
+      JOURNEY_SECTION_KEYS.forEach((sectionKey) => {
+        const node = earlyRevealRefs.current[sectionKey];
+        if (node) observer?.observe(node);
+      });
+    };
+
+    const scheduleSetup = () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(setup, 120);
+    };
+
+    setup();
+    window.addEventListener("resize", scheduleSetup);
+    window.addEventListener("orientationchange", scheduleSetup);
+
+    return () => {
+      teardown();
+      window.clearTimeout(resizeTimer);
+      window.removeEventListener("resize", scheduleSetup);
+      window.removeEventListener("orientationchange", scheduleSetup);
+    };
+  }, [activate]);
+
   return (
     <JourneyActivateProvider activate={activate}>
       <div className={s.site} data-visual-budget={visualBudget}>
@@ -80,15 +154,16 @@ export function SiteApp() {
         <Nav />
         <Hero />
         <LogoTicker />
-        <span {...{ [PREWARM_ATTR]: "services" }} aria-hidden="true" style={prewarmMarkerStyle} />
+        <span ref={setEarlyRevealRef("services")} data-journey-reveal="services" {...{ [PREWARM_ATTR]: "services" }} aria-hidden="true" style={prewarmMarkerStyle} />
         <JourneyGate ready={!!active.services}><Services /></JourneyGate>
-        <span {...{ [PREWARM_ATTR]: "products" }} aria-hidden="true" style={prewarmMarkerStyle} />
+        <span ref={setEarlyRevealRef("products")} data-journey-reveal="products" {...{ [PREWARM_ATTR]: "products" }} aria-hidden="true" style={prewarmMarkerStyle} />
         <JourneyGate ready={!!active.products}><Featured /></JourneyGate>
-        <span {...{ [PREWARM_ATTR]: "studio" }} aria-hidden="true" style={prewarmMarkerStyle} />
+        <span ref={setEarlyRevealRef("studio")} data-journey-reveal="studio" {...{ [PREWARM_ATTR]: "studio" }} aria-hidden="true" style={prewarmMarkerStyle} />
         <JourneyGate ready={!!active.studio}><MoreProducts /></JourneyGate>
-        <span {...{ [PREWARM_ATTR]: "agile" }} aria-hidden="true" style={prewarmMarkerStyle} />
+        <span ref={setEarlyRevealRef("agile")} data-journey-reveal="agile" {...{ [PREWARM_ATTR]: "agile" }} aria-hidden="true" style={prewarmMarkerStyle} />
         <JourneyGate ready={!!active.agile}><Agile /></JourneyGate>
         <About />
+        <span ref={setEarlyRevealRef("contact")} data-journey-reveal="contact" aria-hidden="true" style={prewarmMarkerStyle} />
         <JourneyGate ready={!!active.contact}><Contact /></JourneyGate>
         <Footer />
       </div>

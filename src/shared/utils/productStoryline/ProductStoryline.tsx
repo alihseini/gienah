@@ -2,7 +2,7 @@
 import * as React from "react";
 import { motion, useMotionValue, useReducedMotion } from "motion/react";
 import st from "./productStoryline.module.css";
-import { stableViewportHeight } from "../viewport";
+import { isMobileOrPortraitTablet, stableViewportHeight } from "../viewport";
 import { requestHomeScrollMeasureRefresh, subscribeHomeScrollFrame } from "../homeScrollCoordinator";
 
 /* ProductStoryline
@@ -292,6 +292,45 @@ export function ProductStoryline({ count }: { count: number }) {
         }
       }
     };
+    let earlyRevealObserver: IntersectionObserver | undefined;
+    let resizeTimer = 0;
+    const revealPassedRows = () => {
+      const revealLine = stableViewportHeight() * 0.8;
+      rows.forEach((row) => {
+        if (!row.hasAttribute("data-revealed") && row.getBoundingClientRect().top <= revealLine) {
+          row.setAttribute("data-revealed", "");
+        }
+      });
+    };
+    const disconnectEarlyReveal = () => {
+      earlyRevealObserver?.disconnect();
+      earlyRevealObserver = undefined;
+    };
+    const setupEarlyReveal = () => {
+      disconnectEarlyReveal();
+      if (!isMobileOrPortraitTablet()) return;
+
+      revealPassedRows();
+
+      earlyRevealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            (entry.target as HTMLElement).setAttribute("data-revealed", "");
+            earlyRevealObserver?.unobserve(entry.target);
+          });
+        },
+        { threshold: 0, rootMargin: "0px 0px -20% 0px" },
+      );
+
+      rows.forEach((row) => {
+        if (!row.hasAttribute("data-revealed")) earlyRevealObserver?.observe(row);
+      });
+    };
+    const scheduleEarlyRevealSetup = () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(setupEarlyReveal, 120);
+    };
     const update = (scrollY: number, vh: number) => {
       const top = metrics.top - scrollY;
       const bottom = top + metrics.height;
@@ -323,6 +362,9 @@ export function ProductStoryline({ count }: { count: number }) {
       if (active) requestHomeScrollMeasureRefresh();
     }, { rootMargin: "120% 0px" });
     io.observe(svg);
+    setupEarlyReveal();
+    window.addEventListener("resize", scheduleEarlyRevealSetup);
+    window.addEventListener("orientationchange", scheduleEarlyRevealSetup);
     const ro = new ResizeObserver(() => {
       collect();
       requestHomeScrollMeasureRefresh();
@@ -330,7 +372,15 @@ export function ProductStoryline({ count }: { count: number }) {
     ro.observe(svg);
     ro.observe(list);
     requestHomeScrollMeasureRefresh();
-    return () => { io.disconnect(); ro.disconnect(); unsubscribe(); };
+    return () => {
+      io.disconnect();
+      disconnectEarlyReveal();
+      window.clearTimeout(resizeTimer);
+      window.removeEventListener("resize", scheduleEarlyRevealSetup);
+      window.removeEventListener("orientationchange", scheduleEarlyRevealSetup);
+      ro.disconnect();
+      unsubscribe();
+    };
   }, [reduce, draw, geo.nodeFracs, geo.h]);
 
   return (
