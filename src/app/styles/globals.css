@@ -15,15 +15,23 @@
    (ConstellationJourney) that travels through each section title's anchor nodes —
    no inter-section gap blocks, so sections flow tightly as before. */
 
+:root {
+  background-color: #050b14 !important;
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
 
 html {
   min-height: 100%;
+  min-height: 100dvh;
   scroll-behavior: smooth;
-  background: var(--bg-base, #050b14);
+  background-color: #050b14 !important;
+  background: #050b14 !important;
   color-scheme: dark;
+  overscroll-behavior-y: none;
 
   /* App-matched scrollbar (Firefox): brand-blue thumb on a dark track. */
   scrollbar-width: thin;
@@ -32,26 +40,37 @@ html {
 
 body {
   min-height: 100%;
+  min-height: 100dvh;
   margin: 0;
-  background: var(--bg-base, #050b14);
+  background-color: #050b14 !important;
+  background: #050b14 !important;
   color: var(--text-primary);
   color-scheme: dark;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
 
   /* the constellation overlay can bow past the viewport edge; never let that
      surface a horizontal scrollbar. */
   overflow-x: hidden;
 }
 
+/* App / page root fallback */
+body > div,
+main {
+  background-color: #050b14;
+}
+
 /* iOS Safari / PWA safe-area top cover */
 body::before {
   content: "";
   position: fixed;
-  inset: 0 0 auto 0;
-  height: env(safe-area-inset-top);
-  background: var(--bg-base, #050b14);
-  z-index: 9999;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: max(env(safe-area-inset-top), 24px);
+  background: #050b14;
+  z-index: 2147483647;
   pointer-events: none;
 }
 
@@ -59,15 +78,13 @@ body::before {
 body::after {
   content: "";
   position: fixed;
-  inset: auto 0 0 0;
-  height: env(safe-area-inset-bottom);
-  background: var(--bg-base, #050b14);
-  z-index: 9999;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: max(env(safe-area-inset-bottom), 16px);
+  background: #050b14;
+  z-index: 2147483647;
   pointer-events: none;
-}
-
-main {
-  background: var(--bg-base, #050b14);
 }
 
 a {
