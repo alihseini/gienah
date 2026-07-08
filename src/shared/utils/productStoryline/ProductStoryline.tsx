@@ -173,9 +173,10 @@ export function ProductStoryline({ count }: { count: number }) {
     // wire on this section's bottom edge directly ABOVE the studio LEFT title node,
     // so it flows straight down into the studio connector (which uses enterTop, a
     // drop onto that node) as one continuous line — no detour out to the side lane.
-    // On phones the studio connector still enters from the off-screen side lane, so
-    // there we target that lane instead. secBottom converts section→pjList y; the
-    // studio node / lane give the x in the storyline SVG's space.
+    // On phones the studio connector now enters from the compact visible lane, so
+    // target that same lane instead of the old off-screen hand-off. secBottom
+    // converts section→pjList y; the studio node / lane give the x in the
+    // storyline SVG's space.
     const section = list.closest("section") as HTMLElement | null;
     let bridge: Pt | null = null;
     if (section) {
@@ -187,7 +188,7 @@ export function ProductStoryline({ count }: { count: number }) {
       if (!mob && studioL) {
         bridge = { x: docPos(studioL).x + studioL.offsetWidth / 2 - lp.x, y: secBottomLocal + 2 };
       } else {
-        const laneL = secW < 768 ? -0.1 * secW : Math.max(34, inset * secW);
+        const laneL = secW < 768 ? Math.max(18, secW * 0.055) : Math.max(34, inset * secW);
         bridge = { x: laneL - (lp.x - sp.x), y: secBottomLocal + 2 };
       }
     }

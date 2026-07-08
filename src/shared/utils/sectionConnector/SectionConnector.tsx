@@ -228,8 +228,9 @@ export function SectionConnector({
     // node's level, then a short horizontal stub into the node (and the reverse on
     // exit) — the on-screen part is only the stub, in the empty margin beside the
     // title, never over the text. Desktop (>= 1024) keeps the original diagonal.
-    const mob = w < 1024;
-    const tabletStacked = w >= 768 && w < 1024;
+    const portraitTablet = w <= 1024 && h > w;
+    const mob = w < 1024 || portraitTablet;
+    const tabletStacked = w >= 768 && mob;
     const arc = mob ? 54 : 42;
     let nodeY: number | null = null; // entry-node local y (arrival timing)
 
@@ -263,14 +264,23 @@ export function SectionConnector({
         // enterTop (tablet + desktop, w≥768): the previous section hands the journey
         // down from directly above, so drop straight onto the node instead of
         // sweeping in from the side lane. True phones (<768) keep the lane route.
-        if (gap && tabletStacked) {
-          const lx = laneX(enter ?? "r", w);
-          const bend = Math.min(220, w * 0.28);
+        if (gap && mob) {
+          const rx = laneX("r", w);
+          const railX = en.x;
+          const turnY = Math.max(48, Math.min(96, en.y - 260));
+          const drop = en.y - turnY;
+          const railApproach = Math.min(90, Math.max(42, drop * 0.2));
 
           push(
-            { x: lx, y: 0 },
-            { x: lx, y: en.y * 0.48 },
-            { x: en.x + bend, y: en.y },
+            { x: rx, y: 0 },
+            { x: rx, y: turnY * 0.72 },
+            { x: railX, y: turnY - railApproach },
+            { x: railX, y: turnY },
+          );
+          push(
+            { x: railX, y: turnY },
+            { x: railX, y: turnY + drop * 0.34 },
+            { x: railX, y: en.y - Math.min(72, drop * 0.18) },
             en,
           );
         } else if (enterTop && tabletStacked) {
