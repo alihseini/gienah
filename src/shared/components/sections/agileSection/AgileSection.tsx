@@ -8,7 +8,10 @@ import agileData from "@/shared/data/agile.json";
 import type { AgileStage } from "@/shared/data/types";
 import { reduceMotion } from "../sectionUtils";
 import { stableViewportHeight } from "@/shared/utils/viewport";
-import { requestHomeScrollMeasureRefresh, subscribeHomeScrollFrame } from "@/shared/utils/homeScrollCoordinator";
+import {
+  requestHomeScrollMeasureRefresh,
+  subscribeHomeScrollFrame,
+} from "@/shared/utils/homeScrollCoordinator";
 
 const AGILE = agileData as AgileStage[];
 
@@ -21,22 +24,64 @@ function AgilePanel({ st, i }: { st: AgileStage; i: number }) {
     <div className={ag.panel}>
       <div style={{ position: "relative", zIndex: 1 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <span className={ag.iconChip} style={{ color: accent }}><Icon name={st.icon} size={26} /></span>
-          <span className={ag.num} style={{ color: accent }}>0{i + 1}</span>
+          <span className={ag.iconChip} style={{ color: accent }}>
+            <Icon name={st.icon} size={26} />
+          </span>
+          <span className={ag.num} style={{ color: accent }}>
+            0{i + 1}
+          </span>
         </div>
         <div className={ag.name}>{st.name}</div>
         <div>
           {st.items.map((it) => (
-            <div key={it} className={ag.item}><span className={ag.dot} style={{ background: accent }} />{it}</div>
+            <div key={it} className={ag.item}>
+              <span className={ag.dot} style={{ background: accent }} />
+              {it}
+            </div>
           ))}
         </div>
       </div>
       <div className={ag.illus}>
-        <div className={ag.illusGlow} data-parallax="30" style={{ background: `radial-gradient(circle at 60% 42%, rgba(${rgb},0.28), transparent 65%)` }} />
-        <div className={ag.illusIcon} data-parallax="46" style={{ color: `rgba(${rgb},0.5)` }}><Icon name={st.icon} size={132} /></div>
-        <span className={[ag.streak, gold ? "" : ag.streakBlue].join(" ")} style={{ top: "22%", ["--sd" as string]: "7s" } as React.CSSProperties} />
-        <span className={ag.streak} style={{ top: "50%", ["--sd" as string]: "9s", animationDelay: "-2s" } as React.CSSProperties} />
-        <span className={[ag.streak, gold ? "" : ag.streakBlue].join(" ")} style={{ top: "76%", ["--sd" as string]: "8s", animationDelay: "-4s" } as React.CSSProperties} />
+        <div
+          className={ag.illusGlow}
+          data-parallax="30"
+          style={{
+            background: `radial-gradient(circle at 60% 42%, rgba(${rgb},0.28), transparent 65%)`,
+          }}
+        />
+        <div
+          className={ag.illusIcon}
+          data-parallax="46"
+          style={{ color: `rgba(${rgb},0.5)` }}
+        >
+          <Icon name={st.icon} size={132} />
+        </div>
+        <span
+          className={[ag.streak, gold ? "" : ag.streakBlue].join(" ")}
+          style={
+            { top: "22%", ["--sd" as string]: "7s" } as React.CSSProperties
+          }
+        />
+        <span
+          className={ag.streak}
+          style={
+            {
+              top: "50%",
+              ["--sd" as string]: "9s",
+              animationDelay: "-2s",
+            } as React.CSSProperties
+          }
+        />
+        <span
+          className={[ag.streak, gold ? "" : ag.streakBlue].join(" ")}
+          style={
+            {
+              top: "76%",
+              ["--sd" as string]: "8s",
+              animationDelay: "-4s",
+            } as React.CSSProperties
+          }
+        />
       </div>
     </div>
   );
@@ -46,7 +91,11 @@ export function Agile() {
   const timelineRef = React.useRef<HTMLDivElement>(null);
   // curved connector path through every card's node, measured from layout (so the
   // cards' reveal transforms never shift the anchors). Recomputed on resize.
-  const [conn, setConn] = React.useState<{ d: string; w: number; h: number } | null>(null);
+  const [conn, setConn] = React.useState<{
+    d: string;
+    w: number;
+    h: number;
+  } | null>(null);
 
   // reveal each card when it nears the viewport (runs once; stays revealed on scroll-up)
   React.useEffect(() => {
@@ -58,12 +107,19 @@ export function Agile() {
       return;
     }
     const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) { (e.target as HTMLElement).dataset.shown = ""; io.unobserve(e.target); } }),
-      { threshold: 0.25, rootMargin: "0px 0px -10% 0px" }
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            (e.target as HTMLElement).dataset.shown = "";
+            io.unobserve(e.target);
+          }
+        }),
+      { threshold: 0.25, rootMargin: "0px 0px -10% 0px" },
     );
     slots.forEach((el) => {
       const r = el.getBoundingClientRect();
-      if (r.top < stableViewportHeight() * 0.85 && r.bottom > 0) el.dataset.shown = "";
+      if (r.top < stableViewportHeight() * 0.85 && r.bottom > 0)
+        el.dataset.shown = "";
       else io.observe(el);
     });
     return () => io.disconnect();
@@ -74,9 +130,15 @@ export function Agile() {
     const root = timelineRef.current;
     if (!root) return;
     const build = () => {
-      const slots = Array.from(root.querySelectorAll<HTMLElement>("[data-slot]"));
-      if (slots.length < 2) { setConn(null); return; }
-      const w = root.clientWidth, h = root.clientHeight;
+      const slots = Array.from(
+        root.querySelectorAll<HTMLElement>("[data-slot]"),
+      );
+      if (slots.length < 2) {
+        setConn(null);
+        return;
+      }
+      const w = root.clientWidth,
+        h = root.clientHeight;
       // anchor = each card's node center, derived from layout offsets (transform-free).
       // right card (i even): node on its inner/left edge; left card: inner/right edge.
       const pts = slots.map((slot, i) => {
@@ -87,7 +149,8 @@ export function Agile() {
       });
       let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
       for (let i = 1; i < pts.length; i++) {
-        const a = pts[i - 1], b = pts[i];
+        const a = pts[i - 1],
+          b = pts[i];
         const my = (a.y + b.y) / 2; // control points at the vertical midpoint → soft S-curve
         d += ` C ${a.x.toFixed(1)} ${my.toFixed(1)} ${b.x.toFixed(1)} ${my.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
       }
@@ -108,7 +171,10 @@ export function Agile() {
     const ro = new ResizeObserver(build);
     ro.observe(root);
     const t = setTimeout(build, 400); // re-measure after fonts/layout settle
-    return () => { ro.disconnect(); clearTimeout(t); };
+    return () => {
+      ro.disconnect();
+      clearTimeout(t);
+    };
   }, []);
 
   // draw the curved path with scroll progress (sets --p on the timeline; the SVG
@@ -116,7 +182,10 @@ export function Agile() {
   React.useEffect(() => {
     const root = timelineRef.current;
     if (!root) return;
-    if (reduceMotion()) { root.style.setProperty("--p", "1"); return; }
+    if (reduceMotion()) {
+      root.style.setProperty("--p", "1");
+      return;
+    }
     let active = true;
     let lastP = "";
     let lastMeasureVersion = -1;
@@ -124,7 +193,10 @@ export function Agile() {
     const docTop = (node: HTMLElement) => {
       let top = 0;
       let n: HTMLElement | null = node;
-      while (n) { top += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      while (n) {
+        top += n.offsetTop;
+        n = n.offsetParent as HTMLElement | null;
+      }
       return top;
     };
     const collect = () => {
@@ -147,7 +219,10 @@ export function Agile() {
         }
         return;
       }
-      const p = Math.max(0, Math.min(1, (vh * 0.6 - top) / (metrics.height || 1)));
+      const p = Math.max(
+        0,
+        Math.min(1, (vh * 0.6 - top) / (metrics.height || 1)),
+      );
       const next = p.toFixed(3);
       if (next !== lastP) {
         root.style.setProperty("--p", next);
@@ -163,13 +238,17 @@ export function Agile() {
         }
       },
       write: (frame) => {
-        if (active) update(frame.scrollY, frame.viewportHeight || stableViewportHeight());
+        if (active)
+          update(frame.scrollY, frame.viewportHeight || stableViewportHeight());
       },
     });
-    const io = new IntersectionObserver(([entry]) => {
-      active = entry.isIntersecting;
-      if (active) requestHomeScrollMeasureRefresh();
-    }, { rootMargin: "120% 0px" });
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        active = entry.isIntersecting;
+        if (active) requestHomeScrollMeasureRefresh();
+      },
+      { rootMargin: "120% 0px" },
+    );
     io.observe(root);
     const ro = new ResizeObserver(() => {
       collect();
@@ -177,11 +256,27 @@ export function Agile() {
     });
     ro.observe(root);
     requestHomeScrollMeasureRefresh();
-    return () => { io.disconnect(); ro.disconnect(); unsubscribe(); };
+    return () => {
+      io.disconnect();
+      ro.disconnect();
+      unsubscribe();
+    };
   }, []);
 
   return (
-    <section id="agile" className={[s.panel, s.overlap].join(" ")} data-anim-pause style={{ background: "transparent", color: "var(--ink-text)", overflow: "hidden", padding: "120px 0", position: "relative", zIndex: 5 }}>
+    <section
+      id="agile"
+      className={[s.panel, s.overlap].join(" ")}
+      data-anim-pause
+      style={{
+        background: "transparent",
+        color: "var(--ink-text)",
+        overflow: "hidden",
+        padding: "120px 0",
+        position: "relative",
+        zIndex: 5,
+      }}
+    >
       {/* global journey: line arrives at the Agile title node, then GAPS (Agile's
           own internal line owns the middle), and resumes from the lower handoff
           node toward Contact */}
@@ -189,13 +284,29 @@ export function Agile() {
       <div className={s.wrap} style={{ position: "relative", zIndex: 1 }}>
         {/* no side nodes on the Agile title — the global line hands off directly to
             the first Agile card's node (and out of the last card's node) instead */}
-        <SectionHead nodeId="agile" nodeSides={false} tag="#AGILE_METHODOLOGY" light title="How we ship — calmly, every sprint" sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it." />
+        <SectionHead
+          nodeId="agile"
+          nodeSides={false}
+          tag="#AGILE_METHODOLOGY"
+          light
+          title="How we ship — calmly, every sprint"
+          sub="A predictable rhythm from first conversation to production. Hover any stage to see what happens inside it."
+        />
         <div className={ag.timeline} ref={timelineRef}>
           {/* mobile-only vertical rail: a single drawn line down the left, filled
               with the same --p scroll progress that draws the desktop curve */}
-          <span className={ag.rail} aria-hidden="true"><span className={ag.railFill} /></span>
+          <span className={ag.rail} aria-hidden="true">
+            <span className={ag.railFill} />
+          </span>
           {conn && (
-            <svg className={ag.connSvg} width={conn.w} height={conn.h} viewBox={`0 0 ${conn.w} ${conn.h}`} fill="none" aria-hidden="true">
+            <svg
+              className={ag.connSvg}
+              width={conn.w}
+              height={conn.h}
+              viewBox={`0 0 ${conn.w} ${conn.h}`}
+              fill="none"
+              aria-hidden="true"
+            >
               <defs>
                 <linearGradient id="agileConnGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0" stopColor="#58ABCE" />
@@ -207,7 +318,12 @@ export function Agile() {
               {/* faint dotted full path — the "track" */}
               <path className={ag.connBase} d={conn.d} />
               {/* glowing path drawn with scroll progress */}
-              <path className={ag.connDraw} d={conn.d} pathLength={1} stroke="url(#agileConnGrad)" />
+              <path
+                className={ag.connDraw}
+                d={conn.d}
+                pathLength={1}
+                stroke="url(#agileConnGrad)"
+              />
             </svg>
           )}
           {AGILE.map((st, i) => {
@@ -215,10 +331,23 @@ export function Agile() {
             // the global journey hands off into the Agile timeline: it lands on the
             // FIRST card's node, then (after the internal line) resumes from the LAST
             // card's node toward Contact.
-            const nodeAttr = i === 0 ? "agile:r" : i === AGILE.length - 1 ? "agile:exitlow" : undefined;
+            const nodeAttr =
+              i === 0
+                ? "agile:r"
+                : i === AGILE.length - 1
+                  ? "agile:exitlow"
+                  : undefined;
             return (
-              <div key={st.name} data-slot className={[ag.slot, right ? ag.right : ag.left].join(" ")}>
-                <span className={ag.connector} data-node={nodeAttr} aria-hidden="true" />
+              <div
+                key={st.name}
+                data-slot
+                className={[ag.slot, right ? ag.right : ag.left].join(" ")}
+              >
+                <span
+                  className={ag.connector}
+                  data-node={nodeAttr}
+                  aria-hidden="true"
+                />
                 <AgilePanel st={st} i={i} />
               </div>
             );

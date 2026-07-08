@@ -226,9 +226,9 @@ export function SectionConnector({
     // node's level, then a short horizontal stub into the node (and the reverse on
     // exit) — the on-screen part is only the stub, in the empty margin beside the
     // title, never over the text. Desktop (>= 1024) keeps the original diagonal.
-    const mob = w < 1036;
+    const mob = w < 1024;
     const tabletStacked = w >= 768 && w < 1024;
-    const arc = mob ? 54 : 42; // over-title bow (taller below desktop to clear the title)
+    const arc = mob ? 54 : 42;
     let nodeY: number | null = null; // entry-node local y (arrival timing)
 
     // --- build this section's piece ---
@@ -256,12 +256,22 @@ export function SectionConnector({
     } else {
       // mid / end: incoming (top lane → entry node) [+ over-title → exit node → bottom lane]
       const en = enter ? node(enter) : null;
-      if (enter && !en) return; // entry node not measurable yet
+      if (enter && !en) return;
       if (en) {
         // enterTop (tablet + desktop, w≥768): the previous section hands the journey
         // down from directly above, so drop straight onto the node instead of
         // sweeping in from the side lane. True phones (<768) keep the lane route.
-        if (enterTop && tabletStacked) {
+        if (gap && tabletStacked) {
+          const lx = laneX(enter ?? "r", w);
+          const bend = Math.min(220, w * 0.28);
+
+          push(
+            { x: lx, y: 0 },
+            { x: lx, y: en.y * 0.48 },
+            { x: en.x + bend, y: en.y },
+            en,
+          );
+        } else if (enterTop && tabletStacked) {
           const lx = laneX(enter ?? "l", w);
           const turnY = Math.max(72, en.y - Math.min(120, h * 0.18));
 
@@ -306,9 +316,11 @@ export function SectionConnector({
           // from the lower handoff node so it draws only when you reach the last card.
           const low = local(`[data-node="${sectionKey}:exitlow"]`);
           const ex =
-            mob && low
-              ? laneX(low.x < w / 2 ? "l" : "r", w)
-              : laneX(exit ?? "l", w);
+            tabletStacked
+              ? laneX(exit ?? "l", w)
+              : mob && low
+                ? laneX(low.x < w / 2 ? "l" : "r", w)
+                : laneX(exit ?? "l", w);
           if (low) {
             newStroke();
             const end = { x: ex, y: h };
@@ -372,7 +384,15 @@ export function SectionConnector({
     const strokes = strokeSegs.filter((s) => s.length).map(buildStroke);
     if (!strokes.length) return;
     setGeo({ w, h, strokes, nodeY });
-  }, [sectionKey, role, enter, exit, gap, enterTop, noExitLeg]);
+  }, [
+    sectionKey,
+    role,
+    enter,
+    exit,
+    gap,
+    enterTop,
+    noExitLeg,
+  ]);
 
   React.useLayoutEffect(() => {
     measure();
