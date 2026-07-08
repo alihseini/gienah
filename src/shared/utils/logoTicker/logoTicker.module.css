@@ -144,21 +144,22 @@
     padding: 22px 0;
   }
   .featuredRow {
-    gap: 14px 22px;
+    flex-wrap: nowrap;
+    gap: clamp(10px, 3vw, 14px);
     width: min(100% - 24px, 520px);
     margin-bottom: 8px;
   }
   .featuredItem {
-    flex: 0 1 auto;
-    padding: 0 2px;
+    flex: 0 1 calc((100% - 28px) / 3);
+    padding: 0;
   }
   .logo {
     height: 52px;
     max-width: 190px;
   }
   .featuredLogo {
-    height: 64px;
-    max-width: min(132px, 28vw);
+    height: clamp(42px, 12vw, 52px);
+    max-width: 100%;
   }
   .featuredWordmark {
     font-size: 18px;
