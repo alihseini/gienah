@@ -74,10 +74,12 @@ function interpKeys(keys: Key[], y: number): number {
 }
 
 // where a vertical lane sits, by side + viewport width. Desktop/tablet hug the
-// empty margin (on-screen); mobile pushes past the edge so the line exits/re-enters.
+// empty margin (on-screen); mobile keeps a slim visible margin lane so adjacent
+// locally-rendered connectors can hand off cleanly without horizontal overflow.
 function laneX(side: Side, w: number): number {
   if (w < 768) {
-    return side === "l" ? -0.1 * w : 1.1 * w;
+    const mobileLane = Math.max(18, w * 0.055);
+    return side === "l" ? mobileLane : w - mobileLane;
   }
 
   if (w < 1024) {
@@ -449,10 +451,20 @@ export function SectionConnector({
         last2 = next2;
       }
     };
-    const update = (vh: number) => {
+    const update = (vh: number, scrollY: number) => {
       // Sticky-hosted connectors need their current visual viewport position.
       // Geometry stays cached; this live rect only drives draw timing.
       const r = svg.getBoundingClientRect();
+      const maxScroll = Math.max(
+        0,
+        document.documentElement.scrollHeight -
+          (document.documentElement.clientHeight || vh),
+      );
+      if (role === "end" && maxScroll - scrollY <= 2) {
+        setDraw(1, 1);
+        fire();
+        return;
+      }
       if (r.bottom < -vh * 0.2) {
         setDraw(1, 1);
         fire();
@@ -477,7 +489,7 @@ export function SectionConnector({
     };
     const unsubscribe = subscribeHomeScrollFrame({
       write: (frame) => {
-        if (active) update(frame.viewportHeight || stableViewportHeight());
+        if (active) update(frame.viewportHeight || stableViewportHeight(), frame.scrollY);
       },
     });
     const io = new IntersectionObserver(
@@ -493,7 +505,7 @@ export function SectionConnector({
       io.disconnect();
       unsubscribe();
     };
-  }, [reduce, draw, draw2, geo.strokes, geo.nodeY, fire]);
+  }, [reduce, draw, draw2, geo.strokes, geo.nodeY, role, fire]);
 
   return (
     <svg

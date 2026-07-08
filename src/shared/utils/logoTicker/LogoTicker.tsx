@@ -23,8 +23,8 @@ function clamp01(value: number) {
 }
 
 function leftLaneX(width: number) {
-  if (width < 768) return -0.1 * width;
-  if (width < 1036) return -0.08 * width;
+  if (width < 768) return Math.max(18, width * 0.055);
+  if (width < 1024) return Math.max(62, Math.min(92, width * 0.1));
   const inset = width >= 1440 ? 0.07 : 0.085;
   return Math.max(34, inset * width);
 }
