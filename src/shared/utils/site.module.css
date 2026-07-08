@@ -549,36 +549,31 @@
     order: initial;
   }
 }
-/* tablet: keep the two-column alternation, tighten the gutter */
-@media (max-width: 1023px) and (min-width: 768px) {
-  .pjList {
-    gap: clamp(60px, 9vh, 120px);
-  }
-  .pjRow {
-    column-gap: clamp(26px, 4vw, 56px);
-  }
-}
 /* phones: single column, product visual ALWAYS above the text; the storyline drops into a
    thin left lane, so rows are padded left to clear the line + nodes — no overlap,
    no horizontal overflow. */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .pjList {
-    gap: 60px;
-    padding-left: 30px;
+    gap: clamp(64px, 8vh, 96px);
+    padding-left: clamp(24px, 5vw, 44px);
   }
+
   .pjRow {
     grid-template-columns: 1fr;
-    row-gap: 20px;
+    row-gap: clamp(20px, 3vw, 28px);
     transform: translateY(48px) scale(0.98);
   }
+
   .pjRow .pjMedia,
   .pjRow[data-reverse] .pjMedia {
     order: 1;
   }
+
   .pjRow .pjBody,
   .pjRow[data-reverse] .pjBody {
     order: 2;
   }
+
   .pjMediaGlow {
     width: 58%;
     height: 48%;
