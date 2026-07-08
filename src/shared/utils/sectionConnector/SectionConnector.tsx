@@ -4,7 +4,10 @@ import { motion, useMotionValue, useReducedMotion } from "motion/react";
 import c from "../../components/sections/heroSection/constellationJourney.module.css";
 import { useJourneyActivate } from "../journeyGate/JourneyGate";
 import { stableViewportHeight } from "../viewport";
-import { requestHomeScrollMeasureRefresh, subscribeHomeScrollFrame } from "../homeScrollCoordinator";
+import {
+  requestHomeScrollMeasureRefresh,
+  subscribeHomeScrollFrame,
+} from "../homeScrollCoordinator";
 
 /* SectionConnector
  *
@@ -40,12 +43,12 @@ type Props = {
   exit?: Side; // side the outgoing line departs from
   gap?: boolean; // Agile: arrive at the title node, then GAP, resume from the lower handoff node
   enterTop?: boolean; // incoming drops straight DOWN onto the entry node (from above)
-                      // instead of sweeping in from the side lane — used where the
-                      // previous section hands the journey down from directly above
-                      // (Products → Studio), so it doesn't detour out to the lane.
+  // instead of sweeping in from the side lane — used where the
+  // previous section hands the journey down from directly above
+  // (Products → Studio), so it doesn't detour out to the lane.
   noExitLeg?: boolean; // draw the over-title bow to the exit node but NOT the exit
-                       // leg down to the bottom lane — used by Products, where its
-                       // own storyline (not the global line) carries the journey on.
+  // leg down to the bottom lane — used by Products, where its
+  // own storyline (not the global line) carries the journey on.
 };
 
 type Pt = { x: number; y: number };
@@ -61,8 +64,9 @@ function interpKeys(keys: Key[], y: number): number {
   if (y <= keys[0].y) return keys[0].fr;
   for (let i = 1; i < keys.length; i++) {
     if (y <= keys[i].y) {
-      const a = keys[i - 1], b = keys[i];
-      const t = (y - a.y) / ((b.y - a.y) || 1);
+      const a = keys[i - 1],
+        b = keys[i];
+      const t = (y - a.y) / (b.y - a.y || 1);
       return a.fr + (b.fr - a.fr) * t;
     }
   }
@@ -72,19 +76,41 @@ function interpKeys(keys: Key[], y: number): number {
 // where a vertical lane sits, by side + viewport width. Desktop/tablet hug the
 // empty margin (on-screen); mobile pushes past the edge so the line exits/re-enters.
 function laneX(side: Side, w: number): number {
-  if (w < 768) return side === "l" ? -0.1 * w : 1.1 * w; // off the narrow edge (clipped)
-  if (w < 1036) return side === "l" ? -0.08 * w : 1.08 * w; // tablet/small desktop: keep long runs out of content
-  const inset = w >= 1440 ? 0.07 : w >= 1024 ? 0.085 : 0.1;
-  return side === "l" ? Math.max(34, inset * w) : Math.min(w - 34, (1 - inset) * w);
+  if (w < 768) {
+    return side === "l" ? -0.1 * w : 1.1 * w;
+  }
+
+  if (w < 1024) {
+    const tabletLane = Math.max(62, Math.min(92, w * 0.1));
+    return side === "l" ? tabletLane : w - tabletLane;
+  }
+
+  const inset = w >= 1440 ? 0.07 : 0.085;
+  return side === "l"
+    ? Math.max(34, inset * w)
+    : Math.min(w - 34, (1 - inset) * w);
 }
 
 function cubicLen(s: Seg): number {
-  let len = 0, px = s.p0.x, py = s.p0.y;
+  let len = 0,
+    px = s.p0.x,
+    py = s.p0.y;
   for (let k = 1; k <= 16; k++) {
-    const t = k / 16, mt = 1 - t;
-    const x = mt * mt * mt * s.p0.x + 3 * mt * mt * t * s.c1.x + 3 * mt * t * t * s.c2.x + t * t * t * s.p3.x;
-    const y = mt * mt * mt * s.p0.y + 3 * mt * mt * t * s.c1.y + 3 * mt * t * t * s.c2.y + t * t * t * s.p3.y;
-    len += Math.hypot(x - px, y - py); px = x; py = y;
+    const t = k / 16,
+      mt = 1 - t;
+    const x =
+      mt * mt * mt * s.p0.x +
+      3 * mt * mt * t * s.c1.x +
+      3 * mt * t * t * s.c2.x +
+      t * t * t * s.p3.x;
+    const y =
+      mt * mt * mt * s.p0.y +
+      3 * mt * mt * t * s.c1.y +
+      3 * mt * t * t * s.c2.y +
+      t * t * t * s.p3.y;
+    len += Math.hypot(x - px, y - py);
+    px = x;
+    py = y;
   }
   return len;
 }
@@ -100,7 +126,8 @@ function buildStroke(segs: Seg[]): Stroke {
   const total = lens.reduce((a, b) => a + b, 0) || 1;
   let d = `M ${segs[0].p0.x.toFixed(1)} ${segs[0].p0.y.toFixed(1)}`;
   const keys: Key[] = [{ y: segs[0].p0.y, fr: 0 }];
-  let cum = 0, yprev = segs[0].p0.y;
+  let cum = 0,
+    yprev = segs[0].p0.y;
   for (let i = 0; i < segs.length; i++) {
     const g = segs[i];
     d += ` C ${g.c1.x.toFixed(1)} ${g.c1.y.toFixed(1)}, ${g.c2.x.toFixed(1)} ${g.c2.y.toFixed(1)}, ${g.p3.x.toFixed(1)} ${g.p3.y.toFixed(1)}`;
@@ -112,7 +139,15 @@ function buildStroke(segs: Seg[]): Stroke {
   return { d, keys };
 }
 
-export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, enterTop, noExitLeg }: Props) {
+export function SectionConnector({
+  sectionKey,
+  role = "mid",
+  enter,
+  exit,
+  gap,
+  enterTop,
+  noExitLeg,
+}: Props) {
   const svgRef = React.useRef<SVGSVGElement>(null);
   const reduce = useReducedMotion();
   const onArrive = useJourneyActivate();
@@ -125,14 +160,20 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
   // geometry, measured on mount/resize only (never per scroll frame).
   // nodeY = the entry node's local y (for arrival timing). The strokes carry their
   // own Y→fraction keypoints so each draws at its own scroll position.
-  const [geo, setGeo] = React.useState<{ w: number; h: number; strokes: Stroke[]; nodeY: number | null }>({ w: 0, h: 0, strokes: [], nodeY: null });
+  const [geo, setGeo] = React.useState<{
+    w: number;
+    h: number;
+    strokes: Stroke[];
+    nodeY: number | null;
+  }>({ w: 0, h: 0, strokes: [], nodeY: null });
   const firedRef = React.useRef(false);
 
   const measure = React.useCallback(() => {
     const svg = svgRef.current;
     if (!svg) return;
     const box = svg.getBoundingClientRect();
-    const w = box.width, h = box.height;
+    const w = box.width,
+      h = box.height;
     if (!w || !h) return;
     // Measure node anchors in TRANSFORM-INDEPENDENT layout space (the offsetLeft/Top
     // chain) rather than getBoundingClientRect. A card/title entrance reveal animates
@@ -145,18 +186,28 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
     // or sticky stage). Both are layout-space, so reveal/parallax/sticky transforms
     // never shift a node out from under the line.
     const docPos = (el: HTMLElement) => {
-      let x = 0, y = 0, n: HTMLElement | null = el;
-      while (n) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      let x = 0,
+        y = 0,
+        n: HTMLElement | null = el;
+      while (n) {
+        x += n.offsetLeft;
+        y += n.offsetTop;
+        n = n.offsetParent as HTMLElement | null;
+      }
       return { x, y };
     };
     let host: HTMLElement | null = svg.parentElement;
-    while (host && getComputedStyle(host).position === "static") host = host.parentElement;
+    while (host && getComputedStyle(host).position === "static")
+      host = host.parentElement;
     const ho = docPos(host || document.body);
     const local = (sel: string): Pt | null => {
       const el = document.querySelector(sel) as HTMLElement | null;
       if (!el) return null;
       const d = docPos(el);
-      return { x: d.x + el.offsetWidth / 2 - ho.x, y: d.y + el.offsetHeight / 2 - ho.y };
+      return {
+        x: d.x + el.offsetWidth / 2 - ho.x,
+        y: d.y + el.offsetHeight / 2 - ho.y,
+      };
     };
     const node = (side: Side) => local(`[data-node="${sectionKey}:${side}"]`);
 
@@ -164,8 +215,11 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
     // Agile gap opens a SECOND stroke (the outgoing leg) so it can draw on its own
     // schedule instead of filling together with the incoming one.
     const strokeSegs: Seg[][] = [[]];
-    const push = (a: Pt, c1: Pt, c2: Pt, b: Pt) => strokeSegs[strokeSegs.length - 1].push({ p0: a, c1, c2, p3: b });
-    const newStroke = () => { strokeSegs.push([]); };
+    const push = (a: Pt, c1: Pt, c2: Pt, b: Pt) =>
+      strokeSegs[strokeSegs.length - 1].push({ p0: a, c1, c2, p3: b });
+    const newStroke = () => {
+      strokeSegs.push([]);
+    };
     // Below the desktop breakpoint (phones AND tablets, < 1024) a diagonal approach
     // to a node cuts across the title/cards, because the side lanes sit in (or past)
     // the narrow margin. Instead route an L: drop straight down the lane to the
@@ -173,6 +227,7 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
     // exit) — the on-screen part is only the stub, in the empty margin beside the
     // title, never over the text. Desktop (>= 1024) keeps the original diagonal.
     const mob = w < 1036;
+    const tabletStacked = w >= 768 && w < 1024;
     const arc = mob ? 54 : 42; // over-title bow (taller below desktop to clear the title)
     let nodeY: number | null = null; // entry-node local y (arrival timing)
 
@@ -183,11 +238,21 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
       const ex = laneX(exit ?? "l", w);
       if (!star) return;
       const end = { x: ex, y: h };
-      push(star, { x: star.x, y: star.y + (end.y - star.y) * 0.4 }, { x: ex, y: end.y - (end.y - star.y) * 0.4 }, end);
+      push(
+        star,
+        { x: star.x, y: star.y + (end.y - star.y) * 0.4 },
+        { x: ex, y: end.y - (end.y - star.y) * 0.4 },
+        end,
+      );
     } else if (role === "pass") {
       // About: a straight side-lane pass-through (no node), entering & leaving the same side
       const lx = laneX(enter ?? "l", w);
-      push({ x: lx, y: 0 }, { x: lx, y: h * 0.34 }, { x: lx, y: h * 0.66 }, { x: lx, y: h });
+      push(
+        { x: lx, y: 0 },
+        { x: lx, y: h * 0.34 },
+        { x: lx, y: h * 0.66 },
+        { x: lx, y: h },
+      );
     } else {
       // mid / end: incoming (top lane → entry node) [+ over-title → exit node → bottom lane]
       const en = enter ? node(enter) : null;
@@ -196,17 +261,42 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
         // enterTop (tablet + desktop, w≥768): the previous section hands the journey
         // down from directly above, so drop straight onto the node instead of
         // sweeping in from the side lane. True phones (<768) keep the lane route.
-        if (enterTop && w >= 768) {
+        if (enterTop && tabletStacked) {
+          const lx = laneX(enter ?? "l", w);
+          const turnY = Math.max(72, en.y - Math.min(120, h * 0.18));
+
+          push(
+            { x: lx, y: 0 },
+            { x: lx, y: turnY * 0.72 },
+            { x: Math.max(lx + 28, en.x - Math.min(80, w * 0.12)), y: en.y },
+            en,
+          );
+        } else if (enterTop && w >= 1024) {
           const top = { x: en.x, y: 0 };
-          push(top, { x: en.x - (w >= 1024 ? 30 : 18), y: en.y * 0.42 }, { x: en.x, y: en.y * 0.78 }, en); // gentle drop from above
+
+          push(
+            top,
+            { x: en.x - 30, y: en.y * 0.42 },
+            { x: en.x, y: en.y * 0.78 },
+            en,
+          );
         } else if (mob) {
-          // phones: enter from whichever edge the node actually sits nearest (a card
-          // node can be on the opposite side from the desktop journey lane).
           const lx = laneX(en.x < w / 2 ? "l" : "r", w);
-          push({ x: lx, y: 0 }, { x: lx, y: en.y * 0.55 }, { x: lx, y: en.y }, en); // down lane, then stub in
+
+          push(
+            { x: lx, y: 0 },
+            { x: lx, y: en.y * 0.55 },
+            { x: lx, y: en.y },
+            en,
+          );
         } else {
           const lx = laneX(enter as Side, w);
-          push({ x: lx, y: 0 }, { x: lx, y: en.y * 0.45 }, { x: en.x, y: en.y * 0.7 }, en);
+          push(
+            { x: lx, y: 0 },
+            { x: lx, y: en.y * 0.45 },
+            { x: en.x, y: en.y * 0.7 },
+            en,
+          );
         }
         nodeY = en.y;
       }
@@ -215,26 +305,64 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
           // Agile: the incoming leg ends at the first card; a SEPARATE stroke resumes
           // from the lower handoff node so it draws only when you reach the last card.
           const low = local(`[data-node="${sectionKey}:exitlow"]`);
-          const ex = mob && low ? laneX(low.x < w / 2 ? "l" : "r", w) : laneX(exit ?? "l", w);
+          const ex =
+            mob && low
+              ? laneX(low.x < w / 2 ? "l" : "r", w)
+              : laneX(exit ?? "l", w);
           if (low) {
             newStroke();
             const end = { x: ex, y: h };
-            if (mob) push(low, { x: ex, y: low.y }, { x: ex, y: low.y + (end.y - low.y) * 0.5 }, end); // stub out, then down lane
-            else push(low, { x: low.x, y: low.y + (end.y - low.y) * 0.4 }, { x: ex, y: end.y - (end.y - low.y) * 0.4 }, end);
+            if (mob)
+              push(
+                low,
+                { x: ex, y: low.y },
+                { x: ex, y: low.y + (end.y - low.y) * 0.5 },
+                end,
+              );
+            // stub out, then down lane
+            else
+              push(
+                low,
+                { x: low.x, y: low.y + (end.y - low.y) * 0.4 },
+                { x: ex, y: end.y - (end.y - low.y) * 0.4 },
+                end,
+              );
           }
         } else if (exit && en) {
           const exNode = enter === exit ? en : node(exit);
-          const exX = mob && exNode ? laneX(exNode.x < w / 2 ? "l" : "r", w) : laneX(exit, w);
+          const exX =
+            mob && exNode
+              ? laneX(exNode.x < w / 2 ? "l" : "r", w)
+              : laneX(exit, w);
           if (exNode) {
             // a different exit side bows over the title to the other node first; the
             // same side (About) just continues straight down from the same node.
-            if (exNode !== en) push(en, { x: en.x, y: en.y - arc }, { x: exNode.x, y: exNode.y - arc }, exNode);
+            if (exNode !== en)
+              push(
+                en,
+                { x: en.x, y: en.y - arc },
+                { x: exNode.x, y: exNode.y - arc },
+                exNode,
+              );
             // Products: keep the over-title bow but skip the exit leg — its own
             // storyline departs from this node and carries the journey onward.
             if (!noExitLeg) {
               const end = { x: exX, y: h };
-              if (mob) push(exNode, { x: exX, y: exNode.y }, { x: exX, y: exNode.y + (end.y - exNode.y) * 0.5 }, end); // stub out, then down lane
-              else push(exNode, { x: exNode.x, y: exNode.y + (end.y - exNode.y) * 0.4 }, { x: exX, y: end.y - (end.y - exNode.y) * 0.4 }, end);
+              if (mob)
+                push(
+                  exNode,
+                  { x: exX, y: exNode.y },
+                  { x: exX, y: exNode.y + (end.y - exNode.y) * 0.5 },
+                  end,
+                );
+              // stub out, then down lane
+              else
+                push(
+                  exNode,
+                  { x: exNode.x, y: exNode.y + (end.y - exNode.y) * 0.4 },
+                  { x: exX, y: end.y - (end.y - exNode.y) * 0.4 },
+                  end,
+                );
             }
           }
         }
@@ -249,26 +377,42 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
   React.useLayoutEffect(() => {
     measure();
     let t = 0;
-    const schedule = () => { window.clearTimeout(t); t = window.setTimeout(measure, 120); };
+    const schedule = () => {
+      window.clearTimeout(t);
+      t = window.setTimeout(measure, 120);
+    };
     const ro = new ResizeObserver(schedule);
     if (svgRef.current) ro.observe(svgRef.current);
     ro.observe(document.body);
     const settle = window.setTimeout(measure, 600);
-    return () => { ro.disconnect(); window.clearTimeout(t); window.clearTimeout(settle); };
+    return () => {
+      ro.disconnect();
+      window.clearTimeout(t);
+      window.clearTimeout(settle);
+    };
   }, [measure]);
 
   // scroll-linked draw: progress of THIS section through the viewport → pathLength.
   // One rAF-throttled handler, writes a MotionValue (no React state per frame).
   const fire = React.useCallback(() => {
-    if (firedRef.current || role === "start" || role === "pass" || !enter) return;
+    if (firedRef.current || role === "start" || role === "pass" || !enter)
+      return;
     firedRef.current = true;
-    document.querySelector(`[data-node="${sectionKey}:${enter}"]`)?.setAttribute("data-active", "");
-    document.querySelector(`[data-star="${sectionKey}"]`)?.setAttribute("data-active", "");
+    document
+      .querySelector(`[data-node="${sectionKey}:${enter}"]`)
+      ?.setAttribute("data-active", "");
+    document
+      .querySelector(`[data-star="${sectionKey}"]`)
+      ?.setAttribute("data-active", "");
     onArrive?.(sectionKey);
   }, [sectionKey, role, enter, onArrive]);
 
   React.useEffect(() => {
-    if (reduce) { draw.set(1); fire(); return; }
+    if (reduce) {
+      draw.set(1);
+      fire();
+      return;
+    }
     const svg = svgRef.current;
     if (!svg) return;
     let active = true;
@@ -305,7 +449,7 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
       // leg) starts at the LAST node, so it only begins once you scroll to it.
       setDraw(
         geo.strokes[0] ? interpKeys(geo.strokes[0].keys, q) : last1,
-        geo.strokes[1] ? interpKeys(geo.strokes[1].keys, q) : last2
+        geo.strokes[1] ? interpKeys(geo.strokes[1].keys, q) : last2,
       );
       // arrival fires on the ENTRY NODE's own screen position — robust for the tall
       // sticky decks where the title is pinned.
@@ -316,13 +460,19 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
         if (active) update(frame.viewportHeight || stableViewportHeight());
       },
     });
-    const io = new IntersectionObserver(([entry]) => {
-      active = entry.isIntersecting;
-      if (active) requestHomeScrollMeasureRefresh();
-    }, { rootMargin: "120% 0px" });
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        active = entry.isIntersecting;
+        if (active) requestHomeScrollMeasureRefresh();
+      },
+      { rootMargin: "120% 0px" },
+    );
     io.observe(svg);
     requestHomeScrollMeasureRefresh();
-    return () => { io.disconnect(); unsubscribe(); };
+    return () => {
+      io.disconnect();
+      unsubscribe();
+    };
   }, [reduce, draw, draw2, geo.strokes, geo.nodeY, fire]);
 
   return (
@@ -337,7 +487,13 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
       {geo.strokes.length > 0 && (
         <>
           <defs>
-            <linearGradient id={`cjg-${sectionKey}`} x1="0" y1="0" x2="0" y2="1">
+            <linearGradient
+              id={`cjg-${sectionKey}`}
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
               {role === "start" ? (
                 <>
                   {/* originates from the bright hero star: subtle/faded at the star,
@@ -357,10 +513,22 @@ export function SectionConnector({ sectionKey, role = "mid", enter, exit, gap, e
           </defs>
           {geo.strokes.map((st, i) =>
             reduce ? (
-              <path key={i} className={c.draw} d={st.d} stroke={`url(#cjg-${sectionKey})`} pathLength={1} />
+              <path
+                key={i}
+                className={c.draw}
+                d={st.d}
+                stroke={`url(#cjg-${sectionKey})`}
+                pathLength={1}
+              />
             ) : (
-              <motion.path key={i} className={c.draw} d={st.d} stroke={`url(#cjg-${sectionKey})`} style={{ pathLength: i === 0 ? draw : draw2 }} />
-            )
+              <motion.path
+                key={i}
+                className={c.draw}
+                d={st.d}
+                stroke={`url(#cjg-${sectionKey})`}
+                style={{ pathLength: i === 0 ? draw : draw2 }}
+              />
+            ),
           )}
         </>
       )}
