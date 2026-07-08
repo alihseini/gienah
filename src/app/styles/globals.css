@@ -31,9 +31,6 @@ html {
   background-color: #050b14 !important;
   background: #050b14 !important;
   color-scheme: dark;
-  overscroll-behavior-y: none;
-
-  /* App-matched scrollbar (Firefox): brand-blue thumb on a dark track. */
   scrollbar-width: thin;
   scrollbar-color: rgba(88, 171, 206, 0.55) #0a1322;
 }
@@ -48,10 +45,6 @@ body {
   color-scheme: dark;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  overscroll-behavior-y: none;
-
-  /* the constellation overlay can bow past the viewport edge; never let that
-     surface a horizontal scrollbar. */
   overflow-x: hidden;
 }
 
