@@ -9,6 +9,8 @@ import { LogoTicker } from "./logoTicker/LogoTicker";
 import { JourneyGate, JourneyActivateProvider } from "./journeyGate/JourneyGate";
 import { Hero } from "../components/sections/heroSection/HeroSection";
 import { HomeStarBackdrop } from "./homeStarBackdrop/HomeStarBackdrop";
+import { HomepageLoader } from "./homepageLoader/HomepageLoader";
+import { useHomepageInitialReady } from "./homepageLoader/useHomepageInitialReady";
 import { useVisualBudget } from "./visualBudget";
 import { isMobileOrPortraitTablet, stableViewportHeight } from "./viewport";
 import {
@@ -50,6 +52,7 @@ type JourneySectionKey = (typeof JOURNEY_SECTION_KEYS)[number];
 
 export function SiteApp() {
   const visualBudget = useVisualBudget();
+  const initialReady = useHomepageInitialReady();
   useOffscreenPause();
   useLayerChoreography();
   useSectionEntrance();
@@ -148,7 +151,7 @@ export function SiteApp() {
 
   return (
     <JourneyActivateProvider activate={activate}>
-      <div className={s.site} data-visual-budget={visualBudget}>
+      <main className={s.site} data-visual-budget={visualBudget} aria-busy={!initialReady}>
         <HomeStarBackdrop visualBudget={visualBudget} />
         <ScrollProgress />
         <Nav />
@@ -166,7 +169,8 @@ export function SiteApp() {
         <span ref={setEarlyRevealRef("contact")} data-journey-reveal="contact" aria-hidden="true" style={prewarmMarkerStyle} />
         <JourneyGate ready={!!active.contact}><Contact /></JourneyGate>
         <Footer />
-      </div>
+      </main>
+      <HomepageLoader visible={!initialReady} />
     </JourneyActivateProvider>
   );
 }

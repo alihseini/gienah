@@ -9,8 +9,8 @@ import { useJourneyReady } from "../journeyGate/JourneyGate";
  * Small, isolated client components for viewport-entrance reveals, staggered
  * content, and hover/tap feedback. They deliberately do NOT touch the
  * scroll-coupled systems (parallax / sticky decks / layer choreography), which
- * stay hand-rolled rAF + CSS, nor the CSS-module backgrounds, glows, starfields
- * or Three.js visuals.
+ * stay hand-rolled rAF + CSS, nor the CSS-module backgrounds, glows, or
+ * starfields.
  *
  * House rules baked in:
  *  - Animate ONLY opacity + transform (no top/left/width/height).

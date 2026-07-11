@@ -1,78 +1,104 @@
-# Gienah — Next.js + CSS Modules
+# Gienah
 
-A production implementation of the **Gienah Design System** export (`../project/`), built
-with **Next.js (App Router) + TypeScript + CSS Modules**. It recreates, pixel-for-pixel,
-the three surfaces the design was iterated into:
+Gienah is a digital product studio website built with Next.js. The project presents the studio's services, featured work, delivery process, company story, open roles, and contact information, with supporting project detail pages and a product-style landing/dashboard route.
 
-1. **Marketing story-scroll site** (`/`) — dark cinematic hero with an animated mesh
-   background, a sticky scroll-stack **Services** showcase, a stepped sticky **Products**
-   carousel, a flowing **More from the studio** list, an **Agile methodology** section with
-   a real Three.js light-pillar background, **About**, **Careers**, and a **Contact**
-   section with a brand particle-halo canvas and scroll-linked scale reveal.
-2. **Case-study detail pages** (`/projects/[id]`) — banner, overview, at-a-glance, and a
-   screenshot grid, wired with the real project screenshots.
-3. **Product landing** (`/landing`) — login → dashboard (overview, deployments,
-   observability, storage, settings) composed from the design-system primitives.
+## Main Routes And Sections
 
-## Getting started
+- `/` - marketing homepage with hero, technology ticker, Services, featured Projects, More from the studio, Agile methodology, About, Contact, and Footer sections.
+- `/projects/[id]` - statically generated project detail pages driven by product data and local images.
+- `/careers` - careers page with open roles from shared site content.
+- `/landing` - product landing flow with login and dashboard screens.
+
+## Tech Stack
+
+- Next.js App Router
+- React 19
+- TypeScript
+- CSS Modules with global design tokens
+- Motion for in-view and animation helpers
+- Lucide React icons
+- Native Canvas 2D for the star-field background
+
+## Getting Started
+
+This repository includes a `yarn.lock` file.
 
 ```bash
-npm install
-npm run dev        # http://localhost:3000
-npm run build && npm start
+yarn install
+yarn dev
 ```
 
-## Editing content (no code changes needed)
+The local development server runs at `http://localhost:3000` by default.
 
-All copy, data, and image mappings live in editable JSON under `src/data/`:
+The package scripts can also be run with npm:
 
-| File | Drives |
-| --- | --- |
-| `products.json` | Featured + "more" products, case-study copy, and **image paths** (`banner`, `shots`). Set `featured: true` to put a product in the homepage carousel. Point `banner`/`shots` at any file in `public/uploads/` (or `null`/`[]` to fall back to a branded placeholder frame). |
-| `services.json` | The four Services scroll-stack panels. |
-| `agile.json` | Agile methodology stages. |
-| `site.json` | Brand name, contact email, nav links, marquee items, hero copy + stats, open roles, About copy + stats. |
-| `landing.json` | Landing org/user, deployments, metrics, charts, storage, settings toggles. |
-
-Images live in `public/uploads/` and `public/assets/logo-mark.png`. Drop new screenshots
-in `public/uploads/` and reference them from `products.json`.
-
-## Architecture
-
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
 ```
+
+## Build
+
+```bash
+npm run build
+```
+
+To run the production build locally after building:
+
+```bash
+npm run start
+```
+
+## Project Structure
+
+```text
 src/
   app/
-    globals.css            # imports tokens + fonts (global); global @keyframes
-    layout.tsx, page.tsx   # root layout + marketing home
-    projects/[id]/         # case-study route (SSG via generateStaticParams)
-    landing/               # product landing route
-  components/              # 17 design-system primitives (.tsx) + ds.module.css
-  site/                    # marketing-site pieces (sections, Nav, LightPillar,
-                           #   ParticleField, helpers/hooks) + site.module.css
-  styles/tokens/           # design tokens (colors, type, spacing, elevation, motion, fonts)
-  data/                    # editable JSON content
+    layout.tsx
+    page.tsx
+    styles/globals.css
+    careers/
+    landing/
+    projects/[id]/
+  shared/
+    components/          Reusable UI primitives and section components
+    data/                Editable JSON content for the site and routes
+    utils/               Homepage shell, navigation, visual effects, hooks, helpers
+  styles/tokens/         Global CSS tokens for color, type, spacing, motion, and fonts
+
+public/
+  assets/                Brand assets
+  banners/               Project banner imagery
+  logos/                 Partner and project logos
+  mockups/               Homepage mockups
+  */                     Project screenshot folders
 ```
 
-### Styling approach (CSS Modules)
+## Content
 
-- **Design tokens** (CSS custom properties) and **`@font-face`/`@keyframes`** are global
-  (`globals.css` + `styles/tokens/`) — they have to be, and inline styles reference some
-  keyframes by name.
-- **Everything else is a CSS Module**: every primitive is backed by `components/ds.module.css`;
-  the marketing site's section/animation styling lives in `site/site.module.css`; each route
-  has its own `*.module.css`.
-- The marketing site re-themes the design tokens to its dark cinematic palette by scoping the
-  overrides to the `.site` wrapper class — the same primitives render light in the landing and
-  on the case-study pages.
-- JS-driven scroll state (section entrance, off-screen animation pausing) uses **data
-  attributes** (`data-sx`, `data-shown`, `data-paused`) so it survives CSS-module class hashing.
+Most site content is stored in JSON files under `src/shared/data/`:
 
-## Notes & substitutions (carried over from the design system)
+- `site.json` - brand metadata, navigation, hero copy, careers roles, and About content.
+- `services.json` - Services section content.
+- `products.json` - featured projects, more projects, project detail copy, banners, screenshots, and logos.
+- `agile.json` - Agile methodology stages.
+- `landing.json` - landing/dashboard data.
+- `partners.json` - partner/logo ticker data.
 
-- **Fonts**: Geist + Geist Mono via the Google Fonts CDN (`styles/tokens/fonts.css`).
-  Self-host the `.woff2` files for production.
-- **Icons**: `lucide-react` (the design's chosen substitution for a brand icon set).
-- **Brand colors** are sampled from the logo: azure `#2A92CC`, gold `#E2AA3B`
-  (with `#58ABCE` / `#F4C65F` light variants used in the motion system).
-- The Three.js **LightPillar** is a faithful port of the ReactBits shader, colors set to brand
-  blue/gold; it pauses rendering when scrolled off-screen and honors `prefers-reduced-motion`.
+Images live under `public/` and are referenced from the JSON data by public paths.
+
+## Visual System
+
+The site uses a dark cinematic visual system on the marketing pages and lighter surfaces for project and landing screens. Styling is split between global design tokens and CSS Modules. Scroll-linked reveals, section connectors, sticky section choreography, and in-view light accents are implemented with React, CSS, SVG, IntersectionObserver, ResizeObserver, and Motion helpers.
+
+The homepage star background is implemented with the native Canvas 2D API in `src/shared/utils/starfield/StarField.tsx`, mounted through `HomeStarBackdrop`. It supports reduced-motion behavior, visual-budget adjustments, parallax drift, twinkling stars, and optional constellation/shooting-star details.
+
+## Development Notes
+
+- `src/shared/utils/SiteApp.tsx` composes the marketing homepage and lazy-loads heavier sections.
+- `src/shared/utils/homepagePrewarm.ts` prewarms homepage sections based on viewport proximity and visual budget.
+- `src/shared/utils/visualBudget.ts` and `src/shared/utils/viewport.ts` tune animation and Canvas work for device capability.
+- `src/shared/components/sections/` contains the homepage section implementations.
+- `src/shared/components/` contains reusable UI primitives such as buttons, cards, inputs, tabs, badges, dialogs, switches, and tooltips.
