@@ -13,8 +13,20 @@ import site from "@/shared/data/site.json";
 /* ---------------- hero ---------------- */
 export function Hero() {
   return (
-    <section id="top" className={s.page} data-anim-pause style={{ overflow: "hidden", padding: "172px 0 110px", position: "relative", zIndex: 0 }}>
-      <GienahLight pos="corner" tone="mixed" size="md" flare twinkle />
+    <section id="top" className={`${s.page} ${c.heroRoot}`} data-anim-pause style={{ overflow: "hidden", padding: "172px 0 110px", position: "relative", zIndex: 0 }}>
+      <GienahLight
+        pos="corner"
+        tone="mixed"
+        size="md"
+        flare
+        twinkle
+        style={
+          {
+            "--x": "var(--hero-story-anchor-x)",
+            "--y": "var(--hero-story-anchor-y)",
+          } as React.CSSProperties
+        }
+      />
       {/* the constellation journey begins from this Hero star, then this section's
           connector draws the first leg down toward Services (behind the content) */}
       <span data-node="hero:star" className={c.heroStar} aria-hidden="true" />

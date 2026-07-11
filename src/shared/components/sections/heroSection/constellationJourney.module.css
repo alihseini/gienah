@@ -36,15 +36,20 @@
 .star {
   pointer-events: none;
 }
+.heroRoot {
+  --hero-story-anchor-x: 14%;
+  --hero-story-anchor-y: clamp(470px, calc(70svh + 100px), 720px);
+}
+
 /* The journey's start anchor. It is INVISIBLE — just a measuring point placed on
    top of the existing bright GienahLight hero star (pos="corner" → left:14% top:70%)
    so the line appears to originate from that real star rather than an extra one. */
 .heroStar {
   position: absolute;
-  top: 70%;
-  left: 14%;
-  width: 2px;
-  height: 2px;
+  top: var(--hero-story-anchor-y);
+  left: var(--hero-story-anchor-x);
+  width: 0;
+  height: 0;
   pointer-events: none;
   z-index: 0;
 }
@@ -223,9 +228,9 @@
   .nodeR { right: -26px; }
 }
 @media (max-width: 767px) {
-  .heroStar {
-    top: clamp(570px, 82svh, 760px);
-    left: 5%;
+  .heroRoot {
+    --hero-story-anchor-x: 5%;
+    --hero-story-anchor-y: clamp(570px, 82svh, 760px);
   }
   .node { width: 11px; height: 11px; margin-top: -5.5px; }
   .nodeL { left: -18px; }
