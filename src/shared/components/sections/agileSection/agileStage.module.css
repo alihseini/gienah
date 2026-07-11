@@ -230,7 +230,11 @@
 .rail { display: none; }
 
 @media (max-width: 860px) {
-  .timeline { gap: 30px; padding-left: 34px; }
+  .timeline {
+    --agile-mobile-rail-shift-x: clamp(8px, 2.6vw, 12px);
+    gap: 30px;
+    padding-left: 34px;
+  }
   .slot { width: 100%; align-self: stretch; }
   .right, .left { transform: translateY(60px); }
   .panel { grid-template-columns: 1fr; }
@@ -242,7 +246,7 @@
   .rail {
     display: block;
     position: absolute;
-    left: 11px;
+    left: calc(11px - var(--agile-mobile-rail-shift-x));
     /* span exactly first node → last node (set from JS); fall back to near-full */
     top: var(--rail-top, 4px);
     bottom: var(--rail-bottom, 4px);
@@ -265,7 +269,7 @@
   /* nodes sit on the rail at the top of each card and light up when revealed */
   .connector { display: block; top: 30px; margin-top: 0; }
   .right .connector, .left .connector {
-    left: -28px;
+    left: calc(-28px - var(--agile-mobile-rail-shift-x));
     right: auto;
   }
 }
