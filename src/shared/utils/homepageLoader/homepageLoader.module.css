@@ -10,7 +10,11 @@
   pointer-events: auto;
   touch-action: none;
   background:
-    radial-gradient(circle at 50% 46%, rgba(88, 171, 206, 0.12), transparent 34%),
+    radial-gradient(
+      circle at 50% 46%,
+      rgba(88, 171, 206, 0.12),
+      transparent 34%
+    ),
     #050b14;
   opacity: 1;
   transition: opacity 350ms var(--ease-out);
@@ -55,7 +59,7 @@
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
-  animation: revealRecovery 180ms var(--ease-out) 23s forwards;
+  animation: revealRecovery 180ms var(--ease-out) 55s forwards;
 }
 
 .noScriptRecovery {
@@ -171,7 +175,12 @@
   width: 52%;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, rgba(88, 171, 206, 0.892), rgba(88, 171, 206, 0.9), rgba(244, 198, 95, 0));
+  background: linear-gradient(
+    90deg,
+    rgba(88, 171, 206, 0.892),
+    rgba(88, 171, 206, 0.9),
+    rgba(244, 198, 95, 0)
+  );
   transform: translateX(-110%);
   animation: loaderLine 1.25s var(--ease-in-out) infinite;
 }
