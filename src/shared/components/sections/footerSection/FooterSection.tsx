@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Icon } from "@/shared/components";
+// import { Icon } from "@/shared/components";
 import { siteStyles as s, go } from "@/shared/utils/helpers";
 import site from "@/shared/data/site.json";
 
@@ -23,9 +23,11 @@ export function Footer() {
             )
           )}
         </div>
+        {/* Social links are hidden until their URLs are available.
         <div style={{ display: "flex", gap: 16 }}>
           {["instagram", "linkedin", "github"].map((n) => <a key={n} href="#" style={{ color: "var(--text-tertiary)" }}><Icon name={n} size={19} /></a>)}
         </div>
+        */}
       </div>
       <div className={s.wrap} style={{ marginTop: 28, paddingTop: 22, borderTop: "1px solid var(--border-subtle)", fontSize: 13, color: "var(--text-tertiary)" }}>© 2026 Gienah. Creating digital experiences beyond your expectations.</div>
     </footer>
